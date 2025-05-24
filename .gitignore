@@ -1,4 +1,5 @@
 # Therion build artefacts
+.xtherion.dat
 *.log
 *.3d
 *.pdf

@@ -1,0 +1,17 @@
+encoding  utf-8
+# Created with SexyTopo 1.8.4 on 2025-05-22
+
+
+layout local
+  debug off
+  # map-header 0 0 off
+  # symbol-hide group cave-centreline
+endlayout
+
+source "Tarddiad.th"
+
+export model -fmt survex -o "Tarddiad-th.3d"
+
+export map -proj plan -layout local -o "Tarddiad-plan.pdf"
+
+export map -proj extended -layout local -o "Tarddiad-ee.pdf"

@@ -1,0 +1,13 @@
+encoding  utf-8
+survey Tardiadd -title "Tarddiad Pwll Du"
+
+input Tarddiad/Tarddiad.th
+input Tarddiad2/Tarddiad2.th
+input Tarddiad-lower/Tarddiad-lower.th
+
+equate 53@Tarddiad 56@Tarddiad2
+equate 64@Tarddiad2 65@Tarddiad-lower
+
+
+endsurvey
+

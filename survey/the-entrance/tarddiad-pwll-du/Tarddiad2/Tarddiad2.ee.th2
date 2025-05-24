@@ -1,0 +1,27 @@
+encoding utf-8
+
+##XTHERION## xth_me_area_adjust -1259.84 -1653.54 4566.93 1181.10
+##XTHERION## xth_me_image_insert {0.0 1 1.0} {0.0 56} "Tarddiad2.ee.xvi" 0 {}
+##XTHERION## xth_me_area_zoom_to 25
+
+scrap tarddiad2-ee -projection extended
+
+point 656.5724 76.12792 station -name 57
+
+point 1210.2227 52.67 station -name 58
+
+point 1977.921 -16.85236 station -name 59
+
+point 2184.4224 -67.84243 station -name 60
+
+point 2243.2021 -392.832 station -name 61
+
+point 2517.7485 -295.82324 station -name 62
+
+point 3038.7463 -397.29425 station -name 63
+
+point 3125.725 -433.73633 station -name 64
+
+point 3269.8333 -814.9955 station -name 65
+
+endscrap

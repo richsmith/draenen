@@ -1,0 +1,19 @@
+encoding  utf-8
+source tarddiad.th
+
+layout local
+  doc-author "Rich Smith"
+  debug off
+   symbol-set BCRA
+  # map-header 0 0 off
+  symbol-hide group cave-centreline
+  
+  #code metapost
+  #def a_water (expr p) =
+  #  T:=identity;
+  #   thfill p withcolor (0.1, 0.2, 0.8);
+  # enddef;
+  # endcode
+endlayout
+
+export map -proj plan -layout local -o "Tarddiad-plan.pdf"
