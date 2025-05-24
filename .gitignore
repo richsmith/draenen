@@ -1,0 +1,8 @@
+# Therion build artefacts
+*.log
+*.3d
+*.pdf
+
+# SexyTopo files
+*.autosave
+*.autosave*
