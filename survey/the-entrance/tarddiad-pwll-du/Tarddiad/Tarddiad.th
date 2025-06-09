@@ -13,8 +13,8 @@ input "Tarddiad.ee.th2"
 	
 		date 2024.10.26
 		team "Rich Smith" notes
-		team "Dickon " instruments
-		team "Rufus" assistant
+		team "Dickon Morris" instruments
+		team "Ruth Allan" assistant
 		
 		data normal from to length compass clino
 		

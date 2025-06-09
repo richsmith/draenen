@@ -53,19 +53,48 @@ point -172.61546 1034.0155 station -name 64
 
 point -74.20174 928.7449 station -name 65
 
-point -787.4754 1510.9147 label -text " ladder " -scale l
+point -763.4754 1509.9147 label -text "Fixed ladder " -scale m
 
-point -868.5201 1739.979 label -text " wfall " -scale l
+line floor-step -reverse on
+  -349.0 1782.0
+  -349.0 1782.0 -316.0 1792.0 -308.0 1716.0
+  -300.0 1640.0 -321.0 1595.0 -311.0 1549.0
+  -301.0 1503.0 -289.0 1436.0 -238.0 1404.0
+endline
 
-point -694.84515 756.61334 label -text " ladder " -scale l
+line rock-border -close on
+  -221.0 1271.0
+  -221.0 1271.0 -235.0 1249.0 -218.0 1245.0
+  -201.0 1241.0 -199.0 1242.0 -196.0 1258.0
+  -193.0 1274.0 -183.0 1284.0 -197.0 1285.0
+  -211.0 1286.0 -221.0 1271.0 -221.0 1271.0
+  smooth off
+endline
 
-point -191.26817 923.80585 water-flow -orientation 12.948494 -scale xl
+line rock-border -close on
+  -195.0 1356.0
+  -195.0 1356.0 -225.0 1358.0 -228.0 1338.0
+  -231.0 1318.0 -241.0 1291.0 -209.0 1298.0
+  -177.0 1305.0 -185.0 1322.0 -181.0 1329.0
+  -169.2 1349.65 -195.0 1356.0 -195.0 1356.0
+  smooth off
+endline
+
+point -817.0 1626.0 label -text "Waterfall"
+
+point -583.5201 1658.979 water-flow -orientation 141.9
+
+point -167.26817 953.80585 water-flow -orientation 355.4 -scale xl
 
 endscrap
 
 
 
 scrap tarddiad2-plan-lower -scale [-2047.24 -866.14 1181.10 -866.14 0.0 0.0 81.999836 0.0 m]
+
+point 120.0 1017.0 label -text "Fixed ladder"
+
+point -74.0 896.0 fixed-ladder
 
 line wall -reverse on
   -388.0 1703.0
@@ -75,6 +104,7 @@ line wall -reverse on
   -377.0 1393.0 -368.0 1327.0 -335.0 1274.0
   -302.0 1221.0 -176.0 1091.0 -132.0 1048.0
   -88.0 1005.0 -69.0 974.0 -42.0 957.0
+  smooth off
 endline
 
 point -497.0 1527.0 fixed-ladder
@@ -100,6 +130,7 @@ line floor-step -reverse on
   -582.0 1569.0
   -582.0 1569.0 -538.0 1644.0 -503.0 1660.0
   -468.0 1676.0 -442.0 1698.0 -420.0 1704.0
+  smooth off
 endline
 
 point -602.8697 1771.3066 station -name 61
