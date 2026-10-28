@@ -28,7 +28,7 @@ REPO = 'https://github.com/richsmith/draenen'
 OUCC = 'https://www.oucc.org.uk/surveys/surveys%20and%20data%20-%20draenen/survex/draenen_survex_data.htm'
 DATA = [
     ('draenen-plan.pdf', 'The plan', 'The survey at 1:5000, drawn in Therion: the centreline, the drawn passages, the passage names and the entrances.'),
-    ('draenen.3d', 'The survey, processed by Therion', 'Survex 3D file of the whole cave. Open it in Aven. The 3D view and the routes are made from it (moved onto the National Grid at the entrance).'),
+    ('draenen.3d', 'The survey, processed by Therion', 'Survex 3D file of the whole cave. Open it in Aven. The 3D view and the routes are made from it. Fixed on the National Grid at the entrance, heights above sea level.'),
 ]
 # ready-made routes on the landing page, from the entrance
 ROUTES = ['Big Country', 'Life on Mars', 'Waterfall Series', 'Gilwern Passage', 'Megadrive', 'The Score',

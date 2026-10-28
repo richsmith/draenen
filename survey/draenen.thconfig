@@ -15,8 +15,14 @@ layout local
   map-comment "Survey data: the Grade 2 survey of Ogof Draenen by Oxford University Cave Club and the clubs and cavers named in its files (to 2003), with newer surveys by the teams below. Compiled in Therion by Rich Smith."
   doc-author "Rich Smith; survey data Oxford University Cave Club and others"
   scale 1 5000
+  # Coloured by altitude: the drawings, and the ribbon along the centreline
+  # (survey/plan.th), with the colours' key in the header
+  colour map-fg altitude
+  colour-legend smooth
   doc-title "Ogof Draenen"
 endlayout
 
 export model -fmt survex -o "draenen.3d"
+# The stations and their surveys, for tools/plan.py to refer to them by
+export database -o "draenen-stations.sql"
 export map -proj plan -layout local -o "draenen-plan.pdf"

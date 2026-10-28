@@ -21,10 +21,10 @@ import re
 SURVEY = 'survey/draenen.3d'
 NAMES = 'survey/names.json'
 ENTRANCE = 'draenen.entrance.entrance-series.entrance.0'
-# The survey is in its own local coordinates, with the entrance at 0 0 0.
-# OUCC fixed the same station at this point on the National Grid, in the SO
-# 100 km square, in their processed survey (OD2.3d, 2003); moving the survey
-# there puts it on the grid without touching its shape.
+# Where OUCC fixed the entrance station on the National Grid, in the SO 100 km
+# square, in their processed survey (OD2.3d, 2003). The survey fixes it there
+# too (survey/entrance/entrance.th), without a coordinate system, so its shape
+# is untouched; on_grid moves it there all the same, should it not be.
 FIX = (24650.0, 11750.0, 380.0)
 
 

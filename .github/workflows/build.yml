@@ -17,13 +17,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends therion
 
-      # Twice: the names on the plan are placed at stations chosen from the
-      # built survey (tools/plannames.py), so the first build is without them.
+      # Twice: the plan's colour and names are scraps made from the built
+      # survey (tools/plan.py), so the first build is without them.
       - name: Build PDF and 3D model
         run: |
-          python3 -m tools.plannames --empty
+          python3 -m tools.plan --empty
           (cd survey && therion draenen.thconfig)
-          python3 -m tools.plannames
+          python3 -m tools.plan
           (cd survey && therion draenen.thconfig)
 
       # The landing page, the 3D view and the route planner, from the .3d.
