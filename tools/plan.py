@@ -7,12 +7,13 @@ Most of the cave is Grade 2 centreline, with no drawing, and Therion
 colours only scraps, not survey lines. So survey/plan.th has two maps of
 scraps made from the centreline:
 
-colour-plan  a ribbon a few metres wide along the centreline, cut into
-             short pieces, each a scrap pinned to its stations, with an
-             outline that isn't drawn: coloured by altitude (colour
-             map-fg altitude in the layout), the highest on top, so
-             passages crossing each other stand apart. Not where a
-             survey has drawings of its own.
+colour-plan  the centreline cut into short pieces, each a scrap pinned to
+             its stations with the piece as a line u:ribbon, which the
+             layout draws as a wide band with round ends in the scrap's
+             colour (colour map-fg altitude: by altitude), so the pieces
+             meet seamlessly, centred on the line, the highest on top, and
+             passages crossing each other stand apart. Not where a survey
+             has drawings of its own.
 names-plan   the passage names, each at the station nearest the middle of
              the passage's surveys (as in the 3D view, from tools/names.py),
              as a remark (the drawings' own labels are hidden at this
@@ -42,7 +43,6 @@ SCALE = 'xl'      # the size of the names on the plan
 # how much of the plan a name of that size covers, in metres at 1:5000
 # (for leaving out the names that would overlap others)
 CHAR, LINE = 9.0, 14.0
-WIDTH = 7.0       # the ribbon's width, metres (1.4 mm at 1:5000)
 PIECE = 40.0      # the longest piece of ribbon, metres, so its colour follows the altitude
 
 
@@ -126,33 +126,6 @@ def pieces(legs, stations, skip):
     return [[(name.get(k), pos[k]) for k in piece] for piece in out]
 
 
-def ribbon(pts, w=WIDTH):
-    """The outline of a ribbon w wide along a path in plan: one side out, the
-    other back, carried on half its width past each end, so the pieces
-    overlap where they meet."""
-    def past(p, q):
-        L = math.dist(p, q) or 1
-        return (p[0] + (p[0] - q[0]) / L * w / 2, p[1] + (p[1] - q[1]) / L * w / 2)
-    pts = [past(pts[0], pts[1]), *pts[1:-1], past(pts[-1], pts[-2])]
-    left, right = [], []
-    for i, p in enumerate(pts):
-        a, b = pts[max(0, i - 1)], pts[min(len(pts) - 1, i + 1)]
-        t = (b[0] - a[0], b[1] - a[1])
-        L = math.hypot(*t) or 1
-        nx, ny = -t[1] / L, t[0] / L
-        # mitred through the bends, so the ribbon keeps its width
-        m = 1
-        if 0 < i < len(pts) - 1:
-            u = (p[0] - a[0], p[1] - a[1])
-            lu = math.hypot(*u)
-            if lu:
-                m = 1 / max(0.5, (u[0] * t[0] + u[1] * t[1]) / (lu * L))
-        h = w / 2 * m
-        left.append((p[0] + nx * h, p[1] + ny * h))
-        right.append((p[0] - nx * h, p[1] - ny * h))
-    return left + right[::-1]
-
-
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('--empty', action='store_true', help='just the entrance (for the first build)')
@@ -171,10 +144,10 @@ def main():
             stns = list(dict.fromkeys(n for n, p in piece if n in ref))
             if not stns:
                 continue
-            outline = ''.join(f'    {x:.2f} {y:.2f}\n' for x, y in ribbon([p[:2] for p in pts]))
+            line = ''.join(f'    {p[0]:.2f} {p[1]:.2f}\n' for p in pts)
             colour_scraps.append(''.join(f'  point {p[0]:.2f} {p[1]:.2f} station -name {ref[n]}\n'
                                          for n, p in dict((n, p) for n, p in piece if n in ref).items())
-                                 + f'  line wall -close on -visibility off\n{outline}  endline\n')
+                                 + f'  line u:ribbon\n{line}  endline\n')
 
         ents = [(n, *names.entrance(n)) for n, p, f in stations if f & 4]
         at = {n: p for n, p, f in stations}

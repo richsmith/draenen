@@ -19,6 +19,15 @@ layout local
   # (survey/plan.th), with the colours' key in the header
   colour map-fg altitude
   colour-legend smooth
+  # The ribbon: 1.4 mm wide (7 m at 1:5000), round at the ends and bends,
+  # in its scrap's colour (Therion sets background to it for each scrap)
+  code metapost
+    def l_u_ribbon (expr P) =
+      T:=identity;
+      draw P withpen pencircle scaled 1.4mm withcolor background;
+    enddef;
+    initsymbol("l_u_ribbon");
+  endcode
   doc-title "Ogof Draenen"
 endlayout
 

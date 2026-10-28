@@ -34,9 +34,10 @@ entrances are flagged in the survey (`station … entrance`).
 ## The plan's colour and names
 
 The plan is coloured by altitude. Therion colours scraps, not survey
-lines, so `survey/plan.th` has a ribbon along the centreline, in short
-pieces, each a scrap with an outline that isn't drawn, coloured by its
-altitude, the highest on top. It also has the passage names, each at the
+lines, so `survey/plan.th` has the centreline in short pieces, each a
+scrap with the piece as a line `u:ribbon`, which the layout
+(`draenen.thconfig`) draws as a band 1.4 mm wide with round ends in the
+scrap's colour: by altitude, the highest on top. It also has the passage names, each at the
 station nearest the middle of its passage, and the entrances. Surveys
 with drawings of their own get no ribbon.
 
