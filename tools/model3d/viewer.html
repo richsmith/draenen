@@ -428,6 +428,13 @@ $('chips').innerHTML = [
   `<span class="chip">${S.grid_ref}</span>`,
   `<span class="chip off" id="offline"></span>`,
 ].join('');
+// -- pinching -----------------------------------------------------------------------------
+// A pinch anywhere zooms the 3D view, never the page: on the panels over it
+// the browser would zoom the whole page instead (and iOS springs it back).
+// One finger still scrolls the panels.
+document.addEventListener('touchmove', e => { if (e.touches.length > 1 && e.target !== canvas) e.preventDefault(); }, { passive: false });
+for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev, e => e.preventDefault());
+
 // -- offline ------------------------------------------------------------------------------
 // The service worker keeps the page for use with no signal; the chip says
 // whether it has. It needs https or localhost (not a computer's address on
@@ -445,7 +452,14 @@ if ('serviceWorker' in navigator && isSecureContext && !STILL) {
   setOffline('saving');
   const check = async () => setOffline(navigator.serviceWorker.controller && await caches.match('terrain.bin', { ignoreSearch: true }) ? 'ready' : 'saving');
   navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(check).catch(() => setOffline('none'));
-  navigator.serviceWorker.addEventListener('controllerchange', check);
+  // a new version taking over from the one this page came from: load it
+  // (once), so a phone doesn't go on with the old one; the address keeps
+  // the route and the step
+  const had = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (had && !reloaded) { reloaded = true; location.reload(); } else check();
+  });
 } else setOffline('none');
 const zTop = Math.max(st.top, S.terrain.max), zBot = st.bottom;
 const alt01 = z => (z - zBot) / (st.top - zBot);
