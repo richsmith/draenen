@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -27,3 +29,19 @@ jobs:
             survey/draenen.3d
             survey/therion.log
           if-no-files-found: error
+
+      # Keep a rolling "latest" release on main so the outputs have stable public URLs.
+      - name: Publish latest release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git tag -f latest
+          git push -f origin latest
+          notes="Built from ${GITHUB_SHA::7} on $(date -u +%Y-%m-%d)."
+          if gh release view latest >/dev/null 2>&1; then
+            gh release edit latest --notes "$notes"
+          else
+            gh release create latest --title "Latest survey" --notes "$notes"
+          fi
+          gh release upload latest survey/draenen-plan.pdf survey/draenen.3d --clobber
