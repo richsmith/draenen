@@ -31,5 +31,6 @@
 # The 3D view, route planner and site (tools/), and the LiDAR they're built on
 !tools/**
 !lidar/*.gz
+!images/*.jpg
 tools/**/__pycache__/
 /site/
