@@ -2,6 +2,7 @@ encoding  utf-8
 source life-on-mars.th
 
 input ../../layout.thc
+select life-on-mars
 
 layout local
   copy draenen

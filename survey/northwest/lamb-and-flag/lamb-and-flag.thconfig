@@ -2,6 +2,7 @@ encoding  utf-8
 source lamb-and-flag.th
 
 input ../../layout.thc
+select lamb-and-flag
 
 layout local
   copy draenen

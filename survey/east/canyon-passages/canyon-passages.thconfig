@@ -2,6 +2,7 @@ encoding  utf-8
 source canyon-passages.th
 
 input ../../layout.thc
+select canyon-passages
 
 layout local
   copy draenen

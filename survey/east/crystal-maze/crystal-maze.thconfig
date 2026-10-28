@@ -2,6 +2,7 @@ encoding  utf-8
 source crystal-maze.th
 
 input ../../layout.thc
+select crystal-maze
 
 layout local
   copy draenen

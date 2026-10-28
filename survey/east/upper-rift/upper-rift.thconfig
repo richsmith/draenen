@@ -2,6 +2,7 @@ encoding  utf-8
 source upper-rift.th
 
 input ../../layout.thc
+select upper-rift
 
 layout local
   copy draenen

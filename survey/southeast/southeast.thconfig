@@ -2,6 +2,7 @@ encoding  utf-8
 source southeast.th
 
 input ../layout.thc
+select southeast
 
 layout local
   copy draenen

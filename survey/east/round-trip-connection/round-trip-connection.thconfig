@@ -2,6 +2,7 @@ encoding  utf-8
 source round-trip-connection.th
 
 input ../../layout.thc
+select round-trip-connection
 
 layout local
   copy draenen

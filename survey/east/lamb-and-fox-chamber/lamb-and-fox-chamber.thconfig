@@ -2,6 +2,7 @@ encoding  utf-8
 source lamb-and-fox-chamber.th
 
 input ../../layout.thc
+select lamb-and-fox-chamber
 
 layout local
   copy draenen

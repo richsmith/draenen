@@ -2,6 +2,7 @@ encoding  utf-8
 source going-square.th
 
 input ../../layout.thc
+select going-square
 
 layout local
   copy draenen

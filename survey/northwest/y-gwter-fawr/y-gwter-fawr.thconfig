@@ -2,6 +2,7 @@ encoding  utf-8
 source y-gwter-fawr.th
 
 input ../../layout.thc
+select y-gwter-fawr
 
 layout local
   copy draenen

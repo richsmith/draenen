@@ -2,6 +2,7 @@ encoding  utf-8
 source east.th
 
 input ../layout.thc
+select east
 
 layout local
   copy draenen

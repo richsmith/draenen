@@ -2,6 +2,7 @@ encoding  utf-8
 source dyar-straits.th
 
 input ../../layout.thc
+select dyar-straits
 
 layout local
   copy draenen

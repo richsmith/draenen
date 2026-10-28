@@ -2,6 +2,7 @@ encoding  utf-8
 source upstream-passage.th
 
 input ../../layout.thc
+select upstream-passage
 
 layout local
   copy draenen

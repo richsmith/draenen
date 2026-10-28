@@ -2,6 +2,7 @@ encoding  utf-8
 source black-beetle.th
 
 input ../../layout.thc
+select black-beetle
 
 layout local
   copy draenen

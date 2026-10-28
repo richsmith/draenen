@@ -2,6 +2,7 @@ encoding  utf-8
 source bac-to-forever-changed.th
 
 input ../../layout.thc
+select bac-to-forever-changed
 
 layout local
   copy draenen

@@ -2,6 +2,7 @@ encoding  utf-8
 source tea-junction-to-lamb-and-fox.th
 
 input ../../layout.thc
+select tea-junction-to-lamb-and-fox
 
 layout local
   copy draenen

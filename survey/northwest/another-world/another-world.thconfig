@@ -2,6 +2,7 @@ encoding  utf-8
 source another-world.th
 
 input ../../layout.thc
+select another-world
 
 layout local
   copy draenen

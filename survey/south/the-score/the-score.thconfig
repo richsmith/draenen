@@ -2,6 +2,7 @@ encoding  utf-8
 source the-score.th
 
 input ../../layout.thc
+select the-score
 
 layout local
   copy draenen

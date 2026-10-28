@@ -2,6 +2,7 @@ encoding  utf-8
 source knees-up-mother-brown.th
 
 input ../../layout.thc
+select knees-up-mother-brown
 
 layout local
   copy draenen

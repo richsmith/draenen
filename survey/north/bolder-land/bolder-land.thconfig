@@ -2,6 +2,7 @@ encoding  utf-8
 source bolder-land.th
 
 input ../../layout.thc
+select bolder-land
 
 layout local
   copy draenen

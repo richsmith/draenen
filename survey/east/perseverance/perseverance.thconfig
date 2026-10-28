@@ -2,6 +2,7 @@ encoding  utf-8
 source perseverance.th
 
 input ../../layout.thc
+select perseverance
 
 layout local
   copy draenen

@@ -2,6 +2,7 @@ encoding  utf-8
 source elliptic-passage.th
 
 input ../../layout.thc
+select elliptic-passage
 
 layout local
   copy draenen

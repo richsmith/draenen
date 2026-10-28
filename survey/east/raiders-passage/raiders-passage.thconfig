@@ -2,6 +2,7 @@ encoding  utf-8
 source raiders-passage.th
 
 input ../../layout.thc
+select raiders-passage
 
 layout local
   copy draenen

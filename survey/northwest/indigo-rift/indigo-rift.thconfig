@@ -2,6 +2,7 @@ encoding  utf-8
 source indigo-rift.th
 
 input ../../layout.thc
+select indigo-rift
 
 layout local
   copy draenen

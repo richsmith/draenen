@@ -2,6 +2,7 @@ encoding  utf-8
 source megadrive.th
 
 input ../../layout.thc
+select megadrive
 
 layout local
   copy draenen

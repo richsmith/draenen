@@ -2,6 +2,7 @@ encoding  utf-8
 source indiana-highway.th
 
 input ../../layout.thc
+select indiana-highway
 
 layout local
   copy draenen

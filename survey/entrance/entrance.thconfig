@@ -2,6 +2,7 @@ encoding  utf-8
 source entrance.th
 
 input ../layout.thc
+select entrance
 
 layout local
   copy draenen

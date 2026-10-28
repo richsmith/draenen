@@ -2,6 +2,7 @@ encoding  utf-8
 source strawberry-passage.th
 
 input ../../layout.thc
+select strawberry-passage
 
 layout local
   copy draenen

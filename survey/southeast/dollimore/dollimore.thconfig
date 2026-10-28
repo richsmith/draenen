@@ -2,6 +2,7 @@ encoding  utf-8
 source dollimore.th
 
 input ../../layout.thc
+select dollimore
 
 layout local
   copy draenen

@@ -2,6 +2,7 @@ encoding  utf-8
 source cairn-to-tea-junction.th
 
 input ../../layout.thc
+select cairn-to-tea-junction
 
 layout local
   copy draenen

@@ -2,6 +2,7 @@ encoding  utf-8
 source garimpeiros-extensions.th
 
 input ../../layout.thc
+select garimpeiros-extensions
 
 layout local
   copy draenen

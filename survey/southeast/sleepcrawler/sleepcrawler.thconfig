@@ -2,6 +2,7 @@ encoding  utf-8
 source sleepcrawler.th
 
 input ../../layout.thc
+select sleepcrawler
 
 layout local
   copy draenen

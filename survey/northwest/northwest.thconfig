@@ -2,6 +2,7 @@ encoding  utf-8
 source northwest.th
 
 input ../layout.thc
+select northwest
 
 layout local
   copy draenen

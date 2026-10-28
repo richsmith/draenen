@@ -2,6 +2,7 @@ encoding  utf-8
 source wooden-spoon.th
 
 input ../../layout.thc
+select wooden-spoon
 
 layout local
   copy draenen

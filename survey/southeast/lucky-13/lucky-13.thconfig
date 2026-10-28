@@ -2,6 +2,7 @@ encoding  utf-8
 source lucky-13.th
 
 input ../../layout.thc
+select lucky-13
 
 layout local
   copy draenen

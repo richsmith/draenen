@@ -2,6 +2,7 @@ encoding  utf-8
 source waterfall-series.th
 
 input ../../layout.thc
+select waterfall-series
 
 layout local
   copy draenen

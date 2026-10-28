@@ -2,6 +2,7 @@ encoding  utf-8
 source bac-streamway.th
 
 input ../../layout.thc
+select bac-streamway
 
 layout local
   copy draenen

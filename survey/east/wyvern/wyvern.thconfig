@@ -2,6 +2,7 @@ encoding  utf-8
 source wyvern.th
 
 input ../../layout.thc
+select wyvern
 
 layout local
   copy draenen

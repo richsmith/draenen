@@ -2,6 +2,7 @@ encoding  utf-8
 source big-country.th
 
 input ../../layout.thc
+select big-country
 
 layout local
   copy draenen
