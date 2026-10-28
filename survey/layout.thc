@@ -1,0 +1,12 @@
+encoding  utf-8
+
+# Shared map layout.  Each .thconfig inputs this and sets its own scale in a
+# layout that copies this one.
+
+layout draenen
+  symbol-set BCRA
+  legend on
+  # Grade 2 surveys have no drawings, so the centreline is all there is.
+  # Set this to "hide" to show only the drawn Grade 5 passages.
+  symbol-show group cave-centreline
+endlayout
