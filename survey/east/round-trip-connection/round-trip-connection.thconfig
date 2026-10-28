@@ -1,0 +1,13 @@
+encoding  utf-8
+source round-trip-connection.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Saint David's Hall to the Beyond A Choke streamway (the 'Round Trip Connection')"
+endlayout
+
+export model -fmt survex -o "round-trip-connection.3d"
+export map -proj plan -layout local -o "round-trip-connection-plan.pdf"

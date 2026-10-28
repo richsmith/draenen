@@ -1,0 +1,13 @@
+encoding  utf-8
+source indiana-highway.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Indiana Highway"
+endlayout
+
+export model -fmt survex -o "indiana-highway.3d"
+export map -proj plan -layout local -o "indiana-highway-plan.pdf"

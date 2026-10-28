@@ -1,0 +1,13 @@
+encoding  utf-8
+source wooden-spoon.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Wooden Spoon Passage"
+endlayout
+
+export model -fmt survex -o "wooden-spoon.3d"
+export map -proj plan -layout local -o "wooden-spoon-plan.pdf"

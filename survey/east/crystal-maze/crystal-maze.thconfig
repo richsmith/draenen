@@ -1,0 +1,13 @@
+encoding  utf-8
+source crystal-maze.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Crystal Maze"
+endlayout
+
+export model -fmt survex -o "crystal-maze.3d"
+export map -proj plan -layout local -o "crystal-maze-plan.pdf"

@@ -1,0 +1,13 @@
+encoding  utf-8
+source perseverance.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Perseverance I and Fault Chambers"
+endlayout
+
+export model -fmt survex -o "perseverance.3d"
+export map -proj plan -layout local -o "perseverance-plan.pdf"

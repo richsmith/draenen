@@ -1,0 +1,13 @@
+encoding  utf-8
+source knees-up-mother-brown.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Knees Up Mother Brown and beyond"
+endlayout
+
+export model -fmt survex -o "knees-up-mother-brown.3d"
+export map -proj plan -layout local -o "knees-up-mother-brown-plan.pdf"

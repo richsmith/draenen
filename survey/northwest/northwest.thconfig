@@ -1,0 +1,13 @@
+encoding  utf-8
+source northwest.th
+
+input ../layout.thc
+
+layout local
+  copy draenen
+  scale 1 2000
+  doc-title "The Northwest (Gilwern Passage and beyond)"
+endlayout
+
+export model -fmt survex -o "northwest.3d"
+export map -proj plan -layout local -o "northwest-plan.pdf"

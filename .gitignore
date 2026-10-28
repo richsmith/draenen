@@ -1,9 +1,26 @@
-# Therion build artefacts
-.xtherion.dat
-*.log
-*.3d
-*.pdf
+# Only track source files: ignore everything, then allow by type.
+*
+!*/
 
-# SexyTopo files
-*.autosave
-*.autosave*
+# Therion
+!*.th
+!*.th2
+!*.thconfig
+!*.thc
+
+# SexyTopo / xTherion sketches used as drawing backgrounds
+!*.xvi
+
+# SexyTopo data
+!*.json
+
+# Old Survex data
+!*.svx
+!*.SVX
+
+# Tools, docs and notes
+!*.py
+!*.md
+!*.txt
+!LICENSE
+!.gitignore

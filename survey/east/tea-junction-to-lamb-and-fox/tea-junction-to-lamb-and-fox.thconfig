@@ -1,0 +1,13 @@
+encoding  utf-8
+source tea-junction-to-lamb-and-fox.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Tea Junction to Lamb and Fox Chamber"
+endlayout
+
+export model -fmt survex -o "tea-junction-to-lamb-and-fox.3d"
+export map -proj plan -layout local -o "tea-junction-to-lamb-and-fox-plan.pdf"

@@ -1,0 +1,13 @@
+encoding  utf-8
+source south.th
+
+input ../layout.thc
+
+layout local
+  copy draenen
+  scale 1 2000
+  doc-title "The South"
+endlayout
+
+export model -fmt survex -o "south.3d"
+export map -proj plan -layout local -o "south-plan.pdf"

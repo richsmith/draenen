@@ -1,0 +1,13 @@
+encoding  utf-8
+source lamb-and-flag.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Lamb And Flag Passages"
+endlayout
+
+export model -fmt survex -o "lamb-and-flag.3d"
+export map -proj plan -layout local -o "lamb-and-flag-plan.pdf"

@@ -1,0 +1,13 @@
+encoding  utf-8
+source draenen.th
+
+input layout.thc
+
+layout local
+  copy draenen
+  scale 1 5000
+  doc-title "Ogof Draenen"
+endlayout
+
+export model -fmt survex -o "draenen.3d"
+export map -proj plan -layout local -o "draenen-plan.pdf"

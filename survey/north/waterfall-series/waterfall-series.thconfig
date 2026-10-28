@@ -1,0 +1,13 @@
+encoding  utf-8
+source waterfall-series.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Waterfall Series to Knees Up Mother Brown"
+endlayout
+
+export model -fmt survex -o "waterfall-series.3d"
+export map -proj plan -layout local -o "waterfall-series-plan.pdf"

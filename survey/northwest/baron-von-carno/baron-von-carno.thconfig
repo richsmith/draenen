@@ -1,0 +1,13 @@
+encoding  utf-8
+source baron-von-carno.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "The Realm Of Baron Von Carno"
+endlayout
+
+export model -fmt survex -o "baron-von-carno.3d"
+export map -proj plan -layout local -o "baron-von-carno-plan.pdf"

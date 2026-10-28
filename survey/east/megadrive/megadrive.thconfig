@@ -1,0 +1,13 @@
+encoding  utf-8
+source megadrive.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Megadrive to Saint David's Hall"
+endlayout
+
+export model -fmt survex -o "megadrive.3d"
+export map -proj plan -layout local -o "megadrive-plan.pdf"

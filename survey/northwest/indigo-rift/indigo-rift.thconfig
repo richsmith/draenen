@@ -1,0 +1,13 @@
+encoding  utf-8
+source indigo-rift.th
+
+input ../../layout.thc
+
+layout local
+  copy draenen
+  scale 1 500
+  doc-title "Indigo Rift"
+endlayout
+
+export model -fmt survex -o "indigo-rift.3d"
+export map -proj plan -layout local -o "indigo-rift-plan.pdf"
