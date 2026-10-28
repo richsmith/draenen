@@ -765,7 +765,7 @@ const labelBox = $('labels');
 const names = S.names.map(n => {
   const el = document.createElement('div');
   el.className = 'lbl' + (n.entrance ? ' ent' : '');
-  el.textContent = n.t + (n.apart ? ' (tie provisional)' : '');
+  el.textContent = n.t;
   labelBox.appendChild(el);
   return { el, p: n.p, entrance: !!n.entrance, w: 0 };
 });

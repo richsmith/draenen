@@ -168,7 +168,6 @@ def main():
         for n, t, provisional in ents:
             if n not in ref:
                 continue
-            t += ' (tie provisional)' if provisional else ''
             free(at[n], t, 8)
             names_scraps.append((n, ['point 0 0 entrance', f'point 8 0 remark -text "{quote(t)}" -scale {SCALE} -align r']))
         places = [x for x in place_names(stations, names) if x[0] not in {e[1] for e in ents}]
