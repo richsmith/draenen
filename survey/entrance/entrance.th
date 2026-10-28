@@ -19,6 +19,11 @@ survey entrance -title "The Entrance"
     cairn-junction@entrance-series	cairn-junction	0	0	0
   endcentreline
 
+  # The entrance, for the plan, the 3D model and the route planner
+  centreline
+    station 0@entrance.entrance-series "Ogof Draenen" entrance
+  endcentreline
+
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.
   #   input 2025-01-01-passage/passage.th
   #   centreline

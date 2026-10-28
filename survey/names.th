@@ -1,0 +1,452 @@
+encoding  utf-8
+
+# Made by python3 -m tools.plannames from survey/names.json: passage names and entrances for the plan. Edit names.json, not this.
+
+scrap name-0 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 0@entrance.entrance-series.entrance
+  point 0 0 entrance
+  point 8 0 remark -text "Entrance" -scale xl -align r
+endscrap
+
+scrap name-1 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 1@Tarddiad.Tardiadd.north
+  point 0 0 entrance
+  point 8 0 remark -text "Tarddiad Pwll Du (tie provisional)" -scale xl -align r
+endscrap
+
+scrap name-2 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name tea-junction@east
+  point 0 0 remark -text "Tea Junction" -scale xl
+endscrap
+
+scrap name-3 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name cairn-junction@south
+  point 0 0 remark -text "Cairn Junction" -scale xl
+endscrap
+
+scrap name-4 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 108@bac.bac-streamway.south
+  point 0 0 remark -text "Beyond A Choke" -scale xl
+endscrap
+
+scrap name-5 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 17@canyon_hcc.canyon-passages.east
+  point 0 0 remark -text "The Canyon" -scale xl
+endscrap
+
+scrap name-6 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 18@ml.wyvern.wyvern.east
+  point 0 0 remark -text "The Wyvern Extensions - Wessex Series" -scale xl
+endscrap
+
+scrap name-7 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 2@luck2.dollimore.southeast
+  point 0 0 remark -text "Luck of the Draw" -scale xl
+endscrap
+
+scrap name-8 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 93@raiders.raiders-passage.east
+  point 0 0 remark -text "Raiders Passage" -scale xl
+endscrap
+
+scrap name-9 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 59@mars2.life-on-mars.east
+  point 0 0 remark -text "Life on Mars" -scale xl
+endscrap
+
+scrap name-10 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 9@fab_s1.round-trip-connection.east
+  point 0 0 remark -text "Far Agent Blorenge" -scale xl
+endscrap
+
+scrap name-11 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 18@ab2.round-trip-connection.east
+  point 0 0 remark -text "Agent Blorenge" -scale xl
+endscrap
+
+scrap name-12 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name a22@a.waterfall.waterfall-series.north
+  point 0 0 remark -text "Waterfall Series" -scale xl
+endscrap
+
+scrap name-13 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 11@downstream.bigc.big-country.southeast
+  point 0 0 remark -text "Big Country" -scale xl
+endscrap
+
+scrap name-14 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name s8.2@whitearch.tea-junction-to-lamb-and-fox.east
+  point 0 0 remark -text "White Arch" -scale xl
+endscrap
+
+scrap name-15 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 4@gity_south.lucky-13.southeast
+  point 0 0 remark -text "Gone in the Years" -scale xl
+endscrap
+
+scrap name-16 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 19@1.underworld.underworld.east
+  point 0 0 remark -text "Underworld" -scale xl
+endscrap
+
+scrap name-17 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 36@strawberry.strawberry-passage.entrance
+  point 0 0 remark -text "Strawberry Passage" -scale xl
+endscrap
+
+scrap name-18 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 5@waterfall_1.rhs.3amigos.lucky-13.southeast
+  point 0 0 remark -text "Three Amigos" -scale xl
+endscrap
+
+scrap name-19 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 12@garimpeiros.garimpeiros-extensions.northwest
+  point 0 0 remark -text "Garimpeiros" -scale xl
+endscrap
+
+scrap name-20 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 6a@benslink.ur.upper-rift.east
+  point 0 0 remark -text "Upper Rift" -scale xl
+endscrap
+
+scrap name-21 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 14@blodrvr2.sleepcrawler.southeast
+  point 0 0 remark -text "Blood River" -scale xl
+endscrap
+
+scrap name-22 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 59@wiggly.y-gwter-fawr.northwest
+  point 0 0 remark -text "The Wiggly Business" -scale xl
+endscrap
+
+scrap name-23 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 35@ag.bolder_2.bolder-land.north
+  point 0 0 remark -text "Bolder Land" -scale xl
+endscrap
+
+scrap name-24 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 34@oo.bac-streamway.south
+  point 0 0 remark -text "Over The Top" -scale xl
+endscrap
+
+scrap name-25 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 15@sanitizer.y-gwter-fawr.northwest
+  point 0 0 remark -text "Sanitizer Streamway" -scale xl
+endscrap
+
+scrap name-26 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 3@surprise.upper-rift.east
+  point 0 0 remark -text "Surprise Passage" -scale xl
+endscrap
+
+scrap name-27 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 27@malcolm.bac-streamway.south
+  point 0 0 remark -text "A Bit of a Dive" -scale xl
+endscrap
+
+scrap name-28 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 14@thescore.the-score.south
+  point 0 0 remark -text "The Score" -scale xl
+endscrap
+
+scrap name-29 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name j8@outblue2.dollimore.southeast
+  point 0 0 remark -text "Out of the Blue" -scale xl
+endscrap
+
+scrap name-30 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 14@flag.lamb-and-flag.northwest
+  point 0 0 remark -text "Flag Passage" -scale xl
+endscrap
+
+scrap name-31 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 177@indiana.indiana-highway.east
+  point 0 0 remark -text "Indiana Highway" -scale xl
+endscrap
+
+scrap name-32 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 13@gilwern.bac-to-forever-changed.northwest
+  point 0 0 remark -text "Gilwern Passage" -scale xl
+endscrap
+
+scrap name-33 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 19@swallow.round-trip-connection.east
+  point 0 0 remark -text "Swallow Series" -scale xl
+endscrap
+
+scrap name-34 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 19@pob.crystal-maze.east
+  point 0 0 remark -text "POB Passage" -scale xl
+endscrap
+
+scrap name-35 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 16@sandwich.lucky-13.southeast
+  point 0 0 remark -text "Exodus" -scale xl
+endscrap
+
+scrap name-36 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 3.1@perseverance_i.perseverance.east
+  point 0 0 remark -text "Perseverance" -scale xl
+endscrap
+
+scrap name-37 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 13@cryscruncher.the-score.south
+  point 0 0 remark -text "Crystal Cruncher" -scale xl
+endscrap
+
+scrap name-38 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 16@morgannwg.bac-to-forever-changed.northwest
+  point 0 0 remark -text "Morgannwg Passage" -scale xl
+endscrap
+
+scrap name-39 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 15@makeitup.going-square.east
+  point 0 0 remark -text "Make It Up" -scale xl
+endscrap
+
+scrap name-40 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 14@pb.kneesup.knees-up-mother-brown.north
+  point 0 0 remark -text "Knees Up Mother Brown" -scale xl
+endscrap
+
+scrap name-41 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 5@chocolate.round-trip-connection.east
+  point 0 0 remark -text "Chocolate Blorenge" -scale xl
+endscrap
+
+scrap name-42 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 11@sparerib.entrance-series.entrance
+  point 0 0 remark -text "Spare Rib" -scale xl
+endscrap
+
+scrap name-43 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 19@rifleman.bac-streamway.south
+  point 0 0 remark -text "Rifleman's Choke" -scale xl
+endscrap
+
+scrap name-44 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 9@stgiles.y-gwter-fawr.northwest
+  point 0 0 remark -text "St Giles" -scale xl
+endscrap
+
+scrap name-45 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 15@upstream.upstream-passage.north
+  point 0 0 remark -text "Upstream Passage" -scale xl
+endscrap
+
+scrap name-46 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 7@ladder.upstream-passage.north
+  point 0 0 remark -text "Ladder Passage" -scale xl
+endscrap
+
+scrap name-47 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 11@megadrive.megadrive.east
+  point 0 0 remark -text "Megadrive" -scale xl
+endscrap
+
+scrap name-48 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 16@goingsquare.going-square.east
+  point 0 0 remark -text "Going Square" -scale xl
+endscrap
+
+scrap name-49 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 13@crystalmaze.crystal-maze.east
+  point 0 0 remark -text "Crystal Maze" -scale xl
+endscrap
+
+scrap name-50 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 9@woodenspoon.wooden-spoon.east
+  point 0 0 remark -text "Wooden Spoon Passage" -scale xl
+endscrap
+
+scrap name-51 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 11@elliptic.elliptic-passage.east
+  point 0 0 remark -text "Elliptic Passage" -scale xl
+endscrap
+
+scrap name-52 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 16@gosome.lucky-13.southeast
+  point 0 0 remark -text "Going Somewhere" -scale xl
+endscrap
+
+scrap name-53 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 10@darling.entrance-series.entrance
+  point 0 0 remark -text "Darling Rift" -scale xl
+endscrap
+
+scrap name-54 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 11@lostriver.knees-up-mother-brown.north
+  point 0 0 remark -text "Lost River" -scale xl
+endscrap
+
+scrap name-55 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 11@extramarital.the-score.south
+  point 0 0 remark -text "Extra-Marital Sex" -scale xl
+endscrap
+
+scrap name-56 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 11@lamb.lamb-and-flag.northwest
+  point 0 0 remark -text "Lamb Passage" -scale xl
+endscrap
+
+scrap name-57 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 11@headache.perseverance.east
+  point 0 0 remark -text "Headache Passage" -scale xl
+endscrap
+
+scrap name-58 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 13@breadfruit.y-gwter-fawr.northwest
+  point 0 0 remark -text "Breadfruit Boulevard" -scale xl
+endscrap
+
+scrap name-59 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 9@bitontheside.the-score.south
+  point 0 0 remark -text "A Bit On The Side" -scale xl
+endscrap
+
+scrap name-60 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 8@destiny.indiana-highway.east
+  point 0 0 remark -text "Destiny Extensions" -scale xl
+endscrap
+
+scrap name-61 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 10@swim.crystal-maze.east
+  point 0 0 remark -text "The Swim" -scale xl
+endscrap
+
+scrap name-62 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 22@inblack1.dollimore.southeast
+  point 0 0 remark -text "Into the Black" -scale xl
+endscrap
+
+scrap name-63 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 11@onenight.the-score.south
+  point 0 0 remark -text "One Night Stand" -scale xl
+endscrap
+
+scrap name-64 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 9@lucky13.lucky-13.southeast
+  point 0 0 remark -text "Lucky Thirteen" -scale xl
+endscrap
+
+scrap name-65 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 9@haggisbasher.round-trip-connection.east
+  point 0 0 remark -text "Haggis Basher One" -scale xl
+endscrap
+
+scrap name-66 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 0@hadeslamb.lamb-and-fox-chamber.east
+  point 0 0 remark -text "Lamb and Fox Chamber" -scale xl
+endscrap
+
+scrap name-67 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 5@players_n.perseverance.east
+  point 0 0 remark -text "Players Tunnel" -scale xl
+endscrap
+
+scrap name-68 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 8@padlock.knees-up-mother-brown.north
+  point 0 0 remark -text "Padlock Passage" -scale xl
+endscrap
+
+scrap name-69 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 7@fallout.bac-streamway.south
+  point 0 0 remark -text "Fallout" -scale xl
+endscrap
+
+scrap name-70 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 5@roundcon.round-trip-connection.east
+  point 0 0 remark -text "Round Trip Connection" -scale xl
+endscrap
+
+scrap name-71 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 6@nunnery.perseverance.east
+  point 0 0 remark -text "The Nunnery" -scale xl
+endscrap
+
+scrap name-72 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 5@overkill.raiders-passage.east
+  point 0 0 remark -text "Overkill" -scale xl
+endscrap
+
+scrap name-73 -projection plan -scale [0 0 1 0 0 0 1 0 m]
+  point 0 0 station -name 4@waconnection.upper-rift.east
+  point 0 0 remark -text "WA Connection" -scale xl
+endscrap
+
+map names-plan -proj plan
+  name-0
+  name-1
+  name-2
+  name-3
+  name-4
+  name-5
+  name-6
+  name-7
+  name-8
+  name-9
+  name-10
+  name-11
+  name-12
+  name-13
+  name-14
+  name-15
+  name-16
+  name-17
+  name-18
+  name-19
+  name-20
+  name-21
+  name-22
+  name-23
+  name-24
+  name-25
+  name-26
+  name-27
+  name-28
+  name-29
+  name-30
+  name-31
+  name-32
+  name-33
+  name-34
+  name-35
+  name-36
+  name-37
+  name-38
+  name-39
+  name-40
+  name-41
+  name-42
+  name-43
+  name-44
+  name-45
+  name-46
+  name-47
+  name-48
+  name-49
+  name-50
+  name-51
+  name-52
+  name-53
+  name-54
+  name-55
+  name-56
+  name-57
+  name-58
+  name-59
+  name-60
+  name-61
+  name-62
+  name-63
+  name-64
+  name-65
+  name-66
+  name-67
+  name-68
+  name-69
+  name-70
+  name-71
+  name-72
+  name-73
+endmap
