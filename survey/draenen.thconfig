@@ -27,6 +27,19 @@ layout local
       draw P withpen pencircle scaled 1.4mm withcolor background;
     enddef;
     initsymbol("l_u_ribbon");
+    % The centreline solid in the ribbon's pieces: Therion takes any scrap
+    % that isn't its own centreline as a drawing, where the survey line is
+    % drawn as short stubs at each end of a leg, which looked dashed. The
+    % drawings themselves keep the stubs.
+    def l_survey_cave (expr P) =
+      if ATTR__scrap_centerline or ((substring (0, 7) of ATTR__scrap) = "colour-"):
+        T:=identity;
+        pickup PenC;
+        thdraw P;
+      else:
+        l_survey_cave_SKBB(P);
+      fi;
+    enddef;
   endcode
   doc-title "Ogof Draenen"
 endlayout

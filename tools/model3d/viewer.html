@@ -838,7 +838,12 @@ function viewFrom(az, el, dist = R0) {
   dist *= Math.max(1, Math.pow(1.3 / camera.aspect, 0.85));   // stand back on a tall, narrow screen
   return { pos: new THREE.Vector3(t.x + dist * Math.cos(el) * Math.sin(az), t.y + dist * Math.sin(el), t.z + dist * Math.cos(el) * Math.cos(az)), target: t };
 }
+// A fly is only ever a nudge: touching, clicking or scrolling the view
+// stops it where it is, whatever the gesture.
 let fly = null;
+for (const ev of ['pointerdown', 'wheel', 'touchstart'])
+  canvas.addEventListener(ev, () => { if (fly) { fly = null; idleSince = performance.now(); } }, { capture: true, passive: true });
+const flying = () => fly !== null;   // (for where a parameter named fly hides it)
 function flyTo(v, ms = 1600) {
   invalidate();
   fly = { p0: camera.position.clone(), t0: controls.target.clone(), p1: v.pos, t1: v.target, start: performance.now(), ms };
@@ -905,7 +910,7 @@ if (!STILL && document.createElement('a').relList.supports?.('ar')) {
   const label = () => document.body.classList.contains('routing') ? 'Route in AR' : 'View in AR';
   new MutationObserver(() => { if (!busy) what.textContent = label(); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-  const SIZE = 2, LIFT = 0.7;   // metres across, and from the floor to the lowest point
+  const SIZE = 2, LIFT = 0.4;   // metres across, and from the base on the floor up to the lowest point
   const FPS = 30, LOOP = 36;     // the route's animation: a loop of 1.2 s, played over and over
 
   // A tube along a run of { p, z } (p already stretched by the vertical
@@ -1209,8 +1214,10 @@ if (!STILL && document.createElement('a').relList.supports?.('ar')) {
       group.add(tubeMesh(pin, flat(0xffffff)));
     }
 
-    // a couple of metres across, centred, and lifted to about waist height
-    // so it's easy to walk round and look into when it's set on the floor
+    // a couple of metres across, centred, and floating above a base plate on
+    // the floor or table, so it's easy to look into from all round and from
+    // below (Quick Look sets a model's lowest point on the surface it finds,
+    // so the plate is what sits there, and the model stands off it)
     const box = new THREE.Box3().setFromObject(group);
     const k = SIZE / Math.max(box.max.x - box.min.x, box.max.z - box.min.z, 1);
     const ex = world.scale.y;
@@ -1220,13 +1227,27 @@ if (!STILL && document.createElement('a').relList.supports?.('ar')) {
     turn.add(group);
     sc.add(turn);
     const anim = [];
+    const depth = k * (box.max.z - box.min.z) / 2, half = k * (box.max.x - box.min.x) / 2, A = 0.12;
+    {
+      // the base: dark and see-through, a little bigger than the model, with
+      // room at its north edge for the north arrow
+      const m = 0.08, x0 = -half - m, x1 = half + m, z0 = -depth - (rt ? A + 0.3 : m), z1 = depth + m, rad = 0.06;
+      const sh = new THREE.Shape();
+      sh.moveTo(x0 + rad, z0); sh.lineTo(x1 - rad, z0); sh.quadraticCurveTo(x1, z0, x1, z0 + rad);
+      sh.lineTo(x1, z1 - rad); sh.quadraticCurveTo(x1, z1, x1 - rad, z1); sh.lineTo(x0 + rad, z1);
+      sh.quadraticCurveTo(x0, z1, x0, z1 - rad); sh.lineTo(x0, z0 + rad); sh.quadraticCurveTo(x0, z0, x0 + rad, z0);
+      const g = new THREE.ShapeGeometry(sh, 6);
+      g.rotateX(Math.PI / 2);             // flat, facing up (the shape's y is the floor's z)
+      g.attributes.normal.array.forEach((v, i, a) => { a[i] = i % 3 === 1 ? 1 : 0; });
+      g.index && g.setIndex([...g.index.array].reverse());
+      turn.add(new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x0b0f14, transparent: true, opacity: 0.45, roughness: 1, metalness: 0 })));
+    }
     if (rt) {
-      // a north arrow beside the model, at the level of its lowest point
-      const depth = k * (box.max.z - box.min.z) / 2, A = 0.12;
+      // a north arrow on the base
       const sh = new THREE.Shape([[-0.25, 0], [-0.25, 0.55], [-0.6, 0.55], [0, 1], [0.6, 0.55], [0.25, 0.55], [0.25, 0]].map(([x, y]) => new THREE.Vector2(x * A / 2, y * A)));
       const arrow = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.006, bevelEnabled: false }), flat(0xffffff));
       arrow.rotation.x = -Math.PI / 2;
-      arrow.position.set(0, LIFT, -depth - 0.06);
+      arrow.position.set(0, 0.002, -depth - 0.06);
       turn.add(arrow);
       const nc = document.createElement('canvas'); nc.width = nc.height = 128;
       const ng = nc.getContext('2d');
@@ -1235,7 +1256,7 @@ if (!STILL && document.createElement('a').relList.supports?.('ar')) {
       const nt = new THREE.CanvasTexture(nc); nt.colorSpace = THREE.SRGBColorSpace;
       const nl = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 0.08), new THREE.MeshStandardMaterial({ map: nt, emissiveMap: nt, emissive: 0xffffff, transparent: true, roughness: 1, metalness: 0 }));
       nl.rotation.x = -Math.PI / 2;
-      nl.position.set(0, LIFT + 0.004, -depth - 0.06 - A - 0.05);
+      nl.position.set(0, 0.01, -depth - 0.06 - A - 0.05);
       turn.add(nl);
     }
     turn.rotation.y = yaw;
@@ -1957,12 +1978,16 @@ function closeRoute() {
 
 // the view of one step: from behind and above, facing the way you arrive,
 // so a turn to the right goes off to the right of the screen
+// Each step: from behind and above the junction, facing the way you arrive,
+// at the distance you're viewing from (85 m to begin with), so zooming in or
+// out stays as you left it from step to step.
+let stepDist = 85, stepShown = false;
 function stepView(s) {
   const i = s.i, here = toWorld(route.p(i));
   const b = (i ? route.dirAt(i, -1) : null) ?? route.dirAt(i, +1) ?? 0, r = b * Math.PI / 180;
   const fwd = new THREE.Vector3(Math.sin(r), 0, -Math.cos(r));
   const target = here.clone().addScaledVector(fwd, 10);
-  const dist = 85, el = 0.45;
+  const dist = stepDist, el = 0.45;
   const pos = target.clone().addScaledVector(fwd, -dist * Math.cos(el)).add(new THREE.Vector3(0, dist * Math.sin(el), 0));
   return { pos, target };
 }
@@ -1981,6 +2006,7 @@ function overview() {
 // card. It comes before the first step.
 let sheetTo = () => {};
 function showOverview(fly = true) {
+  stepShown = false;
   if (!route) return;
   dashUntil = performance.now() + 4000;
   cur = -1;
@@ -2023,6 +2049,8 @@ function waysNotTaken(s) {
 }
 function goStep(k, fly = true, whole = false) {
   if (!route) return;
+  // keep the distance you were viewing a step from, if you'd zoomed
+  if (stepShown && !flying()) stepDist = Math.min(600, Math.max(12, camera.position.distanceTo(controls.target)));
   dashUntil = performance.now() + 4000;
   if (k < 0) { showOverview(fly); return; }
   cur = Math.min(steps.length - 1, k);
@@ -2069,7 +2097,8 @@ function goStep(k, fly = true, whole = false) {
   li?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   drawProfileMarker();
   history.replaceState(null, '', `#from=${encodeURIComponent(routeFrom)}&to=${encodeURIComponent(routeTo)}&step=${cur}`);
-  if (fly) flyTo(whole ? overview() : stepView(s), whole ? 1600 : 1100);
+  stepShown = !whole;
+  if (fly) flyTo(whole ? overview() : stepView(s), whole ? 1600 : 800);
 }
 
 // -- routes: the height profile ----------------------------------------------------------
