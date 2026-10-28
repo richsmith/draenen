@@ -1,0 +1,111 @@
+encoding utf-8
+
+##XTHERION## xth_me_area_adjust -1968.50 -1889.76 16377.95 1259.84
+##XTHERION## xth_me_image_insert {0.0 1 1.0} {0.0 65} "Tarddiad lower.ee.xvi" 0 {}
+##XTHERION## xth_me_area_zoom_to 25
+
+scrap tarddiad-lower-ee -projection extended
+
+point 413.77234 43.598858 station -name 66
+
+point 567.8628 51.721806 station -name 67
+
+point 736.3998 75.149666 station -name 68
+
+point 1158.7206 294.02484 station -name 69
+
+point 810.1276 0.79785275 station -name 70
+
+point 1097.5159 13.977416 station -name 71
+
+point 1198.7341 -0.18829319 station -name 72
+
+point 1409.8044 26.118708 station -name 73
+
+point 1568.9708 10.067173 station -name 74
+
+point 1673.3898 8.194908 station -name 75
+
+point 1984.9651 -48.50842 station -name 76
+
+point 2227.3362 -190.32733 station -name 77
+
+point 2354.7878 -312.8572 station -name 78
+
+point 2653.998 -342.30756 station -name 79
+
+point 2822.1572 -403.7397 station -name 80
+
+point 2910.8281 -542.8109 station -name 81
+
+point 3054.9636 -582.9962 station -name 82
+
+point 3192.5408 -640.76196 station -name 83
+
+point 3490.697 -647.90015 station -name 84
+
+point 3517.0647 -619.7333 station -name 85
+
+point 3679.3137 -654.74854 station -name 86
+
+point 3834.167 -764.34247 station -name 87
+
+point 3950.4373 -744.963 station -name 88
+
+point 4022.3809 -681.703 station -name 89
+
+point 4144.178 -748.9339 station -name 90
+
+point 4377.426 -831.09863 station -name 91
+
+point 4849.623 -857.11066 station -name 92
+
+point 5177.147 -788.3091 station -name 93
+
+point 5631.6436 -826.70184 station -name 94
+
+point 5976.009 -819.7346 station -name 95
+
+point 6424.403 -808.68414 station -name 96
+
+point 6745.0205 -801.05945 station -name 97
+
+point 7279.5923 -812.6954 station -name 98
+
+point 7824.963 -809.4361 station -name 99
+
+point 8217.313 -787.9232 station -name 100
+
+point 8456.301 -808.1574 station -name 101
+
+point 8652.968 -850.16003 station -name 102
+
+point 8953.852 -813.5962 station -name 103
+
+point 9447.474 -833.95764 station -name 104
+
+point 9906.96 -879.18335 station -name 105
+
+point 10156.266 -822.6138 station -name 106
+
+point 10590.594 -908.27997 station -name 107
+
+point 10946.215 -946.94684 station -name 108
+
+point 11390.632 -956.23676 station -name 109
+
+point 11966.467 -960.8559 station -name 110
+
+point 12198.429 -993.15314 station -name 111
+
+point 12663.196 -996.18317 station -name 112
+
+point 13208.716 -1051.0039 station -name 113
+
+point 13719.652 -862.0677 station -name 114
+
+point 14405.72 -834.69037 station -name 115
+
+point 13528.504 -1063.3452 station -name 116
+
+endscrap
