@@ -2112,7 +2112,7 @@ function goStep(k, fly = true, whole = false) {
   drawProfileMarker();
   history.replaceState(null, '', `#from=${encodeURIComponent(routeFrom)}&to=${encodeURIComponent(routeTo)}&step=${cur}`);
   stepShown = !whole;
-  if (fly) flyTo(whole ? overview() : stepView(s), whole ? 1600 : 800);
+  if (fly) flyTo(whole ? overview() : stepView(s), whole ? 1600 : 1100);
 }
 
 // -- routes: the height profile ----------------------------------------------------------
@@ -2313,13 +2313,32 @@ function focusAt(x, y) {
 }
 canvas.addEventListener('dblclick', e => focusAt(e.clientX, e.clientY));
 {
-  let lastTap = 0;
-  canvas.addEventListener('pointerup', e => {
+  // A double tap is two quick taps of one finger in one place: not the two
+  // fingers of a pinch lifting together (which flew the view back in to
+  // wherever they were, undoing the pinch), nor the end of a drag.
+  const down = new Map();       // touches now on the screen: where and when each began
+  let multi = false, lastTap = null;
+  canvas.addEventListener('pointerdown', e => {
     if (e.pointerType !== 'touch') return;
-    const now = performance.now();
-    if (now - lastTap < 320) focusAt(e.clientX, e.clientY);
-    lastTap = now;
+    down.set(e.pointerId, { x: e.clientX, y: e.clientY, t: performance.now() });
+    if (down.size > 1) { multi = true; lastTap = null; }
   });
+  const up = e => {
+    if (e.pointerType !== 'touch') return;
+    const d = down.get(e.pointerId);
+    down.delete(e.pointerId);
+    if (!d) return;
+    const tap = !multi && performance.now() - d.t < 300 && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 10;
+    if (!down.size) multi = false;
+    if (!tap) { lastTap = null; return; }
+    const now = performance.now();
+    if (lastTap && now - lastTap.t < 320 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
+      lastTap = null;
+      focusAt(e.clientX, e.clientY);
+    } else lastTap = { t: now, x: e.clientX, y: e.clientY };
+  };
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', e => { down.delete(e.pointerId); if (!down.size) multi = false; lastTap = null; });
 }
 
 // Keep the screen on while a route is open (it's released when the page is
