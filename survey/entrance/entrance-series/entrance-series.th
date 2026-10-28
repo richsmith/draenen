@@ -6,10 +6,12 @@ survey entrance-series -title "Entrance Series"
   input grade2/entrance.th
   input grade2/darlingrift.th
   input grade2/sparerib.th
+  input grade2/pbcrawl.th
 
   centreline
     equate 1@darling 13@entrance	# darlingrift entrance
     equate 13@darling 22@sparerib	# darlingrift sparerib
+    equate 1@sparerib 1@pbcrawl	# pbcrawl sparerib
   endcentreline
 
   # Junctions offered to the level above: zero-length legs naming

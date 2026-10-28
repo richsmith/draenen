@@ -11,6 +11,7 @@ survey north -title "The North"
   centreline
     equate knees-up@knees-up-mother-brown knees-up@waterfall-series	# knees_pb out yes (inferred)
     equate waterfall-junction@upstream-passage waterfall-junction@waterfall-series	# upstreampassage water_a (inferred)
+    equate bolder-land-junction@knees-up-mother-brown bolder-land-junction@bolder-land	# bolderpb padlock
   endcentreline
 
   # Junctions offered to the level above: zero-length legs naming

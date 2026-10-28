@@ -2,6 +2,71 @@ encoding  utf-8
 
 survey round-trip-connection -title "Saint David's Hall to the Beyond A Choke streamway (the 'Round Trip Connection')"
 
+  # Grade 2 placeholder: converted from the old Grade 2 Survex data.
+  input grade2/1blorenge.th
+  input grade2/2blorenge.th
+  input grade2/3blorenge.th
+  input grade2/fab.th
+  input grade2/fab_s1.th
+  input grade2/haggisbasherone.th
+  input grade2/chocolateblorenge.th
+  input grade2/ac1.th
+  input grade2/ac2.th
+  input grade2/roundtripconnection.th
+  input grade2/squirrel.th
+  input grade2/sqs_s2.th
+  input grade2/sq2.th
+  input grade2/gameover.th
+  input grade2/swallow.th
+
+  centreline
+    equate a@gameover 3@swallow	# gameover swallow
+    equate 18-2@squirrel 18-2@swallow	# squirrel swallow
+    equate 46@ab2 21@squirrel	# 2blorenge squirrel
+    equate 6-2@ab3 2@squirrel	# 3blorenge squirrel
+    equate 4@fab 16@haggisbasher	# fab haggisbasherone
+    equate 9@haggisbasher 13@roundcon	# haggisbasherone roundtripconnection
+    equate 9@haggisbasher 40@squirrel2	# haggisbasherone sq2
+    equate 29@ab2 6@squirrel_s2	# 2blorenge sqs_s2
+    equate 18@fab 10@fab_s1	# fab fab_s1
+    equate 23@ab2 0@ac2	# 2blorenge ac2
+    equate 3@ac1 17@ac2	# ac1 ac2
+    equate 11@pf2.ab1 g@chocolate	# 1blorenge chocolateblorenge
+    equate 11@pf2.ab1 46@fab	# 1blorenge fab
+    equate 31@chocolate 28@fab	# chocolateblorenge fab
+    equate 45@pf1.ab1 1@pf2.ab1	# 1blorenge
+    equate 38@pf1.ab1 39@pf1.ab1	# 1blorenge
+    equate 11@fab 3@a.fab	# fab
+    equate 2@fab 13@sp1.fab	# fab
+    equate 2@fab 4@sp2.fab	# fab
+    equate 6@fab 3@sp3.fab	# fab
+    equate 6@fab 3@sp4.fab	# fab
+    equate 8@fab 6@sp5.fab	# fab
+    equate 9@fab 10@sp6.fab	# fab
+    equate 12@fab 1@sp7.fab	# fab
+    equate 13@fab 4@sp7.fab	# fab
+  endcentreline
+
+  # Junctions offered to the level above: zero-length legs naming
+  # stations so the level above needn't know what's inside here.
+  centreline
+    sd length 0.001 metres
+    data normal from to length compass clino
+    35@swallow	arms-park	0	0	0
+    16@squirrel	upper-rift-pitch	0	0	0
+    13@squirrel	wa-connection-squirrel	0	0	0
+    1@ab3	tube-surprise-ab3	0	0	0
+    3@squirrel	surprise-squirrel	0	0	0
+    a@pf1.ab1	agent-blorenge	0	0	0
+    22@ab2	wooden-spoon-ab2	0	0	0
+    25@squirrel2	mars1-squirrel2	0	0	0
+    1@roundcon	wooden-spoon-round-trip	0	0	0
+    11@ac1	wooden-spoon-ac1	0	0	0
+    a@chocolate	chocolate-crystal-maze	0	0	0
+    29@squirrel2	rift-mars-squirrel2	0	0	0
+    10@roundcon	rift-mars-round-trip	0	0	0
+  endcentreline
+
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.
   #   input 2025-01-01-passage/passage.th
   #   centreline

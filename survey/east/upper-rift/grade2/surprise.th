@@ -1,0 +1,42 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/Surprise.svx).
+
+# > Ogof Draenen: Surprise Passage
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 21st January by Morgannwg Caving Club.
+# Surveyed by: Pete Bolt, J. Hooper, Kev Senior, S. Jones and Dave Checkley
+# Data entry: Ali
+
+survey surprise
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	4.7	337	0	# ongoing
+  2	3	0.5	240	0
+  3	4	10.5	330	0
+  4	5	6.0	341	0	# ongoing
+  4	6	1.0	315	0
+  6	7	1.8	273	0
+  7	8	5.7	320	0	# connects to squirrel rifts
+  7	9	5.8	282	0
+  9	10	2.2	06	0	# equals squirrel Rifts station 3
+  8	11	3.0	320	0	# closes down
+
+endcentreline
+endsurvey

@@ -1,0 +1,38 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/GameOver.svx).
+
+# > Ogof Draenen: Agent Blorenge Part II, Squirrel Rift, Swallow Series, Game Over
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 12th November by Morgannwg Caving Club.
+# 
+# Surveyed by: Pete Bolt, Andy Deeley, Dave Glover, Ben Lovett, Charles Bailey
+# Data entry: Tim Long
+# 
+# 
+
+survey gameover
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  a	1	2.6	70	0
+  1	2	3.6	115	0
+  2	3	7.6	18	0
+  3	4	3.1	140	0
+  4	5	8.0	8	0
+
+endcentreline
+endsurvey

@@ -1,0 +1,251 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/FAB.svx).
+
+# > Ogof Draenen:       Far Agent Blorenge
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 19th November by Morgannwg Caving Club.
+# Recording: ?
+# Tape: ?
+# Compass: ?
+# Data entry: Tim Long
+
+survey fab
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+# Far Agent Blorenge
+
+# 1       2       20.0    163     -       ; Starting at upstream sump
+# 2       3       20.0    167     -
+# 3       4       2.3     204     -       ; 4 = Haggis Basher 1 Stn 16
+# 4       5       5.8     242     -
+# 5       6       20.3    170     -
+# 6       7       20.0    171     -
+# 7       8       16.2    192     -       ; Side passage - oxbow start
+# 8       9       9.8     220     -       ; Side passage - oxbow end
+
+# The above legs in the original FAB survey are replaced by Ali's
+# re-survey:
+# Survey conducted on Sunday 25th February by Morgannwg Caving Club.
+# Surveyed by: Ali Garman, Ben Lovett and Ian Benson
+# Data entry: Ali
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	13.0	165	0	# FAB upstream sump (station 1)
+  2	3	29.2	165	0
+  3	4	2.4	250	0	# Haggis Basher
+  4	5	3.3	300	0
+  5	6	4.4	220	0
+  6	7	15.8	150	0
+  7	8	9.4	190	0
+  8	9	4.9	150	0
+  9	9a	10.7	122	0
+  9a	9b	7.8	174	0
+  9b	9c	9.2	190	0	# =FAB station 8
+  9c	9d	9.8	220	0	# =FAB station 9
+
+  # Continuing with original survey data...
+
+  9d	10	17.5	148	0
+  10	11	14.3	151	0	# SP - surveyed by group containing Andy Cave
+  11	12	11.5	242	0
+  12	13	12.6	310	0
+  13	14	11.0	228	0
+  14	15	10.4	288	0
+  15	16	13.3	323	0
+  16	17	20.0	310	0
+  17	18	14.2	335	0	# SP - being surveyed by Peter Bolt
+  18	19	7.6	260	0
+  19	20	12.8	215	0
+  20	21	20.2	165	0
+  21	22	19.3	168	0
+  22	23	19.7	153	0
+  23	24	14.7	158	0
+  24	25	17.2	197	0	# 25 = end of large stream passage
+  25	26	7.4	177	0
+  26	27	7.8	186	0
+  27	28	13.3	194	0	# 28 = centre of chamber (Where TPL & BT followed
+  # bedding on right, neglecting the obvious lead
+  # straight ahead).
+  28	29	5.0	272	0	# Following down stream from chamber
+  29	30	8.3	325	0
+  30	31	8.0	306	0
+  31	32	7.2	315	0
+  32	33	10.2	325	0
+  33	34	6.2	294	0
+  34	35	4.2	215	0
+  35	36	6.3	163	0
+  36	37	5.8	168	0
+  37	38	7.7	182	0
+  38	39	14.1	185	0
+  39	40	5.7	169	0
+  40	41	8.6	168	0
+  41	42	4.5	150	0
+
+  # Next section is the climb down at the end of the wet rift just before the sewer
+  # on the way back to the inlet
+
+  42	43	3.8	-	down
+  43	44	2.4	190	-45
+  44	45	2.4	330	0
+  45	46	3.5	-	down
+
+endcentreline
+survey a
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	11.3	184	0	# Walking size. Ends in draughting 5 min dig.
+  2	3	7.3	333	0	# FAB stn 11
+
+endcentreline
+endsurvey
+
+# Side passages from Ali's re-survey...
+# Survey conducted on Sunday 25th February by Morgannwg Caving Club.
+# Surveyed by: Ali Garman, Ben Lovett and Ian Benson
+# Data entry: Ali
+
+survey sp1
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	11.6	310	0	# boulder choke
+  2	3	8.1	265	-20
+  3	4	5.1	195	0
+  4	5	3.6	0	-90	# drop to sump pool
+  4	6	7.1	190	+10
+  6	7	7.8	350	+20	# side passage
+  7	8	3.5	340	0
+  8	9	6.2	360	+25
+  6	10	8.5	160	0
+  10	11	8.3	180	-10
+  11	12	4.1	145	-10
+  12	13	5.1	255	-30	# =New FAB station 2
+  12	14	6.7	30	+30	# side passage
+  14	15	4.4	325	+25
+  15	10	6.0	345	-30
+
+endcentreline
+endsurvey
+
+survey sp2
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	4.1	45	0
+  2	3	5.4	0	+90	# climb in roof
+  2	4	9.5	15	-20	# =New FAB station 2
+
+endcentreline
+endsurvey
+
+survey sp3
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	7.0	140	-50
+  2	3	6.3	135	-30	# =New FAB station 6
+
+endcentreline
+endsurvey
+
+survey sp4
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	5.9	360	-20
+  2	3	10.6	35	-20	# =New Fab station 6
+
+endcentreline
+endsurvey
+
+survey sp5
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	3.1	180	0
+  3	4	4.3	0	-90	# climb
+  4	5	3.0	335	0
+  5	2	4.9	355	0
+  2	6	4.5	80	-30	# =New FAB station 8
+
+endcentreline
+endsurvey
+
+survey sp6
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	3.8	0	+90	# climb out of stream
+  2	3	6.9	166	+10
+  3	4	8.8	174	-15
+  5	6	6.5	0	-90	# climb in roof
+  6	7	3.9	356	-10
+  7	8	4.4	351	-40
+  8	9	6.6	301	-35
+  9	4	8.3	344	-10
+  4	10	5.1	270	-30	# =New FAB station 9
+
+endcentreline
+endsurvey
+
+survey sp7
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	14.4	284	+10
+  2	3	6.8	320	0
+  2	4	14.3	144	-10	# =New FAB station
+
+endcentreline
+endsurvey
+
+endsurvey

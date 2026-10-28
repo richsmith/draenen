@@ -1,0 +1,56 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/RiftMars.svx).
+
+# > Ogof Draenen: Squirrel Rifts to Life on Mars connection.
+# 
+# 
+# Survey conducted:	4/3/95.
+# 
+# Surveyed by:          Peter Bolt, Steven Roberts, Gavin Lowe
+# 
+# BCRA Survey Grade:	3
+# 
+# Data entry:		Ali Garman & Tim Long
+
+# Name the survey section (identifier up to 12 characters)
+
+survey riftmars
+
+# Station Equivalences - describe tie-ins with other passages
+
+# Prime Survey Stations (describe location of permanent marks)
+# 
+# Station 1 is station at top of climbs.
+# Station 12 is life on mars, station on corner.
+
+# Describe the units used and scale (if any).
+# E.G. if measurements recorded in centimetres, *Units Length 0.01 metres
+
+# Instrument Calibration - the correction is subtracted from the readings.
+# Magnetic North (declination) to Grid North correction
+# Mag deviation at 9-Oct-94 in the Pwll Du area was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# 
+# Describe the order of the survey data
+# 
+
+centreline
+  # BCRA1
+  sd length 1.0 metres
+  sd compass clino 5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	3.9	-	down
+  2	3	4.7	355	-25
+  3	4	3.3	252	0
+  4	5	4.2	156	30
+  5	6	8.1	180	0
+  6	7	2.6	184	-15
+  7	8	3	-	up	# Up Rift
+  8	9	7.9	320	0	# Pinches in too tight
+  8	10	10	142	0
+  10	11	8	50	0	# Goes to SR and HB1
+  10	12	3.3	158	0	# Life on mars, station on corner (Squirrel2.29)
+
+endcentreline
+endsurvey

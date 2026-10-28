@@ -2,6 +2,19 @@ encoding  utf-8
 
 survey wooden-spoon -title "Wooden Spoon Passage"
 
+  # Grade 2 placeholder: converted from the old Grade 2 Survex data.
+  input grade2/woodenspoon.th
+
+  # Junctions offered to the level above: zero-length legs naming
+  # stations so the level above needn't know what's inside here.
+  centreline
+    sd length 0.001 metres
+    data normal from to length compass clino
+    17@woodenspoon	wooden-spoon-ab2	0	0	0
+    15@woodenspoon	wooden-spoon-round-trip	0	0	0
+    16@woodenspoon	wooden-spoon-ac1	0	0	0
+  endcentreline
+
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.
   #   input 2025-01-01-passage/passage.th
   #   centreline

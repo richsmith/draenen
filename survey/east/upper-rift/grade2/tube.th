@@ -1,0 +1,108 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/Tube.svx).
+
+# > Ogof Draenen: Surprise Passage
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 21st January by Morgannwg Caving Club.
+# Surveyed by: Pete Bolt, J. Hooper, Kev Senior, S. Jones and Dave Checkley
+# Data entry: Ali
+
+survey tubesurprise
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	8.4	336	0	# tube 6 ! junction
+  2	3	10.3	340	0	# junction
+  3	4	2.8	100	0	# snatch hole (?)
+
+endcentreline
+survey tubeleft
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	6.2	92	0	# dig ongoing 5m
+  2	3	2.5	82	0
+  3	4	2.8	150	0	# into tube surprise
+  4	5	2.2	70	0	# equals Tube surprise 3
+
+endcentreline
+endsurvey
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  4	5	4.6	96	0
+
+  5	6	2.5	170	0
+  # this is an exact script of what is in notes - it's giberish!!
+  # (4-5)  1m short of 5   5       350
+  # your guess is as good as mine
+
+  # The following two lines given verbally from Peter Bolt
+  # (side passage leaves part way between stations 4 & 5)
+  4	5a	3.6	96	0
+  5a	5b	5.0	350	0
+
+  5	7	4.0	170	0
+  6	8	1.0	168	0
+  8	9	3.2	270	0
+  8	10	2.6	90	0
+  10	11	2.8	178	0
+  11	12	3.9	130	0
+  12	13	5.2	148	0
+  13	14	4.3	360	0
+  14	15	2.2	20	0
+  15	16	4.5	120	0	# tight and blocked
+  15	17	9.4	150	0
+  17	18	8.5	2	0
+  18	19	6.9	20	0
+  19	20	5.0	290	0	# side passage
+  19	21	7.5	20	0
+  21	22	6.0	150	0
+  21	23	8.0	180	0
+  21	24	6.0	30	0
+  21	25	12.5	360	0	# chamber
+  25	26	7.1	50	0	# junction
+  26	27	6.5	112	0	# junction with stream
+  27	28	3.9	54	0
+  28	29	3.0	110	0	# choke
+  28	30	2.6	285	0
+  30	31	4.9	332	0	# connection to way out
+  27	32	2.8	180	-45	# into stream
+  32	33	3.7	180	0
+  33	34	3.0	150	0	# upstream too tight
+  33	35	5.7	200	0	# silts up
+  32	36	8.1	260	0	# downstream connection
+  # to passage above
+  26	37	6.1	15	0	# way out junction
+  37	38	9.6	10	0
+  38	39	3.0	325	0	# connection to west of 37-39
+  39	40	6.4	32	0
+  40	41	5.0	95	0	# choke
+  41	42	16.6	360	+15	# Agent Blorenge III station 1
+
+endcentreline
+endsurvey

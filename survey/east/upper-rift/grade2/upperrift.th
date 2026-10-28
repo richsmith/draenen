@@ -1,0 +1,180 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/UpperRift.svx).
+
+# > Ogof Draenen: Upper Rift, beyond pitch in Squirrel Rift
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 26th November by Morgannwg Caving Club.
+# Survey: Andy Cave, Rick Blake, Ben Lovett.
+# Data entry: Tim Long
+
+survey ur
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+# The survey data
+
+survey pitchlink
+
+# From   To      Dist    Brg     Clino   Comments
+
+# There appears to be a pitch here which has NOT been surveyed properly -- TPL
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  a	1	5.8	295	0	# V. Narrow rift
+  1	2	3.3	295	0
+  2	3	5.0	295	0
+  3	4	2.3	305	0	# Breakthrough dig
+  4	5	3.4	305	0	# Low
+  5	6	2.8	305	-15	# Low
+  6	7	14.7	300	0	# Walking
+  7	z	3.6	300	0	# Station 16, Squirrel rift
+
+endcentreline
+endsurvey
+
+survey upperrift
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1a	1	3.1	115	0	# Foot of pitch, aven inlet descends
+  1	2	8.2	010	0	# Rift 20m high 2m wide
+  2	3	4.5	010	0	# Cairn by junction (A)
+  3	4	7.4	015	+45	# Silly climb
+  4	5	12.1	015	0	# Cairn by junction (B)
+  5	6	13.8	015	0	# Rift trverse above stream
+  6	6a	10.0	030	-30	# Down to stream (tight but passable)
+  6	7	3.9	350	+20	# Up (within same rift). Lower.
+  7	8	9.7	010	0	# End: Draughting (digable) choke.
+
+endcentreline
+endsurvey
+
+survey downstream
+
+# End: Choke with ascending hole above. Small (passable?) streram rift below.
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	8.9	030	0	# Walking streamway
+  2	3	16.8	005	0
+  3	4	1.9	085	0	# Hole in roof connects to "Ben's Link"
+  4	5	2.8	015	0	# Entry climb
+  5	6	8.0	010	0
+
+endcentreline
+endsurvey
+
+survey upstream
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  a	1	2.7	275	0	# Small hole!
+  1	2	2.9	300	0	# Narrow rift, stream below, traversing
+  2	3	2.3	335	0	# "
+  3	4	3.2	330	0	# "
+  4	5	4.1	335	-45	# Hole down to stream
+  5	6	5.5	340	0
+  6	7	2.5	315	+55
+  7	8	2.8	335	0	# Slightly bigger! (walk/stoop) stream below
+  8	9	3.3	290	0	# Small hole to R: 4.0m 015deg ends in small tube
+  9	9a	4.0	015	0	# Tube described above -- TPL
+  9	10	6.6	330	0	# Formation! At upper level, stream through crawl below
+  10	11	2.8	275	0
+  11	12	2.7	300	0
+  12	13	3.1	310	0	# Hole on L to dig, 8.3m 190deg
+  12	12a	8.3	190	0	# Side passage described above -- TPL
+  13	14	6.0	190	0	# Bigger (2-3m high/wide)
+  14	z	3.6	220	0	# Z=DownStream.6
+
+endcentreline
+endsurvey
+
+survey tube
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1a	1	8.4	215	0	# Choke
+  1b	1	4.2	160	0	# Easy dig
+  1	2	4.9	155	0	# Muddy floor 3m wide, stooping
+  2	3	7.0	165	0	# Holes R & L.                  Walking/stooping 2m wide
+  3	4	4.9	150	0	# Hole above goes to mud choke  "
+  4	5	4.9	170	-40	# Hole on L to mud choke        "
+  5	6	2.6	150	+40	# "
+  6	6a	3.1	155	+40	# "
+  6a	6b	4.2	155	0	# Ends in choke                 "
+
+  6	7	1.3	210	0	# Walking/stooping 1m wide
+  7	8	5.4	180	0
+  8	9	7.3	205	0	# Hole on L
+  9	9a	5.8	210	0	# Entry junction. Ends in choke.
+
+  9	10	2.9	140	0	# Squeeze
+  10	11	1.0	140	0	# Low!
+  11	12	2.3	150	0	# Low sandy tube.
+  12	13	1.8	165	0	# Low sandy tube.
+  13	14	2.8	130	0
+  14	15	2.8	120	0
+  15	z	2.6	145	0	# = UpStream 13
+
+endcentreline
+endsurvey
+
+survey benslink
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  a	1	2.7	-	up	# Downstream.5
+  1	2	2.6	170	0	# Holes on R to stream
+  2	3	3.0	090	0
+  3	4	3.0	110	0	# Hole on R to stream (left turn off continues flat out)
+  4	5	2.3	100	+35
+  5	6	3.8	100	0	# Rifty (traverse)
+  6	6a	4.1	345	0	# Small hole at top of rift into cross rift. Mud choke.
+
+  6	7	7.6	145	0	# Walking
+  7	8	6.2	150	0	# Biggish holes above (interesting?)
+  8	9	7.7	150	0
+  9	10	3.6	100	0	# Hands & knees
+  10	11	2.2	160	0
+  11	12	2.0	180	+45	# Step up in low hole.
+  12	z	0.9	080	0	# Upper Rift 3 (junction A)
+
+endcentreline
+endsurvey
+
+endsurvey

@@ -1,0 +1,72 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/CrystalMaze.svx).
+
+# > Ogof Draenen: Crystal Maze
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Sunday 4th December by Morgannwg Caving Club.
+# Surveyed by: Ali Garman & Will Knight
+# Data entry: Ali Garman & Tim Long (data supplied on disk by Ali)
+# Survey continued by Ali & Will on 11/12/94
+
+survey crystalmaze
+
+# Station Equivalences
+
+# Crystal Maze station 25 = Chocolate Blorenge station A
+
+# (25 is the start of the Crystal Maze, near the water fall
+# which hasn't been surveyed yet either, not far from where
+# you popped through and met us when you were with Ben Thorpe)
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	7.7	294	0	# 1 = The Swim station 12
+  2	3	17.8	313	0	# junction which follows 300m loop
+  # round to station 7 (as yet
+  # unsurveyed but takes a good
+  # draft in the opposite direction,
+  # therefore return expected!!)
+  3	4	13.3	24	0
+  4	4a	4	78	0	# junction - dig probably connects
+  # through to The Swim around
+  # station 14
+  4	5	3.4	268	0
+  5	6	5.2	335	0
+  6	7	2.9	265	0	# junction which follows loop
+  # around to station 3
+  7	7a	4.0	262	0
+  7	8	1.0	344	0
+  8	9	4.2	44	0
+  9	10	1.2	314	0
+  10	11	2.0	62	0
+  11	12	12.2	325	0
+  12	13	4.2	7	0
+  13	14	2.9	76	0
+  14	15	10.8	322	0
+  15	16	10.9	330	0
+  16	17	13.0	344	0
+  17	18	0.9	280	0	# I had to get one under a metre!
+  18	19	7.5	331	0
+  19	20	4.4	352	0
+  20	21	4.7	318	0
+  21	22	5.4	1	0
+  22	23	2.1	72	0
+  23	24	3.7	348	0
+  24	25	6.3	0	0
+
+endcentreline
+endsurvey

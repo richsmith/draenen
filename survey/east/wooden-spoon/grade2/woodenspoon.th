@@ -1,0 +1,63 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/WoodenSpoon.svx).
+
+# > Ogof Draenen:       Wooden Spoon Passage
+# This was the passage raffled at the Morgannwg vs. Isca skittles match.
+# The raffle was won by Sue Mabbett, secretary of SWCC, who rather
+# ungratefully named it "Wooden Spoon".
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 19th November by Morgannwg Caving Club.
+# Recording: ?
+# Tape: ?
+# Compass: ?
+# Data entry: Tim Long
+
+survey woodenspoon
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+# The survey data
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	13.7	350	0
+  2	3	2.4	101	0
+  3	4	18.7	149	0
+  4	5	8.0	152	0
+  5	6	6.0	202	0
+  6	6a	11.6	269	0	# Side passage (SP)
+  6	7	6.7	113	0
+  7	8	20.8	125	0
+  8	8a	3.8	200	0	# SP
+  8a	8b	10.0	257	0	# Same SP
+  8	9	11.3	72	0
+  9	9a	9.0	331	0	# SP
+  9	10	15.0	139	0
+  10	11	9.9	160	0
+  11	11a	8.0	167	0	# SP
+  11	11b	10.0	39	0	# SP
+  11b	11c	15.0	14	0
+  11	12	12.6	94	0
+  12	12a	20.0	355	0	# SP
+  12	13	4.9	126	0
+  14	13	8.8	338	0
+  14	15	14.5	169	0	# Main junction Squirrel Rift/Wooden Spoon/Round Trip Connection
+  15	16	10.2	97	0
+  16	17	8.9	356	0	# End of Squirrel Rift (Stn 22?)
+
+endcentreline
+endsurvey

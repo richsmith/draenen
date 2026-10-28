@@ -1,0 +1,58 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/AC1.svx).
+
+# > Ogof Draenen: Side passages off Squirrel Rift
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 19th November.
+# Andy Cave, Alex Gee & Ros Bateman - 3 / 12 / 94 (called 'A' in notes)
+# Data entry: Tim Long
+
+survey ac1
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+# End: 60' up in big rift passage below where we saw Pete (Haggis Basher)
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	12.9	10	+25	# rift traverse (high!)
+
+  1a	1b	6.0	14	0	# ends dig probably back to HB
+  1b	2	3.2	294	0
+  2	3	10.0	8	0
+  3	4	7.7	284	0	# climb down connects to A1
+  # after possible route to HB
+  4a	4b	5.7	24	0	# station is previously surveyed
+  # rift (unlabeled station) I think
+  # just above 1st climb down in
+  # connection to FAB
+  4b	4	3.4	14	0
+  4	5	3.5	336	0
+
+  5a	5	4.2	210	0	# ends dig
+  5	6	9.9	350	0	# squeeze
+  6	7	4.0	0	0
+  7	8	1.7	332	0
+  8	9	3.2	302	0
+
+  9a	9	7.6	12	0	# ends dig
+  9	10	7.5	2	-30
+  10	11	3.2	358	0	# unnumbered by Sue M's junction
+  # (see sketch )
+
+endcentreline
+endsurvey

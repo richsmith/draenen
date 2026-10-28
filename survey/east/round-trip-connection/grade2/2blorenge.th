@@ -1,0 +1,89 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/2Blorenge.svx).
+
+# > Ogof Draenen: Agent Blorenge part II
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# The name "Agent Blorenge part II" refers only to the order of surveying,
+# not to any geological feature.
+# 
+# Survey conducted on Saturday 12th November by Morgannwg Caving Club.
+# 
+# Surveyed by: Pete Bolt, Andy Deeley, Dave Glover, Ben Lovett, Charles Bailey
+# Data entry: Tim Long
+# 
+# 
+
+survey ab2
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+# The survey data
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	14.8	250	-5
+  2	3	17.8	211	0
+  3	4	18.1	192	+10
+  4	5	20.4	208	-10
+  5	6	18.8	153	+10
+  6	7	16.7	168	-5
+  7	8	14.0	144	+5
+  8	9	11.6	154	-5
+  9	10	29.3	170	0
+  10	11	25.3	191	0	# Built Cairn below 25ft balcony from HL series
+  11	12	27.7	227	0	# Side passage enters into oxbow
+  12	13	12.2	172	0
+  13	14	10.8	198	0	# Climb
+  14	15	11.0	280	0
+  15	16	14.6	247	0
+  16	17	6.7	220	0
+  17	18	8.0	255	0	# To sump.
+
+  14	19	1.9	-	up
+  19	20	7.4	185	+45
+  20	21	5.9	189	+30
+  21	22	8.2	170	+30	# Connection from stream
+  22	23	12.2	028	+5
+  # 23      24      7.8     142     0      Replaced by Andy Cave's survey (AC2)
+  23	25	6.1	065	0
+  25	26	4.4	007	+30
+  26	27	4.4	086	+60	# Chamber - numerous ways
+  27	28	8.0	125	+5
+  28	29	6.3	120	0	# Chamber - numerous ways
+  29	30	12.8	026	-15
+  30	31	11.2	009	0
+  31	32	10.5	019	+5	# Chamber - numerous ways
+  32	33	6.2	335	0
+  33	34	8.8	318	-45
+  34	35	6.9	344	+5
+  35	36	14.9	000	-5	# Query clino
+  36	37	9.3	342	+5	# Query clino
+  37	38	5.4	000	0
+  38	39	5.5	014	+45
+  39	40	4.4	000	0
+  40	41	8.3	351	0
+  41	42	6.3	348	0
+  42	43	4.4	008	0
+  43	44	7.4	065	0
+  44	45	4.0	072	-5
+  45	46	3.5	125	+30
+
+  # Leads and side passages off Agent Blorenge II...
+
+  43	43.a	1	008	0	# Side passage
+
+endcentreline
+endsurvey

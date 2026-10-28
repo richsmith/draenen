@@ -2,6 +2,35 @@ encoding  utf-8
 
 survey upper-rift -title "Upper Rift & Beyond"
 
+  # Grade 2 placeholder: converted from the old Grade 2 Survex data.
+  input grade2/upperrift.th
+  input grade2/tube.th
+  input grade2/surprise.th
+  input grade2/waconnection.th
+
+  centreline
+    equate 6@downstream.ur z@upstream.ur	# upperrift
+    equate 6@downstream.ur 1@waconnection	# upperrift waconnection
+    equate 1@tubesurprise 6@tube.ur	# tube upperrift
+    equate a@pitchlink.ur 1@upperrift.ur	# upperrift
+    equate 5@upperrift.ur a@upstream.ur	# upperrift
+    equate z@tube.ur 13@upstream.ur	# upperrift
+    equate a@benslink.ur 5@downstream.ur	# upperrift
+    equate z@benslink.ur 3@upperrift.ur	# upperrift
+    equate 3@tubesurprise 5@tubeleft.tubesurprise	# tube
+  endcentreline
+
+  # Junctions offered to the level above: zero-length legs naming
+  # stations so the level above needn't know what's inside here.
+  centreline
+    sd length 0.001 metres
+    data normal from to length compass clino
+    z@pitchlink.ur	upper-rift-pitch	0	0	0
+    7@waconnection	wa-connection-squirrel	0	0	0
+    42@tubesurprise	tube-surprise-ab3	0	0	0
+    10@surprise	surprise-squirrel	0	0	0
+  endcentreline
+
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.
   #   input 2025-01-01-passage/passage.th
   #   centreline

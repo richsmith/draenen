@@ -2,6 +2,22 @@ encoding  utf-8
 
 survey bolder-land -title "Bolder Land"
 
+  # Grade 2 placeholder: converted from the old Grade 2 Survex data.
+  input grade2/bolderag.th
+  input grade2/bolderpb.th
+
+  centreline
+    equate 23@pb.bolder 45@ag.bolder_2	# bolderag bolderpb
+  endcentreline
+
+  # Junctions offered to the level above: zero-length legs naming
+  # stations so the level above needn't know what's inside here.
+  centreline
+    sd length 0.001 metres
+    data normal from to length compass clino
+    1@pb.bolder	bolder-land-junction	0	0	0
+  endcentreline
+
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.
   #   input 2025-01-01-passage/passage.th
   #   centreline

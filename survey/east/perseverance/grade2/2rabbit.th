@@ -1,0 +1,35 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/2Rabbit.svx).
+
+# > Ogof Draenen: Rabbit runs in perseverance II
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Sunday 19th February 1995 by Morgannwg Caving Club.
+# Compass:	Kevin Munn (compass now at the bottom of a rift in FAB)
+# Tape:		Ali Garman
+# Book:		Tim Long
+# Data entry:	Tim Long
+
+survey rabbitrun_add
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Kevin's compas is (was) precalibrated, so no need for any adjustment here.
+
+# Data ordering
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  data normal from to length compass clino
+  s1	s2	2	-	up	# Short climb into passage
+  s2	s3	5.5	286	0
+  s3	s4	9.4	322	0
+  s4	s5	4.6	284	-40	# Back to Perseverance
+
+endcentreline
+endsurvey

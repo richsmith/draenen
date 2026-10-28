@@ -2,6 +2,26 @@ encoding  utf-8
 
 survey life-on-mars -title "Life On Mars"
 
+  # Grade 2 placeholder: converted from the old Grade 2 Survex data.
+  input grade2/mars1.th
+  input grade2/mars2.th
+  input grade2/riftmars.th
+
+  centreline
+    equate 3@mars1 73@mars2	# mars1 mars2
+    equate 29@mars1 a@p29.mars1	# mars1
+  endcentreline
+
+  # Junctions offered to the level above: zero-length legs naming
+  # stations so the level above needn't know what's inside here.
+  centreline
+    sd length 0.001 metres
+    data normal from to length compass clino
+    43@mars1	mars1-squirrel2	0	0	0
+    12@riftmars	rift-mars-squirrel2	0	0	0
+    1@riftmars	rift-mars-round-trip	0	0	0
+  endcentreline
+
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.
   #   input 2025-01-01-passage/passage.th
   #   centreline

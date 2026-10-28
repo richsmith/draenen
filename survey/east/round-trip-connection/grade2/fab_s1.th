@@ -1,0 +1,45 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/FAB_S1.svx).
+
+# > Ogof Draenen: Side passage off Far Agent Blorenge
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 19th November by Morgannwg Caving Club.
+# Surveyed by: Peter Bolt & Vince Simmonds
+# Data entry: Tim Long
+
+survey fab_s1
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	20	156	0	# Crawl
+  2	3	2.9	062	0
+  3	4	20	118	0
+  4	5	14.4	156	0	# Chamber
+  5	5.1	10.7	37	0	# Rift off choke
+  5.1	5.2	5.0	20	0
+  5	6	11.9	98	0
+  6	7	18.0	170	0
+  7	7.1	7.3	112	+20	# Side passage
+  7.1	7.2	8.0	130	0	# Closes
+  7	8	20.0	150	0
+  8	9	20.0	188	0
+  9	10	5.70	200	0	# Agent Blorenge 18 (Ali's Survey)
+
+endcentreline
+endsurvey

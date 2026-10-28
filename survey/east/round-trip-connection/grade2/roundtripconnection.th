@@ -1,0 +1,51 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/RoundTripConnection.svx).
+
+# > Ogof Draenen:       Round Trip Connection
+# The connection from Wooden Spoon Passage to
+# Haggis Basher Number One that completed the
+# Draenen round trip.
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 19th November by Morgannwg Caving Club.
+# Recording: ?
+# Tape: ?
+# Compass: ?
+# Data entry: Tim Long
+
+survey roundcon
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+# The survey data
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	7.7	175	0
+  2	3	7.4	202	0
+  3	4	6.2	165	0
+  4	5	9.1	157	0
+  5	6	15.0	142	0
+  6	7	5.5	183	0
+  7	8	2.7	-	down	# Vertical drop down a rift
+  8	9	5.3	331	-35
+  9	10	3.2	-	down	# Vertical drop
+  10	11	1.4	194	0	# Progress along the bottom of a very tight rift
+  11	12	6.7	150	0
+  12	13	10.6	153	0	# Joins Haggis Basher 1 at Stn 9.
+
+endcentreline
+endsurvey

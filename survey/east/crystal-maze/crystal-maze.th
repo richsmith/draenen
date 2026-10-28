@@ -2,6 +2,24 @@ encoding  utf-8
 
 survey crystal-maze -title "Crystal Maze"
 
+  # Grade 2 placeholder: converted from the old Grade 2 Survex data.
+  input grade2/crystalmaze.th
+  input grade2/theswim.th
+  input grade2/pob.th
+
+  centreline
+    equate 3@crystalmaze 1@pob	# crystalmaze pob
+    equate 1@crystalmaze 12@swim	# crystalmaze theswim
+  endcentreline
+
+  # Junctions offered to the level above: zero-length legs naming
+  # stations so the level above needn't know what's inside here.
+  centreline
+    sd length 0.001 metres
+    data normal from to length compass clino
+    25@crystalmaze	chocolate-crystal-maze	0	0	0
+  endcentreline
+
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.
   #   input 2025-01-01-passage/passage.th
   #   centreline

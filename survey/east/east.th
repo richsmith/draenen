@@ -34,6 +34,18 @@ survey east -title "The East and the 'Round Trip' route"
     equate raiders-8@indiana-highway raiders-8@raiders-passage raiders-8@tea-junction-to-lamb-and-fox	# indianahighway raiderspassage walead3
     equate hades-lamb@lamb-and-fox-chamber hades-lamb@tea-junction-to-lamb-and-fox	# hadeslamb whitearch
     equate raiders-10@raiders-passage raiders-10@tea-junction-to-lamb-and-fox	# raiderspassage walead3
+    equate arms-park@perseverance arms-park@round-trip-connection	# erection swallow
+    equate upper-rift-pitch@round-trip-connection upper-rift-pitch@upper-rift	# squirrel upperrift
+    equate wa-connection-squirrel@round-trip-connection wa-connection-squirrel@upper-rift	# squirrel waconnection
+    equate tube-surprise-ab3@round-trip-connection tube-surprise-ab3@upper-rift	# 3blorenge tube
+    equate surprise-squirrel@round-trip-connection surprise-squirrel@upper-rift	# squirrel surprise
+    equate wooden-spoon-ab2@round-trip-connection wooden-spoon-ab2@wooden-spoon	# 2blorenge woodenspoon
+    equate mars1-squirrel2@life-on-mars mars1-squirrel2@round-trip-connection	# mars1 sq2
+    equate wooden-spoon-round-trip@round-trip-connection wooden-spoon-round-trip@wooden-spoon	# roundtripconnection woodenspoon
+    equate wooden-spoon-ac1@round-trip-connection wooden-spoon-ac1@wooden-spoon	# ac1 woodenspoon
+    equate chocolate-crystal-maze@crystal-maze chocolate-crystal-maze@round-trip-connection	# chocolateblorenge crystalmaze
+    equate rift-mars-squirrel2@life-on-mars rift-mars-squirrel2@round-trip-connection	# riftmars sq2
+    equate rift-mars-round-trip@life-on-mars rift-mars-round-trip@round-trip-connection	# riftmars roundtripconnection
   endcentreline
 
   # Junctions offered to the level above: zero-length legs naming
@@ -43,6 +55,7 @@ survey east -title "The East and the 'Round Trip' route"
     data normal from to length compass clino
     elliptic-lucky-13@elliptic-passage	elliptic-lucky-13	0	0	0
     tea-junction@tea-junction-to-lamb-and-fox	tea-junction	0	0	0
+    agent-blorenge@round-trip-connection	agent-blorenge	0	0	0
   endcentreline
 
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.

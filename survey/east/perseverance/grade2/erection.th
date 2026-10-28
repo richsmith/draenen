@@ -1,0 +1,54 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/Erection.svx).
+
+# > Ogof Draenen:       Erection Series
+# (High level continuation of Perseverance series
+# on opposite wall of Arms Park)
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on 28th January 1995 by Morgannwg Caving Club.
+# Huw Jones, Ben Lovett plus Ian Wilton-Jones
+# Data entry: Tim Long 4/2/95
+
+survey pe
+
+# Station Equivalences
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  data normal from to length compass clino
+  1	2	19.6	159	-5	# From choke at end of main passage
+  2	3	4.7	186	-7
+
+  3	4	5.2	237	+32	# 1st side passage (on right)
+  4	5	4.65	190	+62	# Climb
+  5	6	1.2	266	0
+  6	7	9.9	-	down	# Pitch with aven above
+
+  3	8	10.8	149	+10
+  8	9	10.25	173	+1	# Aven 15m+
+
+  9	10	7.0	288	-9	# 2nd side passage (on right) to pitch/aven
+  10	11	9.0	334	+4	# at end of side passgae
+
+  9	12	11.9	142	+1
+  12	13	13.1	150	-5
+  13	14	5.6	173	0
+  14	15	10.7	232	0
+  15	16	21.3	153	0
+
+  16	17	4.1	149	+2	# 3rd side passage
+  17	18	5.7	162	0	# 0.5 wide - continues
+  18	19	1.7	164	47
+
+  16	20	10.35	226	-1.5
+  20	21	6.1	155	+2.5	# Pitch head
+  21	22	7.6	-	down	# Pitch into Arms Park
+  22	23	2.45	237	+63
+  23	24	5.2	181	-0.25	# Pinnacle of rock in centre of chamber marked Swallow Series stn 35
+
+endcentreline
+endsurvey

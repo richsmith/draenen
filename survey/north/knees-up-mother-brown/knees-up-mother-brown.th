@@ -21,6 +21,7 @@ survey knees-up-mother-brown -title "Knees Up Mother Brown and beyond"
     sd length 0.001 metres
     data normal from to length compass clino
     27@pb.kneesup	knees-up	0	0	0
+    13@padlock	bolder-land-junction	0	0	0
   endcentreline
 
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.

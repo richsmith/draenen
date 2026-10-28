@@ -1,0 +1,55 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/HaggisBasherOne.svx).
+
+# > Ogof Draenen:       Haggis Basher One
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 19th November by Morgannwg Caving Club.
+# Recording: ?
+# Tape: ?
+# Compass: ?
+# Data entry: Tim Long
+
+survey haggisbasher
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+# The survey data
+
+# Haggis Basher One
+# Starting at end boulder choke working back towards Agent
+# Blorenge, passing Round Trip Connection on the way.
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	12.1	349	0
+  2	3	10.2	293	0
+  3	4	19.0	316	0
+  4	5	20.0	336	0
+  5	6	11.9	332	0
+  6	7	18.5	270	0
+  7	8	8.8	252	0
+  8	9	8.6	189	0	# 9 = Round Trip Connection Stn 13
+  9	10	13.5	230	0
+  10	11	7.0	175	0
+  11	12	12.0	272	0
+  12	13	13.3	278	0
+  13	14	6.1	329	0
+  14	15	7.0	200	-60
+  15	16	13.4	260	-30	# 16 = Far Agent Blorenge Stn 4
+
+endcentreline
+endsurvey

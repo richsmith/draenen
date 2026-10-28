@@ -1,0 +1,49 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/TheSwim.svx).
+
+# > Ogof Draenen: The Swim (named after the digging style)
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Sunday 4th December by Morgannwg Caving Club.
+# Surveyed by: Ali Garman & Will Knight
+# Data entry: Ali Garman & Tim Long (data supplied on disk by Ali)
+
+survey swim
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	3.5	140	0	# Sand dig in large passage
+  2	3	4.0	127	0
+  3	4	4.0	115	0
+  4	5	4.1	3	0
+  5	6	10.8	344	0
+  6	7	9.4	20	0
+  7	8	9.4	20	0
+  8	9	2.2	359	0	# 9 = first dug breakthrough
+  9	10	6.3	61	0
+  10	11	9.4	24	0	# Hanging Gardens a superb formation
+  11	12	15.6	332	0	# 12 = Crystal Maze station 1
+  12	13	7.9	97	0
+  13	14	13.4	358	0
+  14	14a	10.6	8	0	# a sand dig continuation similar to other direction
+  14	15	10.9	54	0
+  15	16	3.6	79	0
+  16	17	4.4	110	0	# sand digs
+
+endcentreline
+endsurvey

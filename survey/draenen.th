@@ -10,40 +10,7 @@ survey draenen -title "Ogof Draenen"
   input southeast/southeast.th
 
   # Grade 2 placeholder: converted from the old Grade 2 Survex data.
-  # Legs not linked to the rest of the cave, so left out:
-  #   1blorenge: 55
-  #   2blorenge: 45
-  #   2rabbit: 4
-  #   3blorenge: 6
-  #   ac1: 16
-  #   ac2: 23
-  #   armspark: 13
-  #   bigc: 1
-  #   bolderag: 44
-  #   bolderpb: 22
-  #   chocolateblorenge: 31
-  #   crystalmaze: 26
-  #   erection: 23
-  #   fab: 90
-  #   fab_s1: 13
-  #   gameover: 5
-  #   haggisbasherone: 15
-  #   mars1: 49
-  #   mars2: 72
-  #   pbcrawl: 11
-  #   pob: 41
-  #   riftmars: 11
-  #   roundtripconnection: 12
-  #   sq2: 39
-  #   sqs_s2: 5
-  #   squirrel: 25
-  #   surprise: 10
-  #   swallow: 41
-  #   theswim: 17
-  #   tube: 47
-  #   upperrift: 73
-  #   waconnection: 6
-  #   woodenspoon: 24
+  # Not linked to the rest of the cave, so left out: one leg of bigc.
 
   centreline
     equate elliptic-lucky-13@east elliptic-lucky-13@southeast	# elliptic lucky13
@@ -53,6 +20,7 @@ survey draenen -title "Ogof Draenen"
     equate ali3-passage@entrance ali3-passage@south	# ali3 beyondachoke
     equate pitch-base@entrance pitch-base@north pitch-base@south	# beyondachoke darlingrift upstreampassage
     equate cairn-junction@entrance cairn-junction@south	# beyondachoke sparerib strawberrypassage (inferred)
+    equate agent-blorenge@south agent-blorenge@east	# 1blorenge beyondachoke
   endcentreline
 
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.

@@ -1,0 +1,46 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/ArmsPark.svx).
+
+# > Ogof Draenen:	Arms Park, Balcony Pitch & Players Tunnel (North End)
+# Perserverance II
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 12th November by Morgannwg Caving Club.
+# Recording: Liam Kealy
+# Tape: Tim Long & Ali Garman
+# Compass: Kevin Munn
+# Data entry: Tim Long
+
+survey players_n
+
+# Station Equivalences
+
+# ;; XXX (pod): equate
+# ;;*Equate 9		\PE.ArmsPark		\ArmsPark
+# ;;*Equate 10		\ArmsPark.Ladder
+# ;;*Equate 11		\ArmsPark.Balcony	\Balcony
+
+# From   To      Brg     Dist    Clino
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  data normal from to length compass clino
+  1	a	6.3	296	0	# Radials
+  1	b	10.3	24	0	# Radial
+  1	2	9	238	-20
+  2	3	10.9	250	0
+  3	4	4.1	258	+30
+  4	4a	11.4	326	0
+  4	5	24.4	170	0
+  5	6	19.1	156	0
+  6	7	16.3	166	0
+  7	8	8.8	204	+30
+  8	9	9	232	0	# 9 is cairn in Arms Park
+  9	10	9.6	162	0	# Base of ladder, Balcony Pitch
+  10	11	7.0	-	up	# Pitch up to Balcony
+
+endcentreline
+endsurvey

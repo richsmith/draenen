@@ -1,0 +1,70 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/POB.svx).
+
+# > Ogof Draenen: POB passage (right hand series off Crystal Maze)
+# POB is derived from "Pontypool Or Bust".
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Sunday 4th December by Morgannwg Caving Club.
+# Surveyed by: Ali Garman & Will Knight
+# Data entry: Ali Garman & Tim Long (data supplied on disk by Ali)
+# Survey continued by Ali & Will on 11/12/94
+
+survey pob
+
+# Crystal Maze right hand passages surveyed 11/12/94 by Ali & Will
+
+# Station Equivalences
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  data normal from to length compass clino
+  1	2	2.0	310	0	# 1 = Crystal Maze station 3
+  2	3	5.1	204	0
+  3	4	7.9	219	0
+  4	5	14.3	319	0
+  5	5a	4.0	353	0	# complicated connection to Crystal Maze
+  # station 7
+  5	6	7.0	189	0
+  6	7	3.9	151	0
+  7	8	1.9	204	0
+  8	9	4.2	238	0
+  9	10	3.8	306	-10
+  10	11	2.2	186	+10	# junction back therefore
+  11	11a	2.0	5	0
+  11	12	5.2	185	0
+  12	13	6.3	165	0	# 13=small chamber
+  13	13a	7.8	68	+20	# passage to another chamber
+  13	14	4.9	139	0
+  14	15	6.1	198	0
+  15	16	8.5	168	0
+  16	17	7.8	200	0
+  17	18	7.0	166	0
+  18	19	2.1	148	0
+  19	20	18.0	174	0
+  20	21	4.6	235	+10
+  21	22	3.1	169	0
+  22	23	3.5	154	0
+  23	24	3.5	193	0
+  24	25	7.0	183	0	# chamber and cairn
+  25	26	5.7	83	0
+  26	27	10.7	77	0	# low sand dig
+  25	28	6.3	298	0	# radial
+  25	29	3.2	216	0	# radial
+  25	30	6.5	268	0
+  30	31	7.0	188	0
+  31	32	9.4	186	0
+  31	33	5.3	134	-10
+  33	34	11.9	181	0
+  34	35	3.0	200	0	# the remaining figures were not
+  # measured using instruments
+  35	36	2.0	180	0
+  36	37	4.0	160	0
+  37	38	1.5	190	0
+  38	39	1.0	90	0	# intersect water coarse v.low in both
+
+endcentreline
+endsurvey

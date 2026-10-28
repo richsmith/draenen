@@ -31,6 +31,7 @@ survey bac-streamway -title "The Beyond A Choke streamway"
     229@bac	pitch-base	0	0	0
     221a@bac	cairn-junction	0	0	0
     1@oo	score-junction	0	0	0
+    108@bac	agent-blorenge	0	0	0
   endcentreline
 
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.

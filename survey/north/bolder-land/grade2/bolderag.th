@@ -1,0 +1,115 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/BolderAG.svx).
+
+# > Ogof Draenen:  Bolder Land (Waterfall Series)
+# 
+# The name "Bolder" describes the exploration technique, not the rock.
+# 
+# BCRA Survey Grade: 3
+# 
+# Survey conducted on 21/1/96, Morgannwg Caving Club
+# 
+# Instrument		Name of operator		Serial Number
+# ====================  ==============================  =====================
+# Compass:		Huw Jones
+# Tape:			Ben Lovett
+# Clinometer:		(estimated, accuracy claimed +/- 5 deg)
+# Book:			Ali Garman
+# Data entry:		Tim Long & Ali Garman
+
+# Prime Survey Stations (describe location of permanent marks and note the tie-in
+# point for any unsurveyed side passages)
+# 
+
+# Specify name of survey section. One survey section per file. Don't forget to *End it.
+
+survey bolder_2
+
+# Station Equivalences - export all junction names here.
+
+# ;; XXX (pod): equate
+# ;;*Equate AG.45	PB
+
+survey ag
+
+# Describe the units used and scale (if any).
+# E.G. if measurements recorded in centimetres, *Units Length 0.01 metres
+
+# Calibrate instruments (required to claim grade 5).
+# The correction specified is subtracted from the readings. Note that
+# tape calibration is a more reliable method of correcting for cut tapes
+# than mentally adding the missing length in the cave.
+
+# *Calibrate Tape 0	; Use this to correct for cut tapes.
+# *Calibrate Compass 0	; Compass zero-error (different to declination).
+# *Calibrate Clino 0     ; Clinometer zero-error.
+
+# Magnetic North (declination) to Grid North correction
+# Mag deviation at 9-Oct-94 in the Pwll Du area was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# The data. Include as many notes as possible.
+# Use		For
+# ============  ==============================================
+# -		Omitted clinometer reading.
+# -		Omit bearing on plumbed legs.
+# H, Horizontal Horizontal clinometer readings
+# V, Vertical   Vertical clinometer readings
+# U, Up		Plumbed legs (clino not used)
+# D, Down       Plumbed legs (clino not used)
+# +/-90		Vertical legs that were measured with a clinometer
+# Data ordering (LRUD data may be entered but will be ignored)
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	4.1	215	-5	# Millstone Grit passage continue up a long way
+  2	3	4.3	180	30
+  3	4	5.8	155	0
+  4	5	4.1	249	-30
+  5	6	3.1	202	-10
+  6	7	3.4	268	0
+  7	8	3.9	242	-30
+  8	9	5.3	164	-10
+  9	10	4	85	0	# sp. fossilised tree ???
+  9	11	9.9	184	0	# end of Millstone Grit
+  11	12	19.9	231	0
+  12	13	3.3	205	-5	# chamber
+  13	14	14.9	143	0
+  14	15	30.1	111	0	# climb to passage?
+  15	16	12.8	127	0	# stream crosses passage
+  16	17	5.4	129	0
+  17	18	14.9	148	0	# 6m pit
+  18	19	2.7	110	0
+  19	20	5.8	50	+55	# V dangerous boulder climb above pit
+  20	21	4.3	102	-40
+  21	22	3.1	125	0
+  22	23	3.6	74	0
+  23	24	7.3	117	-15	# draughty
+  24	25	5	131	0
+  25	26	3.3	184	0	# bedding to 6m pit
+  26	27	4	126	0
+  27	28	6.4	172	20
+  28	29	2.5	235	0
+  29	30	4.7	234	-40
+  30	31	7.1	190	0	# trickle of water
+  31	32	7	180	0	# avens 12m?
+  32	33	6.9	136	-5
+  33	34	2.6	105	5
+  34	35	24.4	155	0
+  35	36	5.1	145	25
+  36	37	8.4	165	0
+  37	38	12.9	174	0
+  38	39	3.7	154	-10	# stream can be followed for approx 50m
+  39	40	12.9	157	0
+  40	41	4	145	0
+  41	42	4.5	169	0
+  42	43	5.	131	0
+  43	44	5.7	162	0
+  44	45	6.3	148	0	# 45 = Pete's Bolder Land station 23
+
+endcentreline
+endsurvey
+endsurvey

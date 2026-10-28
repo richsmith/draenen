@@ -1,0 +1,37 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/SqS_S2.svx).
+
+# > Ogof Draenen: Side passages off Squirrel Rift
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# 
+# Survey conducted on Saturday 19th November by Morgannwg Caving Club.
+# Surveyed by: Peter Bolt & Vince Simmonds
+# Data entry: Tim Long
+
+survey squirrel_s2
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	5.0	350	0
+  2	3	5.1	350	0
+  3	4	5.3	335	0
+  4	5	16.6	304	0
+  5	6	6.1	310	0	# Agent Blorenge II Stn 21 ?
+
+endcentreline
+endsurvey

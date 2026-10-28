@@ -21,6 +21,7 @@ survey south -title "The South"
     ali3-passage@bac-streamway	ali3-passage	0	0	0
     pitch-base@bac-streamway	pitch-base	0	0	0
     cairn-junction@bac-streamway	cairn-junction	0	0	0
+    agent-blorenge@bac-streamway	agent-blorenge	0	0	0
   endcentreline
 
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.

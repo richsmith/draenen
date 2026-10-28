@@ -1,0 +1,43 @@
+# Converted from the old Grade 2 Survex data (Grade2/Grade2/3Blorenge.svx).
+
+# > Ogof Draenen: Agent Blorenge part III
+# 
+# This data represents a fairly rough compass & tape survey with
+# occasional estimated clino readings.
+# The name "Agent Blorenge part II" refers only to the order of surveying,
+# not a gelogical feature.
+# 
+# Survey conducted on Saturday 12th November by Morgannwg Caving Club.
+# 
+# Surveyed by: Pete Bolt, Andy Deeley, Dave Glover, Ben Lovett, Charles Bailey
+# Data entry: Tim Long
+# 
+# 
+
+survey ab3
+
+# Station Equivalences
+
+# Specify units of measurement
+
+# Magnetic North to Grid North correction
+# Mag deviation at the time of the readings (9-Oct-94) was
+# 4.2 degrees (data from OS sheet 161, 1991).
+
+# Data ordering
+
+centreline
+  # BCRA2
+  sd length 0.5 metres
+  sd compass clino 2.5 degrees
+  calibrate compass 4.2
+  data normal from to length compass clino
+  1	2	14.5	253	0	# Choke at 1 -- now dug into tube surprise
+  2	3	13.9	262	0
+  3	4	7.3	247	0	# Connection
+  4	5	8.0	174	0
+  5	6	12.1	213	0	# Squirrel Rift
+  6	6-2	3.7	305	0	# Squirrel rift station 2
+
+endcentreline
+endsurvey

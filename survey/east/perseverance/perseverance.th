@@ -10,6 +10,9 @@ survey perseverance -title "Perseverance I and Fault Chambers"
   input grade2/faultrifts.th
   input grade2/headachepassage.th
   input grade2/1rabbit.th
+  input grade2/2rabbit.th
+  input grade2/armspark.th
+  input grade2/erection.th
 
   centreline
     equate 17@faultchamber 10@perseverance_i	# 1perseverance faultchambers
@@ -19,6 +22,9 @@ survey perseverance -title "Perseverance I and Fault Chambers"
     equate 1@perseverance_i p1@perseverance_ii	# 1perseverance 2perseverance
     equate 22@perseverance_i 23@perseverance_i	# 1perseverance
     equate 4@perseverance_i 0@rabbitrun	# 1perseverance 1rabbit
+    equate 9@perseverance_i s1@rabbitrun_add	# 1perseverance 2rabbit
+    equate 24@pe 9@players_n	# armspark erection
+    equate 5-14@perseverance_i 11@players_n	# 1perseverance armspark
   endcentreline
 
   # Junctions offered to the level above: zero-length legs naming
@@ -29,6 +35,7 @@ survey perseverance -title "Perseverance I and Fault Chambers"
     7@faultchamber	elliptic-fault-chambers	0	0	0
     windy@nunnery	windy	0	0	0
     2@perseverance_i	make-it-up-perseverance	0	0	0
+    24@pe	arms-park	0	0	0
   endcentreline
 
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.
