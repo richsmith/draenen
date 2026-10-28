@@ -12,19 +12,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Therion
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends therion
-
+      # Therion 6.4.0 from a container (with TeX, METAPOST and Ghostscript),
+      # as the Swildons Hole survey builds: Ubuntu's package is 6.2.0, which
+      # crashes on this survey's plan. Pinned to a version so the survey
+      # renders the same next year; bump it deliberately. --user so the
+      # outputs belong to the runner user.
+      #
       # Twice: the plan's colour and names are scraps made from the built
       # survey (tools/plan.py), so the first build is without them.
       - name: Build PDF and 3D model
         run: |
+          therion() {
+            docker run --rm -v "$PWD:/project" -w /project/survey -u "$(id -u):$(id -g)" \
+              ghcr.io/paperclipmonkey/therion:6.4.0 "$@"
+          }
           python3 -m tools.plan --empty
-          (cd survey && therion draenen.thconfig)
+          therion draenen.thconfig
           python3 -m tools.plan
-          (cd survey && therion draenen.thconfig)
+          therion draenen.thconfig
 
       # The landing page, the 3D view and the route planner, from the .3d.
       # Plain Python, no packages; the LiDAR is already in lidar/, and Chrome
