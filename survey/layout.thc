@@ -5,4 +5,5 @@ layout draenen
   legend on
   map-header 0 0 sw
   symbol-show group cave-centreline
+  symbol-hide point station
 endlayout

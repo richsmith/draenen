@@ -2,10 +2,12 @@ encoding  utf-8
 source draenen.th
 
 input layout.thc
-select draenen
+select draenen-plan
 
 layout local
   copy draenen
+  # Drawn passages' labels pile up at this scale; hidden for now.
+  symbol-hide point label
   scale 1 5000
   doc-title "Ogof Draenen"
 endlayout

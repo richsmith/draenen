@@ -36,4 +36,16 @@ survey north -title "The North"
     equate 1@Tarddiad.Tardiadd tarddiad@waterfall-series
   endcentreline
 
+  # Plan maps.  drawn-plan lists the maps of every drawn survey in the North.
+  map drawn-plan -proj plan
+    tarddiad-plan@Tardiadd
+  endmap
+
 endsurvey
+
+# The plan: survey lines of everything in the North, including the Grade 2, plus the
+# drawings.  It's outside the survey so it can refer to the survey itself.
+map north-plan -proj plan -title "The North"
+  north
+  drawn-plan@north
+endmap

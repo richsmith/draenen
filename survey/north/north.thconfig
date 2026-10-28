@@ -2,7 +2,7 @@ encoding  utf-8
 source north.th
 
 input ../layout.thc
-select north
+select north-plan
 
 layout local
   copy draenen

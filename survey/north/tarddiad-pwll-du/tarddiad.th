@@ -8,6 +8,12 @@ input Tarddiad-lower/Tarddiad-lower.th
 equate 53@Tarddiad 56@Tarddiad2
 equate 64@Tarddiad2 65@Tarddiad-lower
 
+map tarddiad-plan -proj plan
+  tarddiad-plan@Tarddiad
+  tarddiad2-plan@Tarddiad2
+  tarddiad2-plan-lower@Tarddiad2
+  tarddiad-lower-plan@Tarddiad-lower
+endmap
 
 endsurvey
 
