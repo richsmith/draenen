@@ -1,0 +1,29 @@
+name: Build survey
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Therion
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends therion
+
+      - name: Build PDF and 3D model
+        working-directory: survey
+        run: therion draenen.thconfig
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: draenen-survey
+          path: |
+            survey/draenen-plan.pdf
+            survey/draenen.3d
+            survey/therion.log
+          if-no-files-found: error

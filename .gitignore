@@ -24,3 +24,6 @@
 !*.txt
 !LICENSE
 !.gitignore
+
+# CI
+!.github/workflows/*.yml
