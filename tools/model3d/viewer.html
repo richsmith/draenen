@@ -881,12 +881,16 @@ const home = () => viewFrom(Math.PI * 0.8, -0.12, R0 * 1.05);
 // centreline becomes tubes, and the altitude colours come from a ramp
 // texture.
 //
-// With a route open, the model is the route: the cave around it, cropped
-// to the route and scaled to fill the model, with the route as a bright
-// amber tube on posts down to below its lowest point, gold beads running along it
-// the way it goes (a loop Quick Look plays over and over), the start and
-// end, and the current step as a pulsing ball with a pin up to the
-// surface, to find it from above. Quick Look sets a model down facing the viewer, so the model is
+// With a route open, the model is the route, drawn as on screen: the cave
+// around it, cropped to the route and scaled to fill the model; the route
+// amber, with gold dashes running along it the way it goes (a loop Quick
+// Look plays over and over); the curtain hung from it, coloured by
+// altitude and fading downwards, with thin posts down it; the current
+// step's stretch in cyan and the ways not to take in red; the start, the
+// end and the current step ringed in white, the current step pulsing, with
+// a pin up to the surface to find it from above; and the names of the
+// start, the end and the passages on the way, standing above the route.
+// Quick Look sets a model down facing the viewer, so the model is
 // turned by the phone's compass heading to put its north to the north,
 // and a north arrow lies beside it to check by (and to turn it by, with
 // two fingers, if the compass was out).
@@ -951,9 +955,9 @@ if (!STILL && document.createElement('a').relList.supports?.('ar')) {
     }
   }
   // a ball at each of `at` ({ p, z }, stretched as for sweep)
-  function balls(at, r, u, out) {
+  function balls(at, r, u, out, detail = 1) {
     const { pos, nor, uv, idx } = out, o = new THREE.Vector3();
-    const bp = new THREE.IcosahedronGeometry(r, 1).attributes.position;
+    const bp = new THREE.IcosahedronGeometry(r, detail).attributes.position;
     for (const nd of at) {
       const base = pos.length / 3, uu = u(nd.z);
       for (let i = 0; i < bp.count; i++) {
@@ -984,7 +988,7 @@ if (!STILL && document.createElement('a').relList.supports?.('ar')) {
   // joined into runs between junctions and ends, each swept as a tube,
   // and a ball at every junction and end. Built with the vertical scale
   // applied, so the tubes stay round.
-  function centrelineTubes(mat, u, r, keep) {
+  function centrelineTubes(mat, u, r, keep, sides = 8) {
     const L = S.legs;
     const nodes = new Map(), node = (i) => {
       const key = `${L[i]},${L[i + 1]},${L[i + 2]}`;
@@ -1019,8 +1023,8 @@ if (!STILL && document.createElement('a').relList.supports?.('ar')) {
     const ends = [...nodes.values()].filter(nd => nd.edges.length && nd.edges.length !== 2);
     for (const e of edges) if (!e.done) { ends.push(e.a); walk(e.a, e); }
     const out = tubes();
-    for (const run of runs) sweep(run, r, u, out);
-    balls(ends, r * 1.15, u, out);
+    for (const run of runs) sweep(run, r, u, out, sides);
+    balls(ends, r * 1.15, u, out, sides < 8 ? 0 : 1);
     return tubeMesh(out, mat);
   }
 
@@ -1076,7 +1080,8 @@ if (!STILL && document.createElement('a').relList.supports?.('ar')) {
       g.setIndex(new THREE.BufferAttribute(both, 1));
       group.add(new THREE.Mesh(g, caveMat));
     }
-    if (legs.visible && S.legs.length) group.add(centrelineTubes(caveMat, u, r, keep));
+    // (with a route, the cave is the background: fewer sides, a smaller file)
+    if (legs.visible && S.legs.length) group.add(centrelineTubes(caveMat, u, r, keep, rt ? 5 : 8));
     const opacity = groundMat.uniforms.uOpacity.value, gpos = ground?.geometry.attributes.position.array;
     if (gpos && opacity > 0.02) {
       // the ground at a coarser grid (and with a route, just around it), and
@@ -1126,27 +1131,73 @@ if (!STILL && document.createElement('a').relList.supports?.('ar')) {
       group.add(new THREE.Mesh(under, new THREE.MeshStandardMaterial({ color: 0x000000, emissiveMap: imagery(1), emissive: 0xffffff, roughness: 1, metalness: 0 })));
     }
 
-    let here = null;
+    let here = null, ring = null;
     if (rt) {
       const R = rt.route, pts = R.nodes.map(gp), floor = Math.min(...pts.map(p => p[2])) - 6;
-      // the route, as on screen: amber, with gold beads running along it
+      const s = steps[cur] || { i: 0, alts: [] }, nxt = steps[cur + 1];
+      // the route, as on screen: amber (gold dashes run along it, below)
       const way = tubes();
       sweep(pts.map(at), r * 2.2, u, way);
       group.add(tubeMesh(way, flat(0x8a6420)));
-      // posts from the route down to a little below its lowest point, as the
-      // curtain hangs on screen, coloured by altitude
+      // this step's stretch, to the next step, in cyan over it, and the ways
+      // not to take there in red, as on screen
+      const stretch = tubes();
+      sweep(R.nodes.slice(s.i, (nxt ? nxt.i : R.nodes.length - 1) + 1).map(n => at(gp(n))), r * 2.7, u, stretch);
+      group.add(tubeMesh(stretch, flat(0x7fe3ff)));
+      const not = tubes();
+      for (const w of waysNotTaken(s)) sweep(w.map(at), r * 1.7, u, not);
+      if (not.pos.length) group.add(tubeMesh(not, flat(0xff5a5a)));
+      // the curtain, as on screen: the route's height hung from it down to a
+      // little below its lowest point, coloured by altitude and fading
+      // downwards, seen from either side; and thin posts down it, the
+      // rollercoaster's supports
+      const cv = document.createElement('canvas');
+      cv.width = 256; cv.height = 64;
+      const cg = cv.getContext('2d'), c = new THREE.Color();
+      for (let x = 0; x < 256; x++) for (let y = 0; y < 64; y++) {
+        const f = 1 - y / 63;
+        ramp(x / 255, c);
+        cg.fillStyle = `rgba(${c.r * 255 | 0},${c.g * 255 | 0},${c.b * 255 | 0},${(0.04 + 0.42 * f * f).toFixed(3)})`;
+        cg.fillRect(x, 63 - y, 1, 1);
+      }
+      const ct = new THREE.CanvasTexture(cv); ct.colorSpace = THREE.SRGBColorSpace;
+      const cpos = [], cnor = [], cuv = [], cidx = [];
+      for (let q = 0; q < pts.length - 1; q++) {
+        const a = at(pts[q]), b = at(pts[q + 1]), fa = at([pts[q][0], pts[q][1], floor]), fb = at([pts[q + 1][0], pts[q + 1][1], floor]);
+        const n = new THREE.Vector3().subVectors(b.p, a.p).cross(new THREE.Vector3(0, 1, 0)).normalize();
+        for (const side of [1, -1]) {
+          const base = cpos.length / 3;
+          for (const [v, uu, vv] of [[a.p, u(pts[q][2]), 1], [b.p, u(pts[q + 1][2]), 1], [fa.p, u(pts[q][2]), 0], [fb.p, u(pts[q + 1][2]), 0]]) {
+            cpos.push(v.x, v.y, v.z); cnor.push(n.x * side, n.y * side, n.z * side); cuv.push(uu, vv);
+          }
+          cidx.push(...(side > 0 ? [base, base + 2, base + 1, base + 1, base + 2, base + 3] : [base, base + 1, base + 2, base + 1, base + 3, base + 2]));
+        }
+      }
+      group.add(tubeMesh({ pos: cpos, nor: cnor, uv: cuv, idx: cidx },
+        new THREE.MeshStandardMaterial({ map: ct, emissiveMap: ct, emissive: 0xffffff, transparent: true, roughness: 1, metalness: 0 })));
       const posts = tubes(), gap = span / 45;
       for (let d = 0; d <= R.length + 1e-6; d += Math.max(gap, R.length / 400)) {
         const q = R.pointAt(d);
-        sweep([at([q[0], q[1], floor]), at(q)], r * 0.6, () => u(q[2]), posts, 6);
+        sweep([at([q[0], q[1], floor]), at(q)], r * 0.35, () => u(q[2]), posts, 6);
       }
-      group.add(tubeMesh(posts, new THREE.MeshStandardMaterial({ map: rampTex(0.8), emissiveMap: rampTex(0.3), emissive: 0xffffff, roughness: 0.8, metalness: 0 })));
-      // the start and end
-      for (const [q, c] of [[pts[0], 0x4fd18b], [pts[pts.length - 1], 0xff6b6b]]) {
-        const b = tubes(); balls([at(q)], r * 4, () => 0.5, b); group.add(tubeMesh(b, flat(c)));
+      group.add(tubeMesh(posts, new THREE.MeshStandardMaterial({ map: rampTex(0.9), emissiveMap: rampTex(0.4), emissive: 0xffffff, roughness: 0.8, metalness: 0 })));
+      // the start and end, as on screen: green and red, ringed in white
+      ring = (q, rad) => {
+        const g = new THREE.TorusGeometry(rad, rad * 0.16, 8, 32);
+        g.rotateX(Math.PI / 2);
+        const m = new THREE.Mesh(g, flat(0xffffff));
+        m.position.copy(P(q));
+        m.scale.y = 1 / world.scale.y;
+        return m;
+      };
+      for (const [q, col] of [[pts[0], 0x4fd18b], [pts[pts.length - 1], 0xff6b6b]]) {
+        const b = tubes(); balls([at(q)], r * 4, () => 0.5, b); group.add(tubeMesh(b, flat(col)));
+        group.add(ring(q, r * 5.2));
       }
-      // the current step: a pin from it up to a little above the surface, to find it from above
-      here = gp(R.nodes[steps[cur]?.i ?? 0]);
+      // the current step: ringed, and a pin from it up to a little above the
+      // surface, to find it from above (its cyan ball pulses, below)
+      here = gp(R.nodes[s.i]);
+      group.add(ring(here, r * 6));
       const hp = P(here);
       let gi = 0, gj = 0;
       if (gpos) for (let i = 1; i < TW; i++) if (Math.abs(gpos[3 * i] - hp.x) < Math.abs(gpos[3 * gi] - hp.x)) gi = i;
@@ -1191,20 +1242,71 @@ if (!STILL && document.createElement('a').relList.supports?.('ar')) {
     sc.updateMatrixWorld(true);
 
     if (rt) {
+      // the names, as on screen: white on a dark tag, for the start, the end
+      // and each passage the route goes into, standing above the route
+      // across it, so they read from either side
+      const R = rt.route, local = q => P(q).applyMatrix4(group.matrix);
+      group.updateMatrix();
+      const tags = [[R.p(0), R.nodes[0], routeFrom], [R.p(R.nodes.length - 1), R.nodes[R.nodes.length - 1], routeTo]];
+      let last = null;
+      R.nodes.forEach((n, i) => {
+        const t = G.passage[n] >= 0 ? G.passages[G.passage[n]] : null;
+        if (t && t !== last && i > 0 && i < R.nodes.length - 1 && !tags.some(x => x[2] === t)) tags.push([R.p(i), n, t]);
+        if (t) last = t;
+      });
+      const H = 0.022;   // the tag's height in the room, metres
+      // (not a passage's if it would stand within 9 cm of another: the start
+      // and end first, then the passages in order)
+      const placed = [];
+      for (const [q, n, t] of tags) {
+        const at0 = local(q);
+        if (placed.some(p => p.distanceTo(at0) < 0.09)) continue;
+        placed.push(at0);
+        const c = document.createElement('canvas'), g = c.getContext('2d'), fs = 44;
+        g.font = `600 ${fs}px Inter, system-ui, sans-serif`;
+        c.width = Math.ceil(g.measureText(t).width) + 40; c.height = 72;
+        g.fillStyle = 'rgba(12,16,22,0.82)';
+        g.beginPath(); g.roundRect(0, 0, c.width, c.height, 36); g.fill();
+        g.font = `600 ${fs}px Inter, system-ui, sans-serif`; g.fillStyle = '#fff'; g.textBaseline = 'middle';
+        g.fillText(t, 20, 38);
+        const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+        const mat = new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0xffffff, transparent: true, roughness: 1, metalness: 0 });
+        const w = H * c.width / c.height, k0 = R.nodes.indexOf(n);
+        const a = local(R.p(Math.max(0, k0 - 1))), b = local(R.p(Math.min(R.nodes.length - 1, k0 + 1)));
+        const yaw0 = Math.atan2(b.x - a.x, b.z - a.z) + Math.PI / 2;   // across the route
+        for (const flip of [0, Math.PI]) {
+          const m = new THREE.Mesh(new THREE.PlaneGeometry(w, H), mat);
+          m.position.copy(local(q)).add(new THREE.Vector3(0, 0.012 + H / 2, 0));
+          m.rotation.y = yaw0 + flip;
+          turn.add(m);
+        }
+      }
+      turn.updateMatrixWorld(true);
+    }
+    if (rt) {
       // the moving parts, outside the model, so each is placed where it is
-      // in the room: beads along the route, each going one gap on in the
-      // loop to where the next began, so they flow on without a jump, and
-      // the current step pulsing
+      // in the room: gold dashes along the route, as on screen, each going
+      // one gap on in the loop to where the next began, so they flow on
+      // without a jump, turned along the way; and the current step pulsing
       const R = rt.route, to = q => P(q).applyMatrix4(group.matrixWorld);
       const rr = r * 2.2 * k;
       const n = Math.max(8, Math.min(150, Math.round(R.length * k / 0.05))), g = R.length / n;
-      const beadGeo = new THREE.IcosahedronGeometry(rr * 1.5, 1), beadMat = flat(0xffd27a);
+      const dash = new THREE.CapsuleGeometry(rr * 1.06, g * k * 0.3, 3, 8), dashMat = flat(0xffd27a);
+      const up = new THREE.Vector3(0, 1, 0), q4 = new THREE.Quaternion(), dir = new THREE.Vector3();
       for (let b = 0; b < n; b++) {
-        const m = new THREE.Mesh(beadGeo, beadMat);
+        const m = new THREE.Mesh(dash, dashMat);
         sc.add(m);
         const keys = [];
-        for (let f = 0; f <= LOOP; f += 3) keys.push([f, to(R.pointAt((b + f / LOOP) * g))]);
-        anim.push([m.id, `double3 xformOp:translate.timeSamples = {\n${keys.map(([f, v]) => `\t\t${f}: (${v.x.toFixed(4)}, ${v.y.toFixed(4)}, ${v.z.toFixed(4)}),`).join('\n')}\n\t}\n\tuniform token[] xformOpOrder = ["xformOp:translate"]`]);
+        for (let f = 0; f <= LOOP; f += 3) {
+          const d = (b + f / LOOP) * g, v = to(R.pointAt(d));
+          dir.subVectors(to(R.pointAt(Math.min(R.length, d + g * 0.3))), to(R.pointAt(Math.max(0, d - g * 0.3))));
+          if (dir.lengthSq() < 1e-12) dir.copy(up);
+          q4.setFromUnitVectors(up, dir.normalize());
+          keys.push([f, v, q4.clone()]);
+        }
+        anim.push([m.id, `double3 xformOp:translate.timeSamples = {\n${keys.map(([f, v]) => `\t\t${f}: (${v.x.toFixed(4)}, ${v.y.toFixed(4)}, ${v.z.toFixed(4)}),`).join('\n')}\n\t}\n`
+          + `\tquatf xformOp:orient.timeSamples = {\n${keys.map(([f, , o]) => `\t\t${f}: (${o.w.toFixed(5)}, ${o.x.toFixed(5)}, ${o.y.toFixed(5)}, ${o.z.toFixed(5)}),`).join('\n')}\n\t}\n`
+          + `\tuniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]`]);
       }
       const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r * 4.5 * k, 2), flat(0x7fe3ff)), v = to(here);
       sc.add(m);
@@ -1901,6 +2003,24 @@ function showOverview(fly = true) {
   if (fly) flyTo(overview());
 }
 
+// the ways not to take at a step: each side passage for its first 15 m or
+// so, as survey points (for the 3D view and the AR model)
+function waysNotTaken(s) {
+  const out = [];
+  for (const [from, v] of s.alts) {
+    let u = from, w = v, run = 0;
+    const seen = new Set(route.nodes), way = [gp(u)];
+    for (let n = 0; n < 4 && run < 15; n++) {
+      way.push(gp(w));
+      run += adj[u].get(w); seen.add(w);
+      const on = [...adj[w].keys()].find(x => !seen.has(x));
+      if (on === undefined) break;
+      u = w; w = on;
+    }
+    out.push(way);
+  }
+  return out;
+}
 function goStep(k, fly = true, whole = false) {
   if (!route) return;
   dashUntil = performance.now() + 4000;
@@ -1912,19 +2032,10 @@ function goStep(k, fly = true, whole = false) {
   // this step's stretch, to the next step
   const i1 = nxt ? nxt.i : route.nodes.length - 1;
   setLine(stepLine, route.nodes.slice(s.i, i1 + 1).map(gp));
-  // the ways not to take: each side passage for its first 15 m or so
   const segs = [];
-  for (const [from, v] of s.alts) {
-    let u = from, w = v, run = 0;
-    const seen = new Set(route.nodes);
-    for (let n = 0; n < 4 && run < 15; n++) {
-      const a = lift(gp(u)), b = lift(gp(w));
-      segs.push(a.x, a.y, a.z, b.x, b.y, b.z);
-      run += adj[u].get(w); seen.add(w);
-      const on = [...adj[w].keys()].find(x => !seen.has(x));
-      if (on === undefined) break;
-      u = w; w = on;
-    }
+  for (const way of waysNotTaken(s)) for (let k = 0; k < way.length - 1; k++) {
+    const a = lift(way[k]), b = lift(way[k + 1]);
+    segs.push(a.x, a.y, a.z, b.x, b.y, b.z);
   }
   notLines.geometry.dispose();
   notLines.geometry = new LineSegmentsGeometry();
