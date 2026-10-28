@@ -8,6 +8,8 @@ layout local
   copy draenen
   # Drawn passages' labels pile up at this scale; hidden for now.
   symbol-hide point label
+  legend off
+  statistics topo off
   scale 1 5000
   doc-title "Ogof Draenen"
 endlayout
