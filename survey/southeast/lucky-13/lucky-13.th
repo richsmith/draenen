@@ -9,6 +9,7 @@ survey lucky-13 -title "The Lucky Thirteen Extensions"
   input grade2/exodus.th
   input grade2/gosome.th
   input grade2/3amigos.th
+  input grade2/hexamine.th
 
   centreline
     equate 0@lhs.3amigos 0@rhs.3amigos	# 3amigos
@@ -32,6 +33,11 @@ survey lucky-13 -title "The Lucky Thirteen Extensions"
     equate 15@gwtw 17@lucky13	# gwtw lucky13
     equate 31@sandwich 32@sandwich	# exodus
     equate 35@sandwich tls35@uppersand	# exodus
+    # Hexamine Highways joins Mid-Winter Chambers at old Grade 5 station 42.
+    # PROVISIONAL: taken as GITY_South 1, a right-angle bend where the survey
+    # turns east and Hexamine carries straight on south.
+    equate st.42@hexamine 1@gity_south	# gity hexamine
+    equate g6@hexamine st.42@hexamine	# hexamine: "G6 also has a connection with ST.42"
   endcentreline
 
   # Junctions offered to the level above: zero-length legs naming
