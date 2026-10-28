@@ -29,8 +29,9 @@ The plan and the `.3d` are also in the [latest release](https://github.com/richs
 [![A step of the route from the entrance to Big Country: the way on in blue, the way not to take in red, and the junction from above on the step card.](images/route.jpg)](https://paperclipmonkey.github.io/draenen/3d/#from=Entrance&to=Big%20Country&step=6)
 
 **Routes**, under the title, finds the shortest way through the survey
-between any two named places, with the [ready-made routes from the
-entrance](https://paperclipmonkey.github.io/draenen/) on the landing page:
+between any two named places, with [ready-made routes from both
+entrances](https://paperclipmonkey.github.io/draenen/) on the landing page
+(from Tarddiad Pwll Du to the places in the north it's the shorter way to):
 
 - **The whole route** first: its length, climbs and drops, a height
   profile, and a curtain hung from it in 3D.
@@ -96,9 +97,10 @@ survey file), the junctions and the entrances, for the plan, the 3D view
 and the routes. The entrances are flagged in the survey
 (`station … entrance`).
 
-Tarddiad Pwll Du's tie into the cave is provisional (see
-[`survey/north/north.th`](survey/north/north.th)), so the 3D view shows
-its entrance but leaves it out of the routes until the tie is known.
+Both entrances are on the routes. Tarddiad Pwll Du's tie into the cave
+is provisional (see [`survey/north/north.th`](survey/north/north.th)): it's
+tied in at the base of the Waterfall Series' first climb until the real
+tie is known, so for now routes from it start there.
 
 ## On the grid
 

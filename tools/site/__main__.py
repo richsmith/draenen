@@ -30,13 +30,23 @@ DATA = [
     ('draenen-plan.pdf', 'The plan', 'The survey at 1:5000, drawn in Therion and coloured by altitude: the centreline, the drawn passages, the passage names and the entrances, with the length, depth and credits.'),
     ('draenen.3d', 'The survey, processed by Therion', 'Survex 3D file of the whole cave. Open it in Aven. The 3D view and the routes are made from it. Fixed on the National Grid at the entrance, heights above sea level.'),
 ]
-# ready-made routes on the landing page, from the entrance
+# ready-made routes on the landing page: these from the entrance, and from
+# each other entrance, every place nearer from there than from the entrance
+# (and more than NEAR metres in)
+NEAR = 200
+# said under an entrance's routes
+NOTES = {
+    'Tarddiad Pwll Du': "The shorter way into the north of the cave. Tarddiad Pwll Du's tie into the survey is "
+                        "provisional (it's tied in at the base of the Waterfall Series' first climb until the real "
+                        "tie is known), so for now these routes start there, without the way through Tarddiad itself.",
+}
 ROUTES = ['Big Country', 'Life on Mars', 'Waterfall Series', 'Gilwern Passage', 'Megadrive', 'The Score',
           'Luck of the Draw', 'Out of the Blue', 'Blood River', 'Crystal Maze', 'Indiana Highway', 'Gone in the Years']
 
 
 def routes(scene):
-    """The ready-made routes: (to, length, up, down, passages)."""
+    """The ready-made routes: {from: [(to, length, up, down, passages)]},
+    the entrance first."""
     g = scene['graph']
     pos = [g['pos'][i:i + 3] for i in range(0, len(g['pos']), 3)]
     adj = [[] for _ in pos]
@@ -64,34 +74,52 @@ def routes(scene):
             out.append(prev[out[-1]])
         return out[::-1]
 
-    res = []
-    for to in ROUTES:
-        if to not in node:
-            print(f'no place {to!r}', file=sys.stderr)
-            continue
-        p = path(node['Entrance'], node[to])
+    def route(p, to):
         zs = [pos[i][2] for i in p]
-        length = sum(math.dist(pos[a], pos[b]) for a, b in zip(p, p[1:]))
         passages = []
         for i in p:
             t = g['passages'][g['passage'][i]] if g['passage'][i] >= 0 else None
             if t and (not passages or passages[-1] != t):
                 passages.append(t)
-        res.append((to, length, sum(max(0, b - a) for a, b in zip(zs, zs[1:])),
-                    sum(max(0, a - b) for a, b in zip(zs, zs[1:])), list(dict.fromkeys(passages))))
+        return (to, length(p), sum(max(0, b - a) for a, b in zip(zs, zs[1:])),
+                sum(max(0, a - b) for a, b in zip(zs, zs[1:])), list(dict.fromkeys(passages)))
+
+    def length(p):
+        return sum(math.dist(pos[a], pos[b]) for a, b in zip(p, p[1:]))
+    ents = [n['t'] for n in scene['names'] if n.get('entrance') and not n.get('apart')]
+    places = [n['t'] for n in scene['names'] if not n.get('entrance') and not n.get('apart')]
+    plan = {'Entrance': ROUTES}
+    for e in ents:
+        if e != 'Entrance':
+            near = [(length(path(node[e], node[t])), t) for t in places]
+            plan[e] = [t for d, t in sorted(near) if NEAR < d < length(path(node['Entrance'], node[t]))]
+    res = {}
+    for frm, tos in plan.items():
+        res[frm] = []
+        for to in tos:
+            if to not in node:
+                print(f'no place {to!r}', file=sys.stderr)
+                continue
+            res[frm].append(route(path(node[frm], node[to]), to))
     return res
 
 
 def page(scene, rts, preview):
     e = html.escape
     st = scene['stats']
-    link = lambda to: '3d/#from=Entrance&amp;to=' + to.replace(' ', '%20')
+    link = lambda frm, to: f'3d/#from={frm.replace(" ", "%20")}&amp;to={to.replace(" ", "%20")}'
     km = lambda m: f'{m / 1000:.1f} km' if m >= 1000 else f'{round(m)} m'
-    cards = '\n'.join(f'''  <a class="card route" href="{link(to)}">
-    <div class="body"><h3>Entrance &rarr; {e(to)}</h3>
+    card = lambda frm, to, L, up, dn, ps: f'''  <a class="card route" href="{link(frm, to)}">
+    <div class="body"><h3>{e(frm)} &rarr; {e(to)}</h3>
     <p class="nums"><b>{km(L)}</b> &middot; up {round(up)} m, down {round(dn)} m</p>
-    <p>{'&hellip; ' if len(ps) > 5 else 'Through '}{e(', '.join(ps[:-1][-4:]))}</p></div>
-  </a>''' for to, L, up, dn, ps in rts)
+    {f"<p>{'&hellip; ' if len(ps) > 5 else 'Through '}{e(', '.join(ps[:-1][-4:]))}</p>" if ps[:-1] else ''}</div>
+  </a>'''
+    sections = '\n\n'.join(
+        f'''<h2>Routes from {'the entrance' if frm == 'Entrance' else e(frm)}</h2>
+<div class="grid">
+{chr(10).join(card(frm, *r) for r in rs)}
+</div>''' + (f'\n<p class="sub" style="margin-top:14px">{e(NOTES[frm])}</p>' if frm in NOTES else '')
+        for frm, rs in rts.items() if rs)
     sizes = {f: os.path.getsize(os.path.join('survey', f)) for f, _, _ in DATA}
     mb = lambda n: f'{n / 1e6:.1f} MB' if n >= 1e6 else f'{n / 1e3:.0f} kB'
     data_rows = '\n'.join(f'<tr><td><a href="data/{f}">{f}</a></td><td>{e(t)}</td><td>{e(d)}</td><td class="n">{sizes[f] / 1e3:.0f} kB</td></tr>'
@@ -179,10 +207,7 @@ def page(scene, rts, preview):
 <a class="open alt" href="data/draenen-plan.pdf">The plan <span>PDF, {mb(sizes['draenen-plan.pdf'])}</span></a>
 <a class="open alt" href="data/draenen.3d" download>The survey <span>.3d for Aven, {mb(sizes['draenen.3d'])}</span></a>
 
-<h2>Routes from the entrance</h2>
-<div class="grid">
-{cards}
-</div>
+{sections}
 <p class="sub" style="margin-top:14px">Or pick any two places in the 3D view: <b>Routes</b>, under the title.</p>
 
 <h2>Using it</h2>
@@ -233,7 +258,7 @@ def main():
     preview = os.path.exists(os.path.join(OUT, '3d', 'preview.png'))
     with open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8') as f:
         f.write(page(scene, rts, preview))
-    print(f'site written to {OUT}/: {len(rts)} routes, preview {"yes" if preview else "no (set CHROMIUM)"}', file=sys.stderr)
+    print(f'site written to {OUT}/: {sum(map(len, rts.values()))} routes, preview {"yes" if preview else "no (set CHROMIUM)"}', file=sys.stderr)
 
 
 if __name__ == '__main__':
