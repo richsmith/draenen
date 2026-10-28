@@ -27,7 +27,7 @@ OUT = 'site'
 REPO = 'https://github.com/richsmith/draenen'
 OUCC = 'https://www.oucc.org.uk/surveys/surveys%20and%20data%20-%20draenen/survex/draenen_survex_data.htm'
 DATA = [
-    ('draenen-plan.pdf', 'The plan', 'The survey at 1:5000, drawn in Therion: the centreline, the drawn passages, the passage names and the entrances.'),
+    ('draenen-plan.pdf', 'The plan', 'The survey at 1:5000, drawn in Therion and coloured by altitude: the centreline, the drawn passages, the passage names and the entrances, with the length, depth and credits.'),
     ('draenen.3d', 'The survey, processed by Therion', 'Survex 3D file of the whole cave. Open it in Aven. The 3D view and the routes are made from it. Fixed on the National Grid at the entrance, heights above sea level.'),
 ]
 # ready-made routes on the landing page, from the entrance
@@ -93,6 +93,7 @@ def page(scene, rts, preview):
     <p>{'&hellip; ' if len(ps) > 5 else 'Through '}{e(', '.join(ps[:-1][-4:]))}</p></div>
   </a>''' for to, L, up, dn, ps in rts)
     sizes = {f: os.path.getsize(os.path.join('survey', f)) for f, _, _ in DATA}
+    mb = lambda n: f'{n / 1e6:.1f} MB' if n >= 1e6 else f'{n / 1e3:.0f} kB'
     data_rows = '\n'.join(f'<tr><td><a href="data/{f}">{f}</a></td><td>{e(t)}</td><td>{e(d)}</td><td class="n">{sizes[f] / 1e3:.0f} kB</td></tr>'
                           for f, t, d in DATA)
     hero = (f'<a class="hero" href="3d/"><img src="3d/preview.png" alt="Ogof Draenen in 3D beneath the ground surface"></a>'
@@ -129,6 +130,11 @@ def page(scene, rts, preview):
   .open {{ display:inline-block; margin:18px 0 0; padding:12px 20px; border-radius:10px; background:var(--accent); color:#fff;
     font-weight:600; text-decoration:none; }}
   .open:hover {{ filter:brightness(1.1); }}
+  .open.alt {{ background:transparent; color:var(--accent); border:1px solid var(--accent); margin-left:10px; }}
+  .open.alt span {{ color:var(--muted); font-weight:400; }}
+  .plan {{ display:block; border-radius:12px; overflow:hidden; border:1px solid var(--line); background:#fff; }}
+  .plan img {{ display:block; width:100%; height:auto; }}
+  @media (max-width:640px) {{ .open.alt {{ margin-left:0; }} }}
   h2 {{ font-size:12px; letter-spacing:.11em; text-transform:uppercase; color:var(--muted); font-weight:600; margin:48px 0 16px; }}
   .grid {{ display:grid; gap:18px; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); }}
   .card {{ border:1px solid var(--line); border-radius:10px; background:var(--card); display:block; color:inherit; text-decoration:none;
@@ -170,6 +176,8 @@ def page(scene, rts, preview):
 
 {hero}
 <a class="open" href="3d/">Open the 3D view and route planner &rarr;</a>
+<a class="open alt" href="data/draenen-plan.pdf">The plan <span>PDF, {mb(sizes['draenen-plan.pdf'])}</span></a>
+<a class="open alt" href="data/draenen.3d" download>The survey <span>.3d for Aven, {mb(sizes['draenen.3d'])}</span></a>
 
 <h2>Routes from the entrance</h2>
 <div class="grid">
@@ -187,6 +195,10 @@ def page(scene, rts, preview):
   <div><h3>In 3D</h3><p>The cave beneath the Welsh Government's LiDAR ground and satellite imagery. Scroll on through the passages, double-click to look somewhere, drag the compass to turn and tilt.</p></div>
 </div>
 <p class="warn">The directions are worked out from the survey's centreline, mostly OUCC's coarse Grade 2 survey with long legs, so treat them as a guide to the shape of the way, not a description of the passage. Never depend on a phone underground.</p>
+
+<h2>The plan</h2>
+<a class="plan" href="data/draenen-plan.pdf"><img src="plan.jpg" alt="Part of the plan: the passages coloured by altitude, from purple (high) to green (low), with their names"></a>
+<p class="sub" style="margin-top:12px">The survey at 1:5000, coloured by altitude so passages crossing each other stand apart, with the passage names and the entrances: <a href="data/draenen-plan.pdf">the plan (PDF, {mb(sizes['draenen-plan.pdf'])})</a>, for printing or for a phone.</p>
 
 <h2>The data</h2>
 <table>
@@ -215,6 +227,7 @@ def main():
     os.makedirs(os.path.join(OUT, 'data'), exist_ok=True)
     for f, _, _ in DATA:
         shutil.copy(os.path.join('survey', f), os.path.join(OUT, 'data', f))
+    shutil.copy(os.path.join('images', 'plan.jpg'), os.path.join(OUT, 'plan.jpg'))   # a part of the plan, for the landing page
     scene = json.load(open(os.path.join(OUT, '3d', 'scene.json')))
     rts = routes(scene)
     preview = os.path.exists(os.path.join(OUT, '3d', 'preview.png'))

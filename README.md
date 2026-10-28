@@ -12,11 +12,12 @@ and their drawings. Every push builds it; `main` publishes:
 | | |
 |---|---|
 | **[The site](https://paperclipmonkey.github.io/draenen/)** | The cave in 3D beneath the Welsh Government's LiDAR ground and satellite imagery, with a route planner: turn-by-turn routes between any two places, offline on a phone underground, and in AR. |
-| **[The plan](https://github.com/richsmith/draenen/releases/download/latest/draenen-plan.pdf)** (`draenen-plan.pdf`) | The plan at 1:5000, coloured by altitude, with the passage names, the entrances, the length and depth, and the credits. |
-| **[The survey](https://github.com/richsmith/draenen/releases/download/latest/draenen.3d)** (`draenen.3d`) | The whole cave as a Survex 3D file, for Aven. |
+| **[The plan](https://paperclipmonkey.github.io/draenen/data/draenen-plan.pdf)** (`draenen-plan.pdf`) | The plan at 1:5000, coloured by altitude, with the passage names, the entrances, the length and depth, and the credits. |
+| **[The survey](https://paperclipmonkey.github.io/draenen/data/draenen.3d)** (`draenen.3d`) | The whole cave as a Survex 3D file, for Aven. |
 
-The plan and the `.3d` are in the [latest release](https://github.com/richsmith/draenen/releases/tag/latest),
-and on the site.
+All three are on the site, which links them together: the landing page
+has the downloads beside the 3D view, and the 3D view links them too.
+The plan and the `.3d` are also in the [latest release](https://github.com/richsmith/draenen/releases/tag/latest).
 
 | | |
 |---|---|
@@ -54,7 +55,7 @@ entrance](https://paperclipmonkey.github.io/draenen/) on the landing page:
 
 ## The plan
 
-[![Part of the plan: the passages coloured by altitude, from purple (high) to green (low), with their names.](images/plan.jpg)](https://github.com/richsmith/draenen/releases/download/latest/draenen-plan.pdf)
+[![Part of the plan: the passages coloured by altitude, from purple (high) to green (low), with their names.](images/plan.jpg)](https://paperclipmonkey.github.io/draenen/data/draenen-plan.pdf)
 
 The plan is coloured by altitude, with a key in the header, so passages
 crossing each other stand apart (the higher on top). Therion colours
