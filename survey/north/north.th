@@ -28,13 +28,16 @@ survey north -title "The North"
   #     equate 1@passage 12@somesurvey
   #   endcentreline
 
-  # Tarddiad Pwll Du ties in to the Waterfall Series somewhere.
-  # PROVISIONAL: the start of the survey (station 1) is tied to Waterfall A.2,
-  # noted as "Grade 5 survey marker at base of waterfall series initial
-  # climb", until the real tie station is known.
+  # Tarddiad Pwll Du, fixed at its own entrance (see tarddiad.th).
+  # PROVISIONAL tie, until it's checked underground: Tarddiad-lower is taken
+  # as a resurvey of Upstream Passage's streamway. Laid on Upstream Passage,
+  # its stations 102-112 follow Upstream 6-12 to within 3 m (113-114 is the
+  # 3 m waterfall's inlet), so it's tied at the end of that stretch,
+  # 111 = Upstream 12. Upstream Passage's Grade 2 survey has no clinos, so
+  # heights along it are rough.
   input tarddiad-pwll-du/tarddiad.th
   centreline
-    equate 1@Tarddiad.Tardiadd tarddiad@waterfall-series
+    equate 111@Tarddiad-lower.Tardiadd tarddiad@upstream-passage
   endcentreline
 
   # Plan maps.  drawn-plan lists the maps of every drawn survey in the North.

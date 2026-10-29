@@ -8,8 +8,12 @@ input Tarddiad-lower/Tarddiad-lower.th
 equate 53@Tarddiad 56@Tarddiad2
 equate 64@Tarddiad2 65@Tarddiad-lower
 
-# The entrance (the entrance symbol in the plan drawing is at station 1)
+# The entrance (the entrance symbol in the plan drawing is at station 1),
+# fixed at the Cambrian Cave Registry's NGR (SO 24694 11867) and the LiDAR
+# ground height there (347 m; the registry's 381 m is above any ground
+# within 20 m), in the same frame as the main entrance's fix.
 centreline
+  fix 1@Tarddiad 24694 11867 347
   station 1@Tarddiad "Tarddiad Pwll Du" entrance
 endcentreline
 
