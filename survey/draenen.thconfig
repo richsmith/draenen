@@ -1,5 +1,6 @@
 encoding  utf-8
 source draenen.th
+# source resurgences.th
 
 input layout.thc
 select draenen-plan

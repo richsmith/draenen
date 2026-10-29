@@ -1,0 +1,17 @@
+encoding  utf-8
+
+# Where Draenen's water comes out, about 9 km south of the cave. Positions
+# from the Cambrian Cave Registry (approximate; Pont Newynydd's is only to
+# 10 m), in the same frame as the entrance's fix: metres in the SO square,
+# heights above sea level. A survey of its own, outside draenen, so the plan
+# isn't stretched to take them in.
+survey resurgences -title "Resurgences"
+
+  centreline
+    fix snatchwood 26969 2635 150
+    fix pont-newynydd 27450 1900 120
+    station snatchwood "Snatchwood Risings" spring
+    station pont-newynydd "Pont Newynydd Rising" spring
+  endcentreline
+
+endsurvey
