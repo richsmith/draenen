@@ -9,10 +9,42 @@ layout local
   # Drawn passages' labels pile up at this scale; hidden for now.
   symbol-hide point label
   legend off
-  statistics topo off
+  # The header: length and depth, and who surveyed the newer surveys (the
+  # Grade 2 data has no teams in it, so it's credited in the comment)
+  statistics topo-length on
+  map-comment "Survey data: the Grade 2 survey of Ogof Draenen by Oxford University Cave Club and the clubs and cavers named in its files (to 2003), with newer surveys by the teams below. Compiled in Therion by Rich Smith."
+  doc-author "Rich Smith; survey data Oxford University Cave Club and others"
   scale 1 5000
+  # Coloured by altitude: the drawings, and the ribbon along the centreline
+  # (survey/plan.th), with the colours' key in the header
+  colour map-fg altitude
+  colour-legend smooth
+  # The ribbon: 1.4 mm wide (7 m at 1:5000), round at the ends and bends,
+  # in its scrap's colour (Therion sets background to it for each scrap)
+  code metapost
+    def l_u_ribbon (expr P) =
+      T:=identity;
+      draw P withpen pencircle scaled 1.4mm withcolor background;
+    enddef;
+    initsymbol("l_u_ribbon");
+    % The centreline solid in the ribbon's pieces: Therion takes any scrap
+    % that isn't its own centreline as a drawing, where the survey line is
+    % drawn as short stubs at each end of a leg, which looked dashed. The
+    % drawings themselves keep the stubs.
+    def l_survey_cave (expr P) =
+      if ATTR__scrap_centerline or ((substring (0, 7) of ATTR__scrap) = "colour-"):
+        T:=identity;
+        pickup PenC;
+        thdraw P;
+      else:
+        l_survey_cave_SKBB(P);
+      fi;
+    enddef;
+  endcode
   doc-title "Ogof Draenen"
 endlayout
 
 export model -fmt survex -o "draenen.3d"
+# The stations and their surveys, for tools/plan.py to refer to them by
+export database -o "draenen-stations.sql"
 export map -proj plan -layout local -o "draenen-plan.pdf"

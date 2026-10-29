@@ -8,6 +8,11 @@ input Tarddiad-lower/Tarddiad-lower.th
 equate 53@Tarddiad 56@Tarddiad2
 equate 64@Tarddiad2 65@Tarddiad-lower
 
+# The entrance (the entrance symbol in the plan drawing is at station 1)
+centreline
+  station 1@Tarddiad "Tarddiad Pwll Du" entrance
+endcentreline
+
 map tarddiad-plan -proj plan
   tarddiad-plan@Tarddiad
   tarddiad2-plan@Tarddiad2

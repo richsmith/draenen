@@ -1,0 +1,2549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ogof Draenen in 3D</title>
+<meta name="description" content="Ogof Draenen, Pwll Du, Blaenavon: the survey in 3D beneath the LiDAR ground surface and satellite imagery.">
+<meta name="theme-color" content="#05070c">
+<!--
+  The 3D view, made by tools/model3d from the survey (do not edit the
+  copy in site/3d/; edit tools/model3d/viewer.html). It loads
+  scene.json and terrain.bin next to it, three.js and the font from
+  vendor/ and the imagery from Esri, and a service worker (sw.js) keeps
+  all of it so it works offline.
+-->
+<link rel="stylesheet" href="vendor/inter/inter.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+  :root {
+    --bg: #05070c;
+    --glass: rgba(14, 18, 28, .62);
+    --glass-edge: rgba(255, 255, 255, .09);
+    --text: #e9eef6;
+    --muted: #94a0b4;
+    --accent: #7fb8cc;
+    }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+    font: 14px/1.4 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden;
+    -webkit-font-smoothing: antialiased; }
+  canvas#view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+  .glass { background: var(--glass); border: 1px solid var(--glass-edge); border-radius: 14px;
+    backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .35); }
+
+  /* title */
+  #title { position: fixed; top: max(16px, env(safe-area-inset-top)); left: 16px; padding: 14px 18px 14px; max-width: calc(100vw - 32px); }
+  #title h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.01em; }
+  #title p { margin: 2px 0 10px; color: var(--muted); font-size: 13px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 255, 255, .08); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .chip b { font-weight: 600; color: #fff; }
+  .chip.off[data-state="ready"] { color: #8fe0b0; border-color: rgba(79, 209, 139, .35); }
+  .chip.off[data-state="saving"] { color: var(--muted); }
+  .chip.off[data-state="none"] { color: #ffb38a; border-color: rgba(255, 160, 110, .3); }
+  #title a.back { position: absolute; top: 12px; right: 14px; color: var(--muted); font-size: 12px; text-decoration: none; }
+  #title a.back:hover { color: var(--accent); }
+  #title .ar { display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; font: inherit; font-size: 12px; font-weight: 600;
+    color: #fff; background: rgba(59, 143, 176, .35); border-color: rgba(127, 184, 204, .45); cursor: pointer; }
+  #title .ar:hover { background: rgba(59, 143, 176, .55); }
+  #title .ar svg { width: 14px; height: 14px; }
+  #title .ar[hidden] { display: none; }
+
+  /* controls */
+  #panel { position: fixed; left: 16px; bottom: max(34px, calc(env(safe-area-inset-bottom) + 26px)); width: 260px; padding: 12px 14px; }
+  #panel h2 { margin: 0 0 8px; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+  #panel h2::after { content: "–"; font-size: 14px; letter-spacing: 0; }
+  #panel.closed h2 { margin: 0; }
+  #panel.closed h2::after { content: "+"; }
+  #panel.closed .body { display: none; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 0; }
+  .row[hidden] { display: none; }
+  .row label { color: var(--text); font-size: 13px; }
+  .row input[type=range] { flex: 1; max-width: 130px; accent-color: var(--accent); }
+  .toggle { position: relative; width: 34px; height: 20px; flex: none; }
+  .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .toggle span { position: absolute; inset: 0; border-radius: 999px; background: rgba(255, 255, 255, .14); transition: .2s; cursor: pointer; }
+  .toggle span::before { content: ""; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; border-radius: 50%; background: #fff; transition: .2s; }
+  .toggle input:checked + span { background: #3b8fb0; }
+  .toggle input:checked + span::before { transform: translateX(14px); }
+  .toggle input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .seg { display: inline-flex; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255, 255, 255, .12); }
+  .seg button { background: transparent; color: var(--muted); border: 0; padding: 4px 9px; font: inherit; font-size: 12px; cursor: pointer; }
+  .seg button.on { background: rgba(255, 255, 255, .14); color: #fff; }
+  .buttons { display: flex; gap: 6px; margin-top: 8px; }
+  #panel .hint { margin: 6px 0 0; font-size: 11px; line-height: 1.35; color: var(--muted); }
+  .btn { flex: 1; background: rgba(255, 255, 255, .07); color: var(--text); border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 9px; padding: 7px 0; font: inherit; font-size: 12px; cursor: pointer; transition: .15s; }
+  .btn:hover { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .25); }
+
+  /* spin button */
+  #spin { position: fixed; right: 16px; bottom: max(34px, calc(env(safe-area-inset-bottom) + 26px)); width: 46px; height: 46px; border-radius: 50%;
+    display: grid; place-items: center; cursor: pointer; color: #fff; padding: 0; }
+  #spin svg { width: 20px; height: 20px; }
+  #spin.on svg { animation: rot 3s linear infinite; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+
+  /* legend */
+  #legend { position: fixed; right: 16px; top: max(16px, env(safe-area-inset-top)); padding: 12px 12px 12px 14px; display: flex; gap: 10px; }
+  #legend .bar { width: 10px; border-radius: 6px; height: 170px; }
+  #legend .ticks { display: flex; flex-direction: column; justify-content: space-between; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  #legend .ticks b { color: var(--text); font-weight: 500; }
+  #legend .cap { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+  /* compass */
+  #compass { position: fixed; right: 82px; bottom: max(34px, calc(env(safe-area-inset-bottom) + 26px)); width: 46px; height: 46px; border-radius: 50%; padding: 0; cursor: pointer; }
+  #compass svg { width: 100%; height: 100%; pointer-events: none; }
+  #compass { touch-action: none; cursor: grab; }
+  #compass.on { box-shadow: 0 0 0 2px #7fe3ff, 0 0 18px rgba(127, 227, 255, .45); }
+  #compass.on svg { filter: drop-shadow(0 0 3px rgba(127, 227, 255, .8)); }
+  #compass.drag { cursor: grabbing; box-shadow: 0 0 0 2px rgba(255, 210, 122, .6), 0 10px 40px rgba(0, 0, 0, .35); }
+
+  /* labels */
+  #labels { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+  .lbl { position: absolute; left: 0; top: 0; white-space: nowrap; font-size: 12px; font-weight: 500; color: #fff;
+    padding: 2px 8px; border-radius: 999px; background: rgba(8, 12, 20, .55); border: 1px solid rgba(255, 255, 255, .14);
+    text-shadow: 0 1px 2px #000; will-change: transform, opacity; transition: opacity .25s; }
+  .lbl::before { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: 12px; background: linear-gradient(rgba(255,255,255,.5), transparent); }
+  .lbl.ent { background: rgba(8, 12, 20, .8); border-color: rgba(255, 255, 255, .45); font-weight: 600; }
+
+  #credits { position: fixed; left: 0; right: 0; bottom: 0; padding: 6px 16px max(6px, env(safe-area-inset-bottom)); font-size: 10.5px; color: rgba(220, 228, 240, .6);
+    text-align: right; pointer-events: none; text-shadow: 0 1px 2px #000; }
+  #credits a { color: inherit; pointer-events: auto; }
+
+  /* loading */
+  #loading { position: fixed; inset: 0; display: grid; place-items: center; background: radial-gradient(ellipse at center, #0c1424 0%, #05070c 70%); z-index: 10; transition: opacity .8s; }
+  #loading.done { opacity: 0; pointer-events: none; }
+  #loading .inner { text-align: center; }
+  #loading .name { font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
+  #loading .what { color: var(--muted); margin-top: 4px; font-size: 13px; }
+  #loading .track { width: 220px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .1); margin: 18px auto 0; overflow: hidden; }
+  #loading .fill { height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+  #loading .err { color: #ff8d8d; margin-top: 14px; max-width: 360px; display: none; }
+
+
+  /* routes */
+  #title .rbtn { display: inline-flex; align-items: center; gap: 5px; margin-top: 8px; margin-right: 6px; font: inherit; font-size: 12px; font-weight: 600;
+    color: #fff; background: rgba(255, 196, 92, .22); border-color: rgba(255, 210, 122, .45); cursor: pointer; }
+  #title .rbtn:hover { background: rgba(255, 196, 92, .38); }
+  #title .rbtn svg { width: 14px; height: 14px; }
+  #route { position: fixed; right: 16px; top: max(16px, env(safe-area-inset-top)); bottom: max(90px, calc(env(safe-area-inset-bottom) + 82px));
+    width: 360px; padding: 12px 14px 10px; display: flex; flex-direction: column; gap: 10px; }
+  #route[hidden] { display: none; }
+  body.routing #legend { display: none; }
+  #route .rhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  #route h2 .ends { display: none; }
+  #route .grab { display: none; }
+  #route h2 { margin: 0; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  #route .x { background: none; border: 0; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; padding: 0 2px; }
+  #route .x:hover { color: #fff; }
+  #route .rbtns { display: flex; align-items: center; gap: 6px; flex: none; }
+  #route .x.ico { width: 30px; height: 26px; display: grid; place-items: center; border-radius: 8px; }
+  #route .x.ico svg { width: 15px; height: 15px; }
+  .row label small { color: var(--muted); font-size: 11px; }
+  #route .pick { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; gap: 6px 8px; align-items: center; }
+  #route .pick label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+  #route .pick label span { width: 30px; }
+  #route .pick .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  #route select { flex: 1; min-width: 0; background: rgba(255, 255, 255, .07); color: var(--text); border: 1px solid rgba(255, 255, 255, .12);
+    border-radius: 8px; padding: 5px 6px; font: inherit; font-size: 13px; }
+  #route select option { background: #141a26; }
+  #r-swap { grid-row: 1 / 3; grid-column: 2; width: 30px; height: 30px; border-radius: 8px; background: rgba(255, 255, 255, .07);
+    border: 1px solid rgba(255, 255, 255, .12); color: var(--text); cursor: pointer; font-size: 15px; }
+  #r-swap:hover { background: rgba(255, 255, 255, .15); }
+  #r-prof { width: 100%; height: 96px; display: block; cursor: crosshair; flex: none; }
+  #r-prof text { font: 10px Inter, system-ui, sans-serif; fill: var(--muted); }
+  #r-card { display: flex; gap: 12px; align-items: flex-start; padding: 10px; border-radius: 10px; background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(255, 210, 122, .25); flex: none; }
+  #r-card .turn { width: 44px; height: 44px; flex: none; border-radius: 10px; background: rgba(255, 196, 92, .16); display: grid; place-items: center; }
+  #r-card .turn svg { width: 30px; height: 30px; transition: transform .35s; }
+  #r-card .turn.jn { width: 96px; height: 96px; background: rgba(0, 0, 0, .35); }
+  #r-card .turn #r-jn { width: 96px; height: 96px; transition: none; }
+  #r-card .turn svg[hidden] { display: none; }
+  #r-card { touch-action: pan-y; }
+  #r-card .n { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  #r-card .d { font-size: 14px; font-weight: 500; margin: 2px 0 3px; }
+  #r-card .m { font-size: 11px; color: var(--muted); }
+  #r-card .m b { color: var(--text); font-weight: 500; }
+  #route .nav { display: flex; gap: 6px; flex: none; }
+  #route .nav .btn { padding: 8px 0; font-weight: 600; }
+  #route .nav .btn:disabled { opacity: .35; cursor: default; }
+  #r-steps { list-style: none; margin: 0; padding: 0 2px 0 0; overflow-y: auto; overflow-x: hidden; flex: 1; min-height: 60px; }
+  #r-steps li { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; padding: 6px 6px; border-radius: 8px; cursor: pointer; font-size: 12.5px; }
+  #r-steps li:hover { background: rgba(255, 255, 255, .06); }
+  #r-steps li.h { display: block; cursor: default; padding: 8px 6px 2px; font-size: 10.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #ffd27a; }
+  #r-steps li.h:hover { background: none; }
+  #r-steps li.on { background: rgba(255, 196, 92, .16); }
+  #r-steps .i { width: 20px; height: 20px; border-radius: 50%; background: rgba(255, 255, 255, .1); display: grid; place-items: center; font-size: 10.5px; font-weight: 600; }
+  #r-steps li.k-start .i { background: #4fd18b; color: #04140b; }
+  #r-steps li.k-end .i { background: #ff6b6b; color: #1a0505; }
+  #r-steps li.k-drop .i { background: rgba(127, 184, 204, .35); }
+  #r-steps li.k-passage .i { background: transparent; border: 1px solid rgba(255, 255, 255, .25); }
+  #r-steps .dd { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; white-space: nowrap; padding-top: 2px; }
+  #r-none { color: #ff9d9d; font-size: 12px; }
+  #route .here { flex: none; background: none; border: 0; color: var(--muted); font: inherit; font-size: 12px; text-align: left; padding: 0 2px; cursor: pointer; }
+  #route .here:hover { color: #fff; }
+  #pickbar { position: fixed; left: 50%; transform: translateX(-50%); top: max(16px, env(safe-area-inset-top)); z-index: 6; width: min(420px, calc(100vw - 32px)); padding: 10px 14px; }
+  #pickbar[hidden] { display: none; }
+  #pickbar p { margin: 0 0 8px; font-size: 13px; }
+  #pickbar .row { gap: 6px; padding: 0; }
+  #pickbar select { flex: 1; min-width: 0; background: rgba(255, 255, 255, .07); color: var(--text); border: 1px solid rgba(255, 255, 255, .12); border-radius: 8px; padding: 6px; font: inherit; font-size: 13px; }
+  #pickbar .btn { flex: none; padding: 7px 12px; }
+  body.picking canvas#view { cursor: crosshair; }
+  body.picking #title { visibility: hidden; }
+  #r-steps { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, .22) transparent; }
+  #r-steps::-webkit-scrollbar { width: 6px; height: 0; }
+  #r-steps::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .22); border-radius: 3px; }
+  #r-steps::-webkit-scrollbar-track { background: transparent; }
+  #r-tip { position: fixed; pointer-events: none; z-index: 5; font-size: 11px; padding: 3px 8px; border-radius: 6px; background: rgba(8, 12, 20, .85);
+    border: 1px solid rgba(255, 255, 255, .15); white-space: nowrap; display: none; }
+  /* the printed route card: built when printing, nothing else printed */
+  #print { display: none; }
+  @media print {
+    @page { size: A4; margin: 11mm; }
+    html { background: #fff; }
+    html, body { height: auto; overflow: visible; background: #fff !important; color: #111; }
+    body > *:not(#print) { display: none !important; }
+    #print { display: block; font: 10pt/1.35 Inter, system-ui, sans-serif; color: #111; }
+    #print h1 { font-size: 17pt; margin: 0 0 2pt; }
+    #print .sub { color: #444; margin: 0 0 6pt; }
+    #print .nums { display: flex; gap: 10pt; flex-wrap: wrap; margin: 0 0 6pt; font-size: 9.5pt; }
+    #print .nums b { font-weight: 700; }
+    #print .maps { display: grid; grid-template-columns: 1fr; gap: 4pt; margin-bottom: 6pt; }
+    #print .maps svg { width: 100%; height: auto; border: .5pt solid #bbb; }
+    #print .passages { font-size: 8.5pt; color: #333; margin: 0 0 8pt; }
+    #print .steps { display: flex; flex-wrap: wrap; gap: 5pt 10pt; }   /* (flex rather than grid: it breaks across pages) */
+    #print .st { width: calc(50% - 5pt); display: grid; grid-template-columns: 26mm 1fr; gap: 6pt; break-inside: avoid; border-top: .5pt solid #ccc; padding-top: 4pt; }
+    #print .st svg { width: 26mm; height: 26mm; background: #f4f4f2; border-radius: 3pt; }
+    #print .st .h { font-size: 8pt; color: #555; }
+    #print .st .t { font-weight: 600; font-size: 9.5pt; margin: 1pt 0; }
+    #print .st .m { font-size: 8pt; color: #555; }
+    #print .sec { width: 100%; font-weight: 700; font-size: 9pt; text-transform: uppercase; letter-spacing: .06em; color: #8a6420; margin-top: 4pt; break-after: avoid; }
+    #print .credits { margin-top: 8pt; font-size: 7.5pt; color: #555; border-top: .5pt solid #ccc; padding-top: 4pt; }
+  }
+  body.still #panel, body.still #spin, body.still #compass, body.still #title a.back, body.still #title .ar, body.still #title .rbtn, body.still #title .chip.off, body.still #route, body.still #credits { display: none; }
+
+  @media (max-width: 640px) {
+    #route h2 .ends { display: block; }
+    #title { padding: 10px 14px; right: 16px; }
+    #title h1 { font-size: 18px; }
+    #title p { margin-bottom: 6px; }
+    #legend { top: auto; bottom: 132px; padding: 10px; }
+    #panel, #spin, #compass { bottom: calc(env(safe-area-inset-bottom) + 64px); }
+    #legend .bar { height: 110px; }
+    #legend .cap { display: none; }
+    #panel { width: calc(100vw - 32px - 124px); min-width: 180px; }
+    #credits { text-align: left; font-size: 9.5px; }
+    #route { left: 16px; right: 16px; width: auto; top: auto; bottom: calc(env(safe-area-inset-bottom) + 10px); max-height: 62vh; gap: 8px; }
+    body.routing #panel, body.routing #spin, body.routing #credits { display: none; }
+    body.routing #compass { top: calc(max(16px, env(safe-area-inset-top)) + 84px); right: 16px; bottom: auto; }
+    body.routing #title p, body.routing #title .chips { display: none; }
+    /* the sheet scrolls as one, with its buttons kept at the bottom */
+    #route { overflow-y: auto; overscroll-behavior: contain; padding-bottom: 0; }
+    #r-steps { flex: none; min-height: 0; max-height: none; overflow: visible; }
+    #route .nav { order: 99; position: sticky; bottom: 0; margin: 0 -14px; padding: 8px 14px max(10px, env(safe-area-inset-bottom));
+      background: rgba(16, 21, 32, .97); border-top: 1px solid rgba(255, 255, 255, .06); z-index: 2; }
+    #route.compact .nav { border-top: 0; background: transparent; }
+    #route .nav .btn { padding: 13px 0; font-size: 14px; }   /* big enough for gloves */
+    #r-m { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    /* on a phone the sheet folds down to the step and the buttons; the header opens it */
+    #route h2 { cursor: pointer; display: flex; align-items: center; gap: 6px; min-width: 0; }
+    #route h2 .full { display: none; }
+    #route h2 .ends { text-transform: none; letter-spacing: 0; font-size: 12.5px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #route h2::after { content: "\25B4"; font-size: 11px; color: var(--muted); }
+    #route.compact h2::after { content: "\25BE"; }
+    #route.compact .pick, #route.compact #r-stats, #route.compact #r-prof,
+    #route.compact #r-steps { display: none; }
+    /* a sheet: pull the handle up for more, down for less */
+    #route .grab { display: block; flex: none; height: 22px; margin: -12px -14px -8px; cursor: grab; touch-action: none; position: relative; }
+    #route .grab span { position: absolute; left: 50%; top: 8px; width: 42px; height: 5px; margin-left: -21px; border-radius: 3px; background: rgba(255, 255, 255, .4); }
+    #route .rhead { touch-action: none; }
+    #route.full { top: calc(max(16px, env(safe-area-inset-top)) + 8px); max-height: none; }
+    #route.dragging { max-height: none; top: auto; }
+    body.sheet-full #compass, body.sheet-full #title { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { #spin.on svg { animation: none; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/build/three.module.js",
+  "three/addons/": "./vendor/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<canvas id="view" tabindex="0" aria-label="3D view of Ogof Draenen beneath the ground surface. Drag to orbit, scroll or pinch to zoom."></canvas>
+<div id="labels"></div>
+
+<div id="title" class="glass">
+  <a class="back" href="../">&larr; About</a>
+  <h1><span id="t-name">Ogof Draenen</span></h1>
+  <p id="t-sub">Pwll Du, Blaenavon &middot; the survey beneath the ground</p>
+  <div class="chips" id="chips"></div>
+  <button id="r-open" class="chip rbtn" title="Find the way between two places in the cave">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"/></svg>
+    <span>Routes</span></button>
+  <button id="ar" class="chip ar" hidden title="Put the model on a table or the floor around you">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2 21 7v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg>
+    <span id="ar-what">View in AR</span></button>
+</div>
+
+<div id="legend" class="glass" aria-hidden="true">
+  <div class="cap">Altitude</div>
+  <div class="bar" id="bar"></div>
+  <div class="ticks" id="ticks"></div>
+</div>
+
+<div id="panel" class="glass">
+  <h2 id="panel-h" role="button" tabindex="0" aria-expanded="true">View</h2>
+  <div class="body">
+    <div class="row"><label for="opacity">Ground</label><input id="opacity" type="range" min="0" max="1" step="0.01" value="0.7"></div>
+    <div class="row"><label for="xray">X-ray over the cave</label><label class="toggle"><input id="xray" type="checkbox"><span></span></label></div>
+    <div class="row" id="walls-row"><label for="walls">Passage walls</label><label class="toggle"><input id="walls" type="checkbox" checked><span></span></label></div>
+    <div class="row"><label for="legs">Centreline</label><label class="toggle"><input id="legs" type="checkbox" checked><span></span></label></div>
+    <div class="row" id="splays-row"><label for="splays">Splay shots</label><label class="toggle"><input id="splays" type="checkbox"><span></span></label></div>
+    <div class="row"><label for="names">Names</label><label class="toggle"><input id="names" type="checkbox" checked><span></span></label></div>
+    <div class="row"><label>Vertical scale</label>
+      <span class="seg" id="exag"><button data-v="1">1&times;</button><button data-v="1.5" class="on">1.5&times;</button><button data-v="2.5">2.5&times;</button></span></div>
+    <p class="hint">Scroll to zoom towards the pointer, and on through the cave. Double-click the cave to look there. Right-drag to move sideways.</p>
+    <div class="buttons">
+      <button class="btn" id="v-reset">Reset</button>
+      <button class="btn" id="v-top">From above</button>
+      <button class="btn" id="v-side">Over the ground</button>
+    </div>
+  </div>
+</div>
+
+<div id="route" class="glass" hidden aria-label="Route">
+  <div class="grab" id="r-grab" role="button" tabindex="0" aria-label="Pull up for more of the route, or down for less"><span></span></div>
+  <div class="rhead"><h2 id="r-head" title="Show or hide the route details"><span class="full">Route</span><span class="ends" id="r-ends"></span></h2><span class="rbtns"><button class="x ico" id="r-print" title="Print this route as a card" aria-label="Print the route"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-2"/><rect x="6" y="14" width="12" height="7"/></svg></button><button class="x" id="r-close" title="Close the route" aria-label="Close the route">&times;</button></span></div>
+  <div class="pick">
+    <label><span class="dot" style="background:#4fd18b"></span><span>From</span><select id="r-from"></select></label>
+    <button id="r-swap" title="Swap" aria-label="Swap the ends">&#8645;</button>
+    <label><span class="dot" style="background:#ff6b6b"></span><span>To</span><select id="r-to"></select></label>
+  </div>
+  <div class="chips" id="r-stats"></div>
+  <svg id="r-prof" aria-label="Height along the route"></svg>
+  <div id="r-card">
+    <div class="turn"><svg viewBox="0 0 30 30" id="r-arrow"><path d="M15 4 L23 13 H18 V26 H12 V13 H7 Z" fill="#ffd27a"/></svg><svg viewBox="0 0 100 100" id="r-jn" hidden aria-label="The junction from above, the way you arrive at the bottom"></svg></div>
+    <div><div class="n" id="r-n"></div><div class="d" id="r-d"></div><div class="m" id="r-m"></div></div>
+  </div>
+  <button class="here" id="r-here" title="Not where the route says? Re-route from where you are">&#128205; I'm somewhere else &mdash; re-route from here</button>
+  <div class="nav"><button class="btn" id="r-prev">&lsaquo; Back</button><button class="btn" id="r-all">Whole route</button><button class="btn" id="r-next">Next &rsaquo;</button></div>
+  <ol id="r-steps"></ol>
+</div>
+<div id="r-tip"></div>
+<div id="print" aria-hidden="true"></div>
+<div id="pickbar" class="glass" hidden>
+  <p><b>Where are you?</b> Tap the passage on the 3D view, or pick it:</p>
+  <div class="row"><select id="pick-p"></select><button class="btn" id="pick-go">Use</button><button class="btn" id="pick-x">Cancel</button></div>
+</div>
+
+<button id="compass" class="glass" title="Drag to turn and tilt the view. Tap: on a phone, turn the view with the phone (compass mode); elsewhere, face north" aria-label="Compass: drag to turn and tilt the view; tap for compass mode on a phone, or to face north" aria-pressed="false">
+  <svg viewBox="0 0 46 46"><g id="needle" transform="rotate(0 23 23)">
+    <path d="M23 7 L28 23 L23 21 L18 23 Z" fill="#ff5d6c"/><path d="M23 39 L28 23 L23 25 L18 23 Z" fill="rgba(255,255,255,.55)"/>
+    <text x="23" y="6.5" text-anchor="middle" font-size="6.5" font-weight="700" fill="#fff" font-family="Inter, sans-serif">N</text></g></svg>
+</button>
+<button id="spin" class="glass on" title="Spin (R)" aria-label="Spin" aria-pressed="true">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4h-4"/></svg>
+</button>
+
+<div id="credits">
+  Survey: <a href="https://www.oucc.org.uk/surveys/surveys%20and%20data%20-%20draenen/survex/draenen_survex_data.htm">Ogof Draenen survey data</a>, Oxford University Cave Club and the Draenen surveyors, with newer surveys, compiled by Rich Smith (<a href="https://github.com/richsmith/draenen">richsmith/draenen</a>) &middot;
+  Ground: Welsh Government LiDAR 2020&ndash;22 DTM, &copy; Welsh Government, <a href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/">OGL&nbsp;v3</a> &middot;
+  Imagery: <span id="img-credit">&copy; Esri, Maxar, Earthstar Geographics and the GIS User Community</span> &middot;
+  Download: <a href="../data/draenen-plan.pdf">the plan (PDF)</a>, <a href="../data/draenen.3d" download>the survey (.3d)</a>
+</div>
+
+<div id="loading"><div class="inner">
+  <div class="name">Ogof Draenen</div>
+  <div class="what" id="load-what">Loading the survey&hellip;</div>
+  <div class="track"><div class="fill" id="load-fill"></div></div>
+  <div class="err" id="load-err"></div>
+</div></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { Line2 } from 'three/addons/lines/Line2.js';
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
+
+const STILL = location.search.includes('still');   // the index page's preview
+// Asking for a redraw (see the loop at the end). Declared first: the page
+// waits for its data part way through starting, and a tile or a flight can
+// ask in the meantime; until the loop is ready that's a no-op, as its first
+// frame draws everything anyway.
+let framePending = false, loopReady = false;
+function invalidate() { if (loopReady && !framePending) { framePending = true; requestAnimationFrame(frame); } }
+if (STILL) document.body.classList.add('still');
+const $ = id => document.getElementById(id);
+const progress = (f, what) => { $('load-fill').style.width = `${Math.round(f * 100)}%`; if (what) $('load-what').textContent = what; };
+const fail = msg => { $('load-err').style.display = 'block'; $('load-err').textContent = msg; };
+
+// Altitude colours: warm near the surface, cold at depth.
+const RAMP = [[0, '#6c55d6'], [0.22, '#4673d4'], [0.45, '#36a9c8'], [0.65, '#55bf8a'], [0.82, '#dcc256'], [1, '#d96a45']]
+  .map(([t, c]) => [t, new THREE.Color(c)]);
+function ramp(t, out = new THREE.Color()) {
+  t = Math.min(1, Math.max(0, t));
+  for (let i = 1; i < RAMP.length; i++) {
+    if (t <= RAMP[i][0]) {
+      const [t0, c0] = RAMP[i - 1], [t1, c1] = RAMP[i];
+      return out.copy(c0).lerp(c1, (t - t0) / (t1 - t0));
+    }
+  }
+  return out.copy(RAMP[RAMP.length - 1][1]);
+}
+
+// -- load ---------------------------------------------------------------------------
+let S, H;
+try {
+  progress(0.05);
+  const [sj, tb] = await Promise.all([
+    fetch('scene.json').then(r => { if (!r.ok) throw new Error(`scene.json: ${r.status}`); return r.json(); }),
+    fetch('terrain.bin').then(r => { if (!r.ok) throw new Error(`terrain.bin: ${r.status}`); return r.arrayBuffer(); }),
+  ]);
+  S = sj; H = new Uint16Array(tb);
+  progress(0.4, 'Building the model…');
+} catch (e) {
+  fail(`Couldn't load the model (${e.message}).`);
+  throw e;
+}
+
+const st = S.stats;
+$('chips').innerHTML = [
+  `<span class="chip"><b>${(st.length / 1000).toFixed(1)} km</b> surveyed</span>`,
+  `<span class="chip"><b>${st.depth} m</b> deep</span>`,
+  `<span class="chip">${S.grid_ref}</span>`,
+  `<span class="chip off" id="offline"></span>`,
+].join('');
+// -- pinching -----------------------------------------------------------------------------
+// A pinch anywhere zooms the 3D view, never the page: on the panels over it
+// the browser would zoom the whole page instead (and iOS springs it back).
+// One finger still scrolls the panels.
+document.addEventListener('touchmove', e => { if (e.touches.length > 1 && e.target !== canvas) e.preventDefault(); }, { passive: false });
+for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev, e => e.preventDefault());
+
+// -- offline ------------------------------------------------------------------------------
+// The service worker keeps the page for use with no signal; the chip says
+// whether it has. It needs https or localhost (not a computer's address on
+// the local network), as the phone's compass does.
+function setOffline(state) {
+  const el = $('offline');
+  const [text, title] = {
+    saving: ['Saving for offline\u2026', 'Keeping a copy on this device so it works with no signal'],
+    ready: ['\u2713 Works offline', 'Saved on this device: it works with no signal'],
+    none: ['Online only', 'Open it over https (or at localhost) to save it for use with no signal'],
+  }[state];
+  el.textContent = text; el.title = title; el.dataset.state = state;
+}
+if ('serviceWorker' in navigator && isSecureContext && !STILL) {
+  setOffline('saving');
+  const check = async () => setOffline(navigator.serviceWorker.controller && await caches.match('terrain.bin', { ignoreSearch: true }) ? 'ready' : 'saving');
+  navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(check).catch(() => setOffline('none'));
+  // a new version taking over from the one this page came from: load it
+  // (once), so a phone doesn't go on with the old one; the address keeps
+  // the route and the step
+  const had = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (had && !reloaded) { reloaded = true; location.reload(); } else check();
+  });
+} else setOffline('none');
+const zTop = Math.max(st.top, S.terrain.max), zBot = st.bottom;
+const alt01 = z => (z - zBot) / (st.top - zBot);
+{
+    $('bar').style.background = `linear-gradient(to bottom, ${RAMP.slice().reverse().map(([t, c]) => `#${c.getHexString()} ${(1 - t) * 100}%`).join(',')})`;
+  $('ticks').innerHTML = `<b>${Math.round(st.top)} m</b><span>${Math.round((st.top + zBot) / 2)} m</span><b>${Math.round(zBot)} m</b>`;
+}
+
+// -- renderer and scene ----------------------------------------------------------------
+const canvas = $('view');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: STILL });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const scene = new THREE.Scene();
+{
+  // night-sky gradient behind everything
+  const c = document.createElement('canvas'); c.width = 2; c.height = 512;
+  const g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 512);
+  gr.addColorStop(0, '#0d1830'); gr.addColorStop(0.55, '#070b16'); gr.addColorStop(1, '#020306');
+  g.fillStyle = gr; g.fillRect(0, 0, 2, 512);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  scene.background = t;
+}
+scene.fog = new THREE.FogExp2(0x05070c, 0.00028);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.3, 30000);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 30;
+controls.maxDistance = 5000;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.55;
+controls.zoomToCursor = true;     // zoom towards what's under the pointer, not the middle
+
+// The model lives in a group whose y scale is the vertical exaggeration.
+// Inside it: x east, y altitude above zRef, z south (three.js is y-up).
+const zRef = zBot - 10;
+const world = new THREE.Group();
+world.scale.y = 1.5;
+scene.add(world);
+const P = (p, out = new THREE.Vector3()) => out.set(p[0], p[2] - zRef, -p[1]);
+
+const LIGHT = new THREE.Vector3(-0.45, 0.8, 0.35).normalize();
+
+// -- the cave: walls -------------------------------------------------------------------
+const wallMat = new THREE.ShaderMaterial({
+  uniforms: { uLight: { value: LIGHT } },
+  vertexShader: `
+    attribute vec3 color;
+    varying vec3 vCol; varying vec3 vN; varying vec3 vV;
+    void main() {
+      vCol = color;
+      vec4 wp = modelMatrix * vec4(position, 1.0);
+      vN = mat3(modelMatrix) * normal;
+      vV = normalize(cameraPosition - wp.xyz);
+      gl_Position = projectionMatrix * viewMatrix * wp;
+    }`,
+  fragmentShader: `
+    uniform vec3 uLight;
+    varying vec3 vCol; varying vec3 vN; varying vec3 vV;
+    void main() {
+      vec3 n = vN / max(length(vN), 1e-5);   // degenerate triangles have no normal
+      float diff = abs(dot(n, uLight));
+      vec3 c = vCol * (0.35 + 0.65 * diff);
+      gl_FragColor = vec4(c, 1.0);
+      #include <colorspace_fragment>
+    }`,
+  side: THREE.DoubleSide,
+});
+let walls;
+if (S.walls.pos.length) {
+  const g = new THREE.BufferGeometry(), wp = S.walls.pos, n = wp.length / 3;
+  const pos = new Float32Array(n * 3), col = new Float32Array(n * 3), c = new THREE.Color(), v = new THREE.Vector3();
+  for (let i = 0; i < n; i++) {
+    P([wp[3 * i], wp[3 * i + 1], wp[3 * i + 2]], v);
+    pos.set([v.x, v.y, v.z], 3 * i);
+    ramp(alt01(wp[3 * i + 2]), c);
+    col.set([c.r, c.g, c.b], 3 * i);
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  g.setIndex(n > 65535 ? new THREE.BufferAttribute(new Uint32Array(S.walls.idx), 1) : new THREE.BufferAttribute(new Uint16Array(S.walls.idx), 1));
+  g.computeVertexNormals();
+  walls = new THREE.Mesh(g, wallMat);
+  world.add(walls);
+}
+
+// -- the cave: centreline and splays ----------------------------------------------------
+function lines(flat, { boost = 1, opacity = 1, white = false } = {}) {
+  const n = flat.length / 3, pos = new Float32Array(n * 3), col = new Float32Array(n * 3), c = new THREE.Color(), v = new THREE.Vector3();
+  for (let i = 0; i < n; i++) {
+    P([flat[3 * i], flat[3 * i + 1], flat[3 * i + 2]], v);
+    pos.set([v.x, v.y, v.z], 3 * i);
+    if (white) c.setRGB(1, 1, 1); else ramp(alt01(flat[3 * i + 2]), c);
+    col.set([c.r * boost, c.g * boost, c.b * boost], 3 * i);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const m = new THREE.LineBasicMaterial({ vertexColors: true, transparent: opacity < 1, opacity, toneMapped: false,
+    depthWrite: opacity >= 1, blending: opacity < 1 ? THREE.AdditiveBlending : THREE.NormalBlending });
+  const l = new THREE.LineSegments(g, m);
+  world.add(l);
+  return l;
+}
+// The centreline drawn 2 px wide (WebGL lines are only ever 1 px); the
+// thin copy is only for the x-ray mask, which can't draw wide lines.
+const legs = lines(S.legs);
+legs.layers.set(1);
+const legsWide = new LineSegments2(
+  new LineSegmentsGeometry().setPositions(legs.geometry.attributes.position.array),
+  new LineMaterial({ linewidth: 2, vertexColors: true, toneMapped: false }));
+{
+  legsWide.geometry.setColors(legs.geometry.attributes.color.array);
+  legsWide.material.resolution.set(innerWidth, innerHeight);
+  world.add(legsWide);
+}
+const splays = lines(S.splays, { opacity: 0.22 });
+splays.visible = false;
+if (S.surface.length) lines(S.surface, { white: true, opacity: 0.5 });
+
+// -- the ground -------------------------------------------------------------------------
+const T = S.terrain;
+const TW = T.w, TH = T.h, W = TW * T.step, HH = TH * T.step;
+const hmin = T.min;
+const hAt = (i, j) => { const v = H[j * TW + i]; return v ? v / 100 : hmin; };
+
+// Imagery canvas: a dark base, then Esri tiles drawn in as they arrive
+const M = S.merc;   // survey x, y (from the origin) -> Web Mercator 0..1
+const merc = (x, y) => [M[0] + M[1] * x + M[2] * y, M[3] + M[4] * x + M[5] * y];
+const corners = [[T.x0, T.y0], [T.x0 + W, T.y0], [T.x0, T.y0 - HH], [T.x0 + W, T.y0 - HH]].map(([x, y]) => merc(x, y));
+const mx0 = Math.min(...corners.map(c => c[0])), mx1 = Math.max(...corners.map(c => c[0]));
+const my0 = Math.min(...corners.map(c => c[1])), my1 = Math.max(...corners.map(c => c[1]));
+const maxTex = Math.min(renderer.capabilities.maxTextureSize, 8192);
+let Z = 19;
+while (Z > 14 && (Math.floor(mx1 * 2 ** Z) - Math.floor(mx0 * 2 ** Z) + 1) * 256 > Math.min(maxTex, 4096)) Z--;
+const tx0 = Math.floor(mx0 * 2 ** Z), tx1 = Math.floor(mx1 * 2 ** Z);
+const ty0 = Math.floor(my0 * 2 ** Z), ty1 = Math.floor(my1 * 2 ** Z);
+const img = document.createElement('canvas');
+img.width = (tx1 - tx0 + 1) * 256; img.height = (ty1 - ty0 + 1) * 256;
+const ig = img.getContext('2d');
+ig.fillStyle = '#2a3326'; ig.fillRect(0, 0, img.width, img.height);
+const imgTex = new THREE.CanvasTexture(img);
+imgTex.colorSpace = THREE.SRGBColorSpace;
+imgTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+const groundMat = new THREE.ShaderMaterial({
+  uniforms: {
+    uMap: { value: imgTex }, uMask: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uLight: { value: LIGHT },
+    uOpacity: { value: 0.7 }, uXray: { value: 0 }, uTime: { value: 0 },
+  },
+  vertexShader: `
+    attribute float alt;
+    varying vec2 vUv; varying vec3 vN; varying float vAlt; varying vec3 vW;
+    void main() {
+      vUv = uv; vAlt = alt;
+      vN = mat3(modelMatrix) * normal;
+      vec4 wp = modelMatrix * vec4(position, 1.0); vW = wp.xyz;
+      gl_Position = projectionMatrix * viewMatrix * wp;
+    }`,
+  fragmentShader: `
+    uniform sampler2D uMap; uniform sampler2D uMask; uniform vec2 uRes; uniform vec3 uLight;
+    uniform float uOpacity; uniform float uXray;
+    varying vec2 vUv; varying vec3 vN; varying float vAlt; varying vec3 vW;
+    void main() {
+      vec3 n = vN / max(length(vN), 1e-5);
+      vec3 c = texture2D(uMap, vUv).rgb;
+      float diff = max(dot(n, uLight), 0.0);
+      c *= 0.55 + 0.75 * diff;
+      // 10 m contours, every 50 m a little stronger, fading out where
+      // they would crowd together on a steep slope or far away
+      float a10 = vAlt / 10.0, a50 = vAlt / 50.0;
+      float f10 = max(fwidth(a10), 1e-4), f50 = max(fwidth(a50), 1e-4);
+      float l10 = (1.0 - min(abs(fract(a10 - 0.5) - 0.5) / f10, 1.0)) * (1.0 - smoothstep(0.15, 0.4, f10));
+      float l50 = (1.0 - min(abs(fract(a50 - 0.5) - 0.5) / f50, 1.0)) * (1.0 - smoothstep(0.15, 0.4, f50));
+      c = mix(c, vec3(1.0, 0.95, 0.85), l10 * 0.08 + l50 * 0.2);
+      // the cave's silhouette from this viewpoint, blurred: thin the ground over it
+      float m = texture2D(uMask, gl_FragCoord.xy / uRes).r;
+      float alpha = uOpacity * (1.0 - uXray * smoothstep(0.0, 0.85, m));
+      if (!gl_FrontFacing) c *= 0.6;
+      gl_FragColor = vec4(c, alpha);
+      #include <colorspace_fragment>
+    }`,
+  transparent: true,
+  side: THREE.DoubleSide,
+  depthWrite: false,
+});
+
+let ground;
+const surface = [];   // the ground, its block's sides and the grid under it
+{
+  const n = TW * TH;
+  const pos = new Float32Array(n * 3), uv = new Float32Array(n * 2), alt = new Float32Array(n);
+  const sx = 2 ** Z;
+  for (let j = 0; j < TH; j++) {
+    for (let i = 0; i < TW; i++) {
+      const k = j * TW + i;
+      const x = T.x0 + (i + 0.5) * T.step, y = T.y0 - (j + 0.5) * T.step, h = hAt(i, j);
+      pos[3 * k] = x; pos[3 * k + 1] = h - zRef; pos[3 * k + 2] = -y;
+      const [mx, my] = merc(x, y);
+      uv[2 * k] = (mx * sx - tx0) / (tx1 - tx0 + 1);
+      uv[2 * k + 1] = 1 - (my * sx - ty0) / (ty1 - ty0 + 1);
+      alt[k] = h;
+    }
+  }
+  const idx = new Uint32Array((TW - 1) * (TH - 1) * 6);
+  let p = 0;
+  for (let j = 0; j < TH - 1; j++) for (let i = 0; i < TW - 1; i++) {
+    const a = j * TW + i, b = a + 1, c = a + TW, d = c + 1;
+    idx[p++] = a; idx[p++] = c; idx[p++] = b; idx[p++] = b; idx[p++] = c; idx[p++] = d;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  g.setAttribute('alt', new THREE.BufferAttribute(alt, 1));
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  g.computeVertexNormals();
+  ground = new THREE.Mesh(g, groundMat);
+  surface.push(ground);
+  ground.renderOrder = 2;
+  world.add(ground);
+  // The ground is see-through and folds over itself (a far hillside behind a
+  // near one), and the triangles of one mesh aren't drawn far to near, so a
+  // far slope could be drawn over a near one. So first its depth alone, then
+  // the ground drawn only where it's the nearest layer: one layer of ground,
+  // still see-through to the cave (drawn before either).
+  // (with the ground's own vertex shader, so both work the depth out the same
+  // way, and pushed a hair further away, or rounding makes the ground fail its
+  // own depth test in flickering patches)
+  const depth = new THREE.Mesh(g, new THREE.ShaderMaterial({
+    vertexShader: groundMat.vertexShader, fragmentShader: 'void main() { gl_FragColor = vec4(0.0); }',
+    colorWrite: false, side: THREE.DoubleSide, transparent: true,
+    polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1,
+  }));
+  depth.renderOrder = 1.9;
+  surface.push(depth);
+  world.add(depth);
+  groundMat.depthFunc = THREE.LessEqualDepth;
+}
+
+// The sides of the block, like a geological section, and a grid beneath
+const baseZ = zBot - 12;
+const sideMat = new THREE.ShaderMaterial({
+  uniforms: { uTop: { value: zTop }, uBot: { value: baseZ } },
+  vertexShader: `
+    attribute float alt; attribute vec3 outward;
+    varying float vAlt; varying vec3 vOut; varying vec3 vW;
+    void main() {
+      vAlt = alt; vOut = outward;
+      vec4 wp = modelMatrix * vec4(position, 1.0); vW = wp.xyz;
+      gl_Position = projectionMatrix * viewMatrix * wp;
+    }`,
+  fragmentShader: `
+    uniform float uTop; uniform float uBot; varying float vAlt; varying vec3 vOut; varying vec3 vW;
+    void main() {
+      // only the far sides, seen from inside: a near side would sit
+      // between the camera and the cave and tint it
+      if (dot(vOut, cameraPosition - vW) > 0.0) discard;
+      float t = clamp((vAlt - uBot) / (uTop - uBot), 0.0, 1.0);
+      vec3 c = mix(vec3(0.05, 0.09, 0.16), vec3(0.42, 0.33, 0.22), pow(t, 1.5));
+      float a10 = vAlt / 10.0;
+      float fw = max(fwidth(a10), 1e-4);
+      float l = (1.0 - min(abs(fract(a10 - 0.5) - 0.5) / fw, 1.0)) * (1.0 - smoothstep(0.15, 0.5, fw));
+      c += vec3(0.35, 0.75, 1.0) * l * 0.2;
+      gl_FragColor = vec4(c, 0.05 + 0.15 * t + l * 0.06);
+      #include <colorspace_fragment>
+    }`,
+  transparent: true, side: THREE.DoubleSide, depthWrite: false,
+});
+{
+  // round the edge of the ground, each point with its side's outward direction
+  const edges = [];
+  for (let i = 0; i < TW; i++) edges.push([i, 0, 0, -1]);              // north
+  for (let j = 1; j < TH; j++) edges.push([TW - 1, j, 1, 0]);          // east
+  for (let i = TW - 2; i >= 0; i--) edges.push([i, TH - 1, 0, 1]);     // south
+  for (let j = TH - 2; j >= 0; j--) edges.push([0, j, -1, 0]);         // west
+  edges.push([0, 0, -1, 0]);
+  const n = edges.length, pos = new Float32Array(n * 6), alt = new Float32Array(n * 2), out = new Float32Array(n * 6), idx = [];
+  edges.forEach(([i, j, ox, oz], k) => {
+    const x = T.x0 + (i + 0.5) * T.step, y = T.y0 - (j + 0.5) * T.step, h = hAt(i, j);
+    pos.set([x, h - zRef, -y, x, baseZ - zRef, -y], 6 * k);
+    out.set([ox, 0, oz, ox, 0, oz], 6 * k);
+    alt[2 * k] = h; alt[2 * k + 1] = baseZ;
+    if (k < n - 1) { const a = 2 * k; idx.push(a, a + 1, a + 2, a + 2, a + 1, a + 3); }
+  });
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('alt', new THREE.BufferAttribute(alt, 1));
+  g.setAttribute('outward', new THREE.BufferAttribute(out, 3));
+  g.setIndex(idx);
+  const sides = new THREE.Mesh(g, sideMat);
+  sides.renderOrder = 1;
+  world.add(sides);
+  surface.push(sides);
+
+  const grid = new THREE.GridHelper(Math.max(W, HH) * 3, Math.round(Math.max(W, HH) * 3 / 50), 0x2a6c8f, 0x15324a);
+  grid.position.y = baseZ - zRef;
+  grid.material.transparent = true; grid.material.opacity = 0.35; grid.material.depthWrite = false;
+  world.add(grid);
+  surface.push(grid);
+}
+
+// -- the entrance: its name just above the ground --------------------------------------
+// (the main one; another entrance whose tie into the cave is provisional
+// stays at its station, where the survey puts it for now)
+const ent = S.names.find(n => n.entrance && !n.apart);
+if (ent) {
+  const top = hAt(Math.round((ent.p[0] - T.x0) / T.step - 0.5), Math.round((T.y0 - ent.p[1]) / T.step - 0.5));
+  ent.p = [ent.p[0], ent.p[1], top + 4];
+}
+
+// -- names -------------------------------------------------------------------------------
+const labelBox = $('labels');
+const names = S.names.map(n => {
+  const el = document.createElement('div');
+  el.className = 'lbl' + (n.entrance ? ' ent' : '');
+  el.textContent = n.t;
+  labelBox.appendChild(el);
+  return { el, p: n.p, entrance: !!n.entrance, w: 0 };
+});
+
+// X-ray: each frame the cave alone is drawn in white into a small target
+// and blurred; the ground shader fades out wherever that is bright, so
+// the window follows the cave from any viewpoint.
+const CAVE = 1;
+[walls, splays].forEach(o => o && o.layers.enable(CAVE));
+const maskA = new THREE.WebGLRenderTarget(1, 1), maskB = new THREE.WebGLRenderTarget(1, 1);
+const white = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+const blur = new FullScreenQuad(new THREE.ShaderMaterial({
+  uniforms: { tMap: { value: null }, uDir: { value: new THREE.Vector2() }, uGain: { value: 1 } },
+  vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+  fragmentShader: `
+    uniform sampler2D tMap; uniform vec2 uDir; uniform float uGain; varying vec2 vUv;
+    void main() {
+      float w[6]; w[0] = 0.2; w[1] = 0.18; w[2] = 0.14; w[3] = 0.1; w[4] = 0.06; w[5] = 0.03;
+      float s = texture2D(tMap, vUv).r * w[0];
+      for (int i = 1; i < 6; i++) {
+        s += texture2D(tMap, vUv + uDir * float(i)).r * w[i];
+        s += texture2D(tMap, vUv - uDir * float(i)).r * w[i];
+      }
+      gl_FragColor = vec4(vec3(min(1.0, s * uGain)), 1.0);
+    }`,
+}));
+function sizeMask() {
+  const r = renderer.getDrawingBufferSize(new THREE.Vector2());
+  groundMat.uniforms.uRes.value.copy(r);
+  maskA.setSize(Math.ceil(r.x / 3), Math.ceil(r.y / 3));
+  maskB.setSize(Math.ceil(r.x / 3), Math.ceil(r.y / 3));
+  legsWide.material.resolution.set(innerWidth, innerHeight);
+}
+sizeMask();
+function renderMask() {
+  if (!groundMat.uniforms.uXray.value) return;
+  const bg = scene.background, fog = scene.fog;
+  scene.background = null; scene.fog = null; scene.overrideMaterial = white;
+  camera.layers.set(CAVE);
+  renderer.setRenderTarget(maskA);
+  renderer.setClearColor(0x000000, 1);
+  renderer.clear();
+  renderer.render(scene, camera);
+  camera.layers.set(0);
+  scene.background = bg; scene.fog = fog; scene.overrideMaterial = null;
+  const u = blur.material.uniforms, px = 1.5;
+  u.tMap.value = maskA.texture; u.uDir.value.set(px / maskA.width, 0); u.uGain.value = 1.4;
+  renderer.setRenderTarget(maskB); blur.render(renderer);
+  u.tMap.value = maskB.texture; u.uDir.value.set(0, px / maskA.height); u.uGain.value = 1.8;
+  renderer.setRenderTarget(maskA); blur.render(renderer);
+  renderer.setRenderTarget(null);
+  groundMat.uniforms.uMask.value = maskA.texture;
+}
+
+// -- views -----------------------------------------------------------------------------------
+const centre = new THREE.Vector3();
+{
+  const b = new THREE.Box3().setFromBufferAttribute(legs.geometry.attributes.position);
+  b.getCenter(centre);
+}
+const target = () => new THREE.Vector3(centre.x, centre.y * world.scale.y, centre.z);
+const R0 = Math.max(W, HH) * 0.7;
+// the limits and fog follow the size of the ground
+controls.minDistance = 2;
+controls.maxDistance = R0 * 4;
+camera.far = R0 * 12; camera.updateProjectionMatrix();
+scene.fog.density = 0.3 / R0;
+function viewFrom(az, el, dist = R0) {
+  const t = target();
+  dist *= Math.max(1, Math.pow(1.3 / camera.aspect, 0.85));   // stand back on a tall, narrow screen
+  return { pos: new THREE.Vector3(t.x + dist * Math.cos(el) * Math.sin(az), t.y + dist * Math.sin(el), t.z + dist * Math.cos(el) * Math.cos(az)), target: t };
+}
+// A fly is only ever a nudge: touching, clicking or scrolling the view
+// stops it where it is, whatever the gesture.
+let fly = null;
+for (const ev of ['pointerdown', 'wheel', 'touchstart'])
+  canvas.addEventListener(ev, () => { if (fly) { fly = null; idleSince = performance.now(); } }, { capture: true, passive: true });
+const flying = () => fly !== null;   // (for where a parameter named fly hides it)
+function flyTo(v, ms = 1600) {
+  invalidate();
+  fly = { p0: camera.position.clone(), t0: controls.target.clone(), p1: v.pos, t1: v.target, start: performance.now(), ms };
+}
+// the fly-around: from just under the ground, looking up at the cave beneath it
+const home = () => viewFrom(Math.PI * 0.8, -0.12, R0 * 1.05);
+{
+  const v0 = viewFrom(Math.PI * 0.55, 1.15, R0 * 2.6);
+  camera.position.copy(v0.pos); controls.target.copy(v0.target);
+  // the landing page's still: from above at an angle, the ground half see-through
+  if (STILL) { const h = viewFrom(Math.PI * 0.82, 0.62, R0 * 0.82); camera.position.copy(h.pos); controls.target.copy(h.target); groundMat.uniforms.uOpacity.value = 0.45; }
+  else flyTo(home(), 3200);
+}
+
+// -- imagery -------------------------------------------------------------------------------
+{
+  let pending = 0, failed = 0;
+  const sx = 2 ** Z;
+  // only tiles that touch the ground's actual footprint
+  for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
+    pending++;
+    const im = new Image();
+    im.crossOrigin = 'anonymous';
+    im.onload = () => { ig.drawImage(im, (tx - tx0) * 256, (ty - ty0) * 256); imgTex.needsUpdate = true; invalidate(); done(); };
+    im.onerror = () => { failed++; done(); };
+    im.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${Z}/${ty}/${tx}`;
+  }
+  function done() {
+    if (--pending === 0 && failed) $('img-credit').textContent += ` (${failed} tiles didn't load)`;
+  }
+}
+
+// -- AR Quick Look -------------------------------------------------------------------------
+// On an iPhone or iPad, Safari can open a USDZ model in AR Quick Look,
+// set on a table or the floor. The model is exported from what's on
+// screen when the button is pressed: walls, centreline and ground as
+// shown, at the current vertical scale, a couple of metres across and
+// lifted off the floor. Quick Look draws only the front of each face
+// and has no lines or vertex colours, so the walls get both faces, the
+// centreline becomes tubes, and the altitude colours come from a ramp
+// texture.
+//
+// With a route open, the model is the route, drawn as on screen: the cave
+// around it, cropped to the route and scaled to fill the model; the route
+// amber, with gold dashes running along it the way it goes (a loop Quick
+// Look plays over and over); the curtain hung from it, coloured by
+// altitude and fading downwards, with thin posts down it; the current
+// step's stretch in cyan and the ways not to take in red; the start, the
+// end and the current step ringed in white, the current step pulsing, with
+// a pin up to the surface to find it from above; and the names of the
+// start, the end and the passages on the way, standing above the route.
+// Quick Look sets a model down facing the viewer, so the model is
+// turned by the phone's compass heading to put its north to the north,
+// and a north arrow lies beside it to check by (and to turn it by, with
+// two fingers, if the compass was out).
+if (!STILL && document.createElement('a').relList.supports?.('ar')) {
+  const btn = $('ar'), what = $('ar-what');
+  btn.hidden = false;
+  let made = null, busy = false;
+  const link = document.createElement('a');
+  link.rel = 'ar';
+  link.download = 'Ogof-Draenen.usdz';   // Safari needs a name to know it's a USDZ
+  link.appendChild(document.createElement('img'));   // and an image for it to be an AR link
+  const label = () => document.body.classList.contains('routing') ? 'Route in AR' : 'View in AR';
+  new MutationObserver(() => { if (!busy) what.textContent = label(); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+  const SIZE = 2, LIFT = 0.4;   // metres across, and from the base on the floor up to the lowest point
+  const FPS = 30, LOOP = 36;     // the route's animation: a loop of 1.2 s, played over and over
+
+  // A tube along a run of { p, z } (p already stretched by the vertical
+  // scale): rings that turn through the bends (mitred, so the tube keeps
+  // its width), added to `out`.
+  function sweep(run, r, u, out, SIDES = 8) {
+    const n = run.length, { pos, nor, uv, idx } = out;
+    const t = new THREE.Vector3(), t0 = new THREE.Vector3(), t1 = new THREE.Vector3(), nrm = new THREE.Vector3(), bin = new THREE.Vector3();
+    const o = new THREE.Vector3(), v = new THREE.Vector3(), bend = new THREE.Vector3();
+    const q = new THREE.Quaternion(), prevT = new THREE.Vector3();
+    for (let i = 0; i < n; i++) {
+      const p = run[i].p;
+      t0.subVectors(p, run[Math.max(0, i - 1)].p).normalize();
+      t1.subVectors(run[Math.min(n - 1, i + 1)].p, p).normalize();
+      if (i === 0) t0.copy(t1);
+      if (i === n - 1) t1.copy(t0);
+      t.addVectors(t0, t1);
+      if (t.lengthSq() < 1e-6) t.copy(t1); else t.normalize();
+      if (i === 0) {
+        // any normal to start with, then carried along the run without twisting
+        nrm.crossVectors(t, Math.abs(t.y) < 0.9 ? THREE.Object3D.DEFAULT_UP : new THREE.Vector3(1, 0, 0)).normalize();
+      } else {
+        q.setFromUnitVectors(prevT, t);
+        nrm.applyQuaternion(q);
+        nrm.addScaledVector(t, -nrm.dot(t)).normalize();
+      }
+      prevT.copy(t);
+      bin.crossVectors(t, nrm);
+      // the ring sits square to the bisector, so across the bend it's
+      // stretched to keep the tube its full width through the turn
+      const miter = 1 / Math.max(0.5, t.dot(t1));
+      bend.copy(t1).addScaledVector(t, -t.dot(t1));
+      if (bend.lengthSq() > 1e-9) bend.normalize();
+      const base = pos.length / 3, uu = u(run[i].z);
+      for (let k = 0; k < SIDES; k++) {
+        const ang = 2 * Math.PI * k / SIDES;
+        o.copy(nrm).multiplyScalar(Math.cos(ang)).addScaledVector(bin, Math.sin(ang));
+        v.copy(o).addScaledVector(bend, (miter - 1) * o.dot(bend)).multiplyScalar(r).add(p);
+        pos.push(v.x, v.y, v.z);
+        nor.push(o.x, o.y, o.z);
+        uv.push(uu, 0.5);
+        if (i > 0) {
+          const k1 = (k + 1) % SIDES, a0 = base - SIDES + k, a1 = base - SIDES + k1, b0 = base + k, b1 = base + k1;
+          idx.push(a0, a1, b1, a0, b1, b0);
+        }
+      }
+    }
+  }
+  // a ball at each of `at` ({ p, z }, stretched as for sweep)
+  function balls(at, r, u, out, detail = 1) {
+    const { pos, nor, uv, idx } = out, o = new THREE.Vector3();
+    const bp = new THREE.IcosahedronGeometry(r, detail).attributes.position;
+    for (const nd of at) {
+      const base = pos.length / 3, uu = u(nd.z);
+      for (let i = 0; i < bp.count; i++) {
+        o.fromBufferAttribute(bp, i);
+        pos.push(o.x + nd.p.x, o.y + nd.p.y, o.z + nd.p.z);
+        o.normalize(); nor.push(o.x, o.y, o.z);
+        uv.push(uu, 0.5);
+      }
+      for (let i = 0; i < bp.count; i++) idx.push(base + i);   // non-indexed: one triangle per three
+    }
+  }
+  // the tubes and balls as a mesh, scaled back down in y
+  function tubeMesh(out, mat) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(out.pos, 3));
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(out.nor, 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute(out.uv, 2));
+    g.setIndex(out.idx);
+    const mesh = new THREE.Mesh(g, mat);
+    mesh.scale.y = 1 / world.scale.y;
+    return mesh;
+  }
+  const tubes = () => ({ pos: [], nor: [], uv: [], idx: [] });
+  // a survey point, stretched by the vertical scale, for sweep and balls
+  const at = q => { const p = P(q); p.y *= world.scale.y; return { p, z: q[2] }; };
+
+  // The centreline as continuous tubes: the legs (those `keep` keeps) are
+  // joined into runs between junctions and ends, each swept as a tube,
+  // and a ball at every junction and end. Built with the vertical scale
+  // applied, so the tubes stay round.
+  function centrelineTubes(mat, u, r, keep, sides = 8) {
+    const L = S.legs;
+    const nodes = new Map(), node = (i) => {
+      const key = `${L[i]},${L[i + 1]},${L[i + 2]}`;
+      let nd = nodes.get(key);
+      if (!nd) {
+        nd = { ...at(L.slice(i, i + 3)), edges: [] };
+        nodes.set(key, nd);
+      }
+      return nd;
+    };
+    const edges = [];
+    for (let i = 0; i < L.length; i += 6) {
+      const a = node(i), b = node(i + 3);
+      if (a === b || !keep(a.p) || !keep(b.p)) continue;
+      const e = { a, b, done: false };
+      a.edges.push(e); b.edges.push(e); edges.push(e);
+    }
+    // runs: walk from every junction or end until the next one; what's left are loops
+    const runs = [];
+    const walk = (start, e) => {
+      const run = [start];
+      let at = start;
+      while (e && !e.done) {
+        e.done = true;
+        at = e.a === at ? e.b : e.a;
+        run.push(at);
+        e = at.edges.length === 2 ? at.edges.find(x => !x.done) : null;
+      }
+      runs.push(run);
+    };
+    for (const nd of nodes.values()) if (nd.edges.length !== 2) nd.edges.forEach(e => e.done || walk(nd, e));
+    const ends = [...nodes.values()].filter(nd => nd.edges.length && nd.edges.length !== 2);
+    for (const e of edges) if (!e.done) { ends.push(e.a); walk(e.a, e); }
+    const out = tubes();
+    for (const run of runs) sweep(run, r, u, out, sides);
+    balls(ends, r * 1.15, u, out, sides < 8 ? 0 : 1);
+    return tubeMesh(out, mat);
+  }
+
+  const flat = hex => new THREE.MeshStandardMaterial({ color: hex, emissive: hex, roughness: 0.6, metalness: 0 });
+
+  // rt: the route and step to show, or null for the whole cave as on screen;
+  // yaw: how far to turn it (radians, anticlockwise from above)
+  function arScene(rt, yaw) {
+    const rampTex = (k = 1) => {
+      const cv = document.createElement('canvas');
+      cv.width = 256; cv.height = 4;
+      const rg = cv.getContext('2d'), c = new THREE.Color();
+      for (let i = 0; i < 256; i++) { rg.fillStyle = `#${ramp(i / 255, c).multiplyScalar(k).getHexString()}`; rg.fillRect(i, 0, 1, 4); }
+      const t = new THREE.CanvasTexture(cv);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+    // lit, but with enough glow that the colours read on the shaded side
+    // (the exporter ignores the emissive strength, so the glow is a dimmer
+    // ramp); dimmer with a route, so the route stands out
+    const caveMat = rt
+      ? new THREE.MeshStandardMaterial({ map: rampTex(0.55), emissiveMap: rampTex(0.2), emissive: 0xffffff, roughness: 0.8, metalness: 0 })
+      : new THREE.MeshStandardMaterial({ map: rampTex(), emissiveMap: rampTex(0.35), emissive: 0xffffff, roughness: 0.8, metalness: 0 });
+    const u = z => (0.5 + 255 * Math.min(1, Math.max(0, alt01(z)))) / 256;
+
+    // with a route, only the cave and ground around it
+    let keep = () => true, r = Math.max(W, HH) / 700, span = 0;
+    if (rt) {
+      const pts = rt.route.nodes.map(n => P(gp(n)));
+      const xs = pts.map(p => p.x), zs = pts.map(p => p.z);
+      let x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
+      const m = Math.max(60, 0.25 * Math.max(x1 - x0, z1 - z0));
+      x0 -= m; x1 += m; z0 -= m; z1 += m;
+      keep = v => v.x >= x0 && v.x <= x1 && v.z >= z0 && v.z <= z1;
+      span = Math.max(x1 - x0, z1 - z0);
+      r = span / 700;
+    }
+
+    const group = new THREE.Group();
+    if (walls && walls.visible) {
+      const wp = S.walls.pos, n = wp.length / 3, uv = new Float32Array(n * 2).fill(0.5);
+      for (let i = 0; i < n; i++) uv[2 * i] = u(wp[3 * i + 2]);
+      const g = new THREE.BufferGeometry(), pa = walls.geometry.attributes.position;
+      g.setAttribute('position', pa);
+      g.setAttribute('normal', walls.geometry.attributes.normal);
+      g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+      // every triangle again the other way round, so it shows from inside and out
+      const v = new THREE.Vector3(), kept = i => keep(v.fromBufferAttribute(pa, i));
+      const idx = rt ? S.walls.idx.filter((_, i, a) => { const t = i - i % 3; return kept(a[t]) && kept(a[t + 1]) && kept(a[t + 2]); }) : S.walls.idx;
+      const both = new Uint32Array(idx.length * 2);
+      both.set(idx);
+      for (let i = 0; i < idx.length; i += 3) both.set([idx[i], idx[i + 2], idx[i + 1]], idx.length + i);
+      g.setIndex(new THREE.BufferAttribute(both, 1));
+      group.add(new THREE.Mesh(g, caveMat));
+    }
+    // (with a route, the cave is the background: fewer sides, a smaller file)
+    if (legs.visible && S.legs.length) group.add(centrelineTubes(caveMat, u, r, keep, rt ? 5 : 8));
+    const opacity = groundMat.uniforms.uOpacity.value, gpos = ground?.geometry.attributes.position.array;
+    if (gpos && opacity > 0.02) {
+      // the ground at a coarser grid (and with a route, just around it), and
+      // the imagery with the ground's opacity in its alpha, which is where
+      // Quick Look takes it from
+      const v = new THREE.Vector3();
+      const allI = [], allJ = [];
+      for (let i = 0; i < TW; i++) if (keep(v.set(gpos[3 * i], 0, gpos[2]))) allI.push(i);
+      for (let j = 0; j < TH; j++) if (keep(v.set(gpos[0], 0, gpos[3 * j * TW + 2]))) allJ.push(j);
+      const s = Math.ceil(Math.max(allI.length, allJ.length) / 160);
+      const every = all => { const a = all.filter((_, n) => n % s === 0); if (a[a.length - 1] !== all[all.length - 1]) a.push(all[all.length - 1]); return a; };
+      const is = every(allI), js = every(allJ);
+      const gw = is.length, gh = js.length, pos = new Float32Array(gw * gh * 3), uv = new Float32Array(gw * gh * 2);
+      js.forEach((j, jj) => is.forEach((i, ii) => {
+        const k = jj * gw + ii;
+        pos.set(gpos.subarray(3 * (j * TW + i), 3 * (j * TW + i) + 3), 3 * k);
+        uv.set(ground.geometry.attributes.uv.array.subarray(2 * (j * TW + i), 2 * (j * TW + i) + 2), 2 * k);
+      }));
+      const idx = [];
+      for (let j = 0; j < gh - 1; j++) for (let i = 0; i < gw - 1; i++) {
+        const a = j * gw + i, b = a + 1, c = a + gw, d = c + 1;
+        idx.push(a, c, b, b, c, d);
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+      g.setIndex(idx);
+      g.computeVertexNormals();
+      const imagery = (alpha) => {
+        const k = Math.min(1, 1024 / Math.max(img.width, img.height));   // the exporter's limit
+        const tc = document.createElement('canvas');
+        tc.width = Math.round(img.width * k); tc.height = Math.round(img.height * k);
+        const tg = tc.getContext('2d');
+        tg.globalAlpha = alpha;
+        tg.drawImage(img, 0, 0, tc.width, tc.height);
+        const tex = new THREE.CanvasTexture(tc);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        return tex;
+      };
+      group.add(new THREE.Mesh(g, new THREE.MeshStandardMaterial({ map: imagery(opacity), transparent: true, roughness: 1, metalness: 0 })));
+      // and its underside, facing down, so it can be seen from below
+      // looking up: opaque and lit by itself, as no light reaches it there
+      const under = g.clone();
+      for (let i = 0; i < idx.length; i += 3) [idx[i + 1], idx[i + 2]] = [idx[i + 2], idx[i + 1]];
+      under.setIndex(idx);
+      under.attributes.normal.array.forEach((x, i, a) => { a[i] = -x; });
+      group.add(new THREE.Mesh(under, new THREE.MeshStandardMaterial({ color: 0x000000, emissiveMap: imagery(1), emissive: 0xffffff, roughness: 1, metalness: 0 })));
+    }
+
+    let here = null, ring = null;
+    if (rt) {
+      const R = rt.route, pts = R.nodes.map(gp), floor = Math.min(...pts.map(p => p[2])) - 6;
+      const s = steps[cur] || { i: 0, alts: [] }, nxt = steps[cur + 1];
+      // the route, as on screen: amber (gold dashes run along it, below)
+      const way = tubes();
+      sweep(pts.map(at), r * 2.2, u, way);
+      group.add(tubeMesh(way, flat(0x8a6420)));
+      // this step's stretch, to the next step, in cyan over it, and the ways
+      // not to take there in red, as on screen
+      const stretch = tubes();
+      sweep(R.nodes.slice(s.i, (nxt ? nxt.i : R.nodes.length - 1) + 1).map(n => at(gp(n))), r * 2.7, u, stretch);
+      group.add(tubeMesh(stretch, flat(0x7fe3ff)));
+      const not = tubes();
+      for (const w of waysNotTaken(s)) sweep(w.map(at), r * 1.7, u, not);
+      if (not.pos.length) group.add(tubeMesh(not, flat(0xff5a5a)));
+      // the curtain, as on screen: the route's height hung from it down to a
+      // little below its lowest point, coloured by altitude and fading
+      // downwards, seen from either side; and thin posts down it, the
+      // rollercoaster's supports
+      const cv = document.createElement('canvas');
+      cv.width = 256; cv.height = 64;
+      const cg = cv.getContext('2d'), c = new THREE.Color();
+      for (let x = 0; x < 256; x++) for (let y = 0; y < 64; y++) {
+        const f = 1 - y / 63;
+        ramp(x / 255, c);
+        cg.fillStyle = `rgba(${c.r * 255 | 0},${c.g * 255 | 0},${c.b * 255 | 0},${(0.04 + 0.42 * f * f).toFixed(3)})`;
+        cg.fillRect(x, 63 - y, 1, 1);
+      }
+      const ct = new THREE.CanvasTexture(cv); ct.colorSpace = THREE.SRGBColorSpace;
+      const cpos = [], cnor = [], cuv = [], cidx = [];
+      for (let q = 0; q < pts.length - 1; q++) {
+        const a = at(pts[q]), b = at(pts[q + 1]), fa = at([pts[q][0], pts[q][1], floor]), fb = at([pts[q + 1][0], pts[q + 1][1], floor]);
+        const n = new THREE.Vector3().subVectors(b.p, a.p).cross(new THREE.Vector3(0, 1, 0)).normalize();
+        for (const side of [1, -1]) {
+          const base = cpos.length / 3;
+          for (const [v, uu, vv] of [[a.p, u(pts[q][2]), 1], [b.p, u(pts[q + 1][2]), 1], [fa.p, u(pts[q][2]), 0], [fb.p, u(pts[q + 1][2]), 0]]) {
+            cpos.push(v.x, v.y, v.z); cnor.push(n.x * side, n.y * side, n.z * side); cuv.push(uu, vv);
+          }
+          cidx.push(...(side > 0 ? [base, base + 2, base + 1, base + 1, base + 2, base + 3] : [base, base + 1, base + 2, base + 1, base + 3, base + 2]));
+        }
+      }
+      group.add(tubeMesh({ pos: cpos, nor: cnor, uv: cuv, idx: cidx },
+        new THREE.MeshStandardMaterial({ map: ct, emissiveMap: ct, emissive: 0xffffff, transparent: true, roughness: 1, metalness: 0 })));
+      const posts = tubes(), gap = span / 45;
+      for (let d = 0; d <= R.length + 1e-6; d += Math.max(gap, R.length / 400)) {
+        const q = R.pointAt(d);
+        sweep([at([q[0], q[1], floor]), at(q)], r * 0.35, () => u(q[2]), posts, 6);
+      }
+      group.add(tubeMesh(posts, new THREE.MeshStandardMaterial({ map: rampTex(0.9), emissiveMap: rampTex(0.4), emissive: 0xffffff, roughness: 0.8, metalness: 0 })));
+      // the start and end, as on screen: green and red, ringed in white
+      ring = (q, rad) => {
+        const g = new THREE.TorusGeometry(rad, rad * 0.16, 8, 32);
+        g.rotateX(Math.PI / 2);
+        const m = new THREE.Mesh(g, flat(0xffffff));
+        m.position.copy(P(q));
+        m.scale.y = 1 / world.scale.y;
+        return m;
+      };
+      for (const [q, col] of [[pts[0], 0x4fd18b], [pts[pts.length - 1], 0xff6b6b]]) {
+        const b = tubes(); balls([at(q)], r * 4, () => 0.5, b); group.add(tubeMesh(b, flat(col)));
+        group.add(ring(q, r * 5.2));
+      }
+      // the current step: ringed, and a pin from it up to a little above the
+      // surface, to find it from above (its cyan ball pulses, below)
+      here = gp(R.nodes[s.i]);
+      group.add(ring(here, r * 6));
+      const hp = P(here);
+      let gi = 0, gj = 0;
+      if (gpos) for (let i = 1; i < TW; i++) if (Math.abs(gpos[3 * i] - hp.x) < Math.abs(gpos[3 * gi] - hp.x)) gi = i;
+      if (gpos) for (let j = 1; j < TH; j++) if (Math.abs(gpos[3 * j * TW + 2] - hp.z) < Math.abs(gpos[3 * gj * TW + 2] - hp.z)) gj = j;
+      const top = Math.max(hp.y, gpos ? gpos[3 * (gj * TW + gi) + 1] : hp.y) + span * 0.04;
+      const pin = tubes();
+      sweep([at(here), at([here[0], here[1], top + zRef])], r * 0.5, () => 0.5, pin, 6);
+      balls([at([here[0], here[1], top + zRef])], r * 2.5, () => 0.5, pin);
+      group.add(tubeMesh(pin, flat(0xffffff)));
+    }
+
+    // a couple of metres across, centred, and floating above a base plate on
+    // the floor or table, so it's easy to look into from all round and from
+    // below (Quick Look sets a model's lowest point on the surface it finds,
+    // so the plate is what sits there, and the model stands off it)
+    const box = new THREE.Box3().setFromObject(group);
+    const k = SIZE / Math.max(box.max.x - box.min.x, box.max.z - box.min.z, 1);
+    const ex = world.scale.y;
+    group.scale.set(k, k * ex, k);
+    group.position.set(-k * (box.min.x + box.max.x) / 2, LIFT - k * ex * box.min.y, -k * (box.min.z + box.max.z) / 2);
+    const turn = new THREE.Group(), sc = new THREE.Scene();
+    turn.add(group);
+    sc.add(turn);
+    const anim = [];
+    const depth = k * (box.max.z - box.min.z) / 2, half = k * (box.max.x - box.min.x) / 2, A = 0.12;
+    {
+      // the base: dark and see-through, a little bigger than the model, with
+      // room at its north edge for the north arrow
+      const m = 0.08, x0 = -half - m, x1 = half + m, z0 = -depth - (rt ? A + 0.3 : m), z1 = depth + m, rad = 0.06;
+      const sh = new THREE.Shape();
+      sh.moveTo(x0 + rad, z0); sh.lineTo(x1 - rad, z0); sh.quadraticCurveTo(x1, z0, x1, z0 + rad);
+      sh.lineTo(x1, z1 - rad); sh.quadraticCurveTo(x1, z1, x1 - rad, z1); sh.lineTo(x0 + rad, z1);
+      sh.quadraticCurveTo(x0, z1, x0, z1 - rad); sh.lineTo(x0, z0 + rad); sh.quadraticCurveTo(x0, z0, x0 + rad, z0);
+      const g = new THREE.ShapeGeometry(sh, 6);
+      g.rotateX(Math.PI / 2);             // flat, facing up (the shape's y is the floor's z)
+      g.attributes.normal.array.forEach((v, i, a) => { a[i] = i % 3 === 1 ? 1 : 0; });
+      g.index && g.setIndex([...g.index.array].reverse());
+      turn.add(new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x0b0f14, transparent: true, opacity: 0.45, roughness: 1, metalness: 0 })));
+    }
+    if (rt) {
+      // a north arrow on the base
+      const sh = new THREE.Shape([[-0.25, 0], [-0.25, 0.55], [-0.6, 0.55], [0, 1], [0.6, 0.55], [0.25, 0.55], [0.25, 0]].map(([x, y]) => new THREE.Vector2(x * A / 2, y * A)));
+      const arrow = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 0.006, bevelEnabled: false }), flat(0xffffff));
+      arrow.rotation.x = -Math.PI / 2;
+      arrow.position.set(0, 0.002, -depth - 0.06);
+      turn.add(arrow);
+      const nc = document.createElement('canvas'); nc.width = nc.height = 128;
+      const ng = nc.getContext('2d');
+      ng.fillStyle = '#fff'; ng.font = '700 110px Inter, system-ui, sans-serif'; ng.textAlign = 'center'; ng.textBaseline = 'middle';
+      ng.fillText('N', 64, 70);
+      const nt = new THREE.CanvasTexture(nc); nt.colorSpace = THREE.SRGBColorSpace;
+      const nl = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 0.08), new THREE.MeshStandardMaterial({ map: nt, emissiveMap: nt, emissive: 0xffffff, transparent: true, roughness: 1, metalness: 0 }));
+      nl.rotation.x = -Math.PI / 2;
+      nl.position.set(0, 0.01, -depth - 0.06 - A - 0.05);
+      turn.add(nl);
+    }
+    turn.rotation.y = yaw;
+    sc.updateMatrixWorld(true);
+
+    if (rt) {
+      // the names, as on screen: white on a dark tag, for the start, the end
+      // and each passage the route goes into, standing above the route
+      // across it, so they read from either side
+      const R = rt.route, local = q => P(q).applyMatrix4(group.matrix);
+      group.updateMatrix();
+      const tags = [[R.p(0), R.nodes[0], routeFrom], [R.p(R.nodes.length - 1), R.nodes[R.nodes.length - 1], routeTo]];
+      let last = null;
+      R.nodes.forEach((n, i) => {
+        const t = G.passage[n] >= 0 ? G.passages[G.passage[n]] : null;
+        if (t && t !== last && i > 0 && i < R.nodes.length - 1 && !tags.some(x => x[2] === t)) tags.push([R.p(i), n, t]);
+        if (t) last = t;
+      });
+      const H = 0.022;   // the tag's height in the room, metres
+      // (not a passage's if it would stand within 9 cm of another: the start
+      // and end first, then the passages in order)
+      const placed = [];
+      for (const [q, n, t] of tags) {
+        const at0 = local(q);
+        if (placed.some(p => p.distanceTo(at0) < 0.09)) continue;
+        placed.push(at0);
+        const c = document.createElement('canvas'), g = c.getContext('2d'), fs = 44;
+        g.font = `600 ${fs}px Inter, system-ui, sans-serif`;
+        c.width = Math.ceil(g.measureText(t).width) + 40; c.height = 72;
+        g.fillStyle = 'rgba(12,16,22,0.82)';
+        g.beginPath(); g.roundRect(0, 0, c.width, c.height, 36); g.fill();
+        g.font = `600 ${fs}px Inter, system-ui, sans-serif`; g.fillStyle = '#fff'; g.textBaseline = 'middle';
+        g.fillText(t, 20, 38);
+        const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+        const mat = new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0xffffff, transparent: true, roughness: 1, metalness: 0 });
+        const w = H * c.width / c.height, k0 = R.nodes.indexOf(n);
+        const a = local(R.p(Math.max(0, k0 - 1))), b = local(R.p(Math.min(R.nodes.length - 1, k0 + 1)));
+        const yaw0 = Math.atan2(b.x - a.x, b.z - a.z) + Math.PI / 2;   // across the route
+        for (const flip of [0, Math.PI]) {
+          const m = new THREE.Mesh(new THREE.PlaneGeometry(w, H), mat);
+          m.position.copy(local(q)).add(new THREE.Vector3(0, 0.012 + H / 2, 0));
+          m.rotation.y = yaw0 + flip;
+          turn.add(m);
+        }
+      }
+      turn.updateMatrixWorld(true);
+    }
+    if (rt) {
+      // the moving parts, outside the model, so each is placed where it is
+      // in the room: gold dashes along the route, as on screen, each going
+      // one gap on in the loop to where the next began, so they flow on
+      // without a jump, turned along the way; and the current step pulsing
+      const R = rt.route, to = q => P(q).applyMatrix4(group.matrixWorld);
+      const rr = r * 2.2 * k;
+      const n = Math.max(8, Math.min(150, Math.round(R.length * k / 0.05))), g = R.length / n;
+      const dash = new THREE.CapsuleGeometry(rr * 1.06, g * k * 0.3, 3, 8), dashMat = flat(0xffd27a);
+      const up = new THREE.Vector3(0, 1, 0), q4 = new THREE.Quaternion(), dir = new THREE.Vector3();
+      for (let b = 0; b < n; b++) {
+        const m = new THREE.Mesh(dash, dashMat);
+        sc.add(m);
+        const keys = [];
+        for (let f = 0; f <= LOOP; f += 3) {
+          const d = (b + f / LOOP) * g, v = to(R.pointAt(d));
+          dir.subVectors(to(R.pointAt(Math.min(R.length, d + g * 0.3))), to(R.pointAt(Math.max(0, d - g * 0.3))));
+          if (dir.lengthSq() < 1e-12) dir.copy(up);
+          q4.setFromUnitVectors(up, dir.normalize());
+          keys.push([f, v, q4.clone()]);
+        }
+        anim.push([m.id, `double3 xformOp:translate.timeSamples = {\n${keys.map(([f, v]) => `\t\t${f}: (${v.x.toFixed(4)}, ${v.y.toFixed(4)}, ${v.z.toFixed(4)}),`).join('\n')}\n\t}\n`
+          + `\tquatf xformOp:orient.timeSamples = {\n${keys.map(([f, , o]) => `\t\t${f}: (${o.w.toFixed(5)}, ${o.x.toFixed(5)}, ${o.y.toFixed(5)}, ${o.z.toFixed(5)}),`).join('\n')}\n\t}\n`
+          + `\tuniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient"]`]);
+      }
+      const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r * 4.5 * k, 2), flat(0x7fe3ff)), v = to(here);
+      sc.add(m);
+      anim.push([m.id, `double3 xformOp:translate = (${v.x.toFixed(4)}, ${v.y.toFixed(4)}, ${v.z.toFixed(4)})\n\tfloat3 xformOp:scale.timeSamples = {\n\t\t0: (1, 1, 1),\n\t\t${LOOP / 2}: (1.4, 1.4, 1.4),\n\t\t${LOOP}: (1, 1, 1),\n\t}\n\tuniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]`]);
+      sc.updateMatrixWorld(true);
+    }
+    return { scene: sc, anim };
+  }
+
+  // The exporter has no animation, so the moving parts are written into its
+  // model.usda afterwards: their transforms swapped for the time samples,
+  // and the loop's length in the header. Then zipped again, each file 64-byte
+  // aligned as USDZ needs (as the exporter does).
+  async function animate(data, anim) {
+    if (!anim.length) return data;
+    const { unzipSync, zipSync, strToU8, strFromU8 } = await import('three/addons/libs/fflate.module.js');
+    const files = unzipSync(data);
+    let usda = strFromU8(files['model.usda']);
+    usda = usda.replace('upAxis = "Y"\n)', `upAxis = "Y"\n\tstartTimeCode = 0\n\tendTimeCode = ${LOOP}\n\ttimeCodesPerSecond = ${FPS}\n)`);
+    for (const [id, ops] of anim)
+      usda = usda.replace(new RegExp(`(def Xform "Object_${id}"[^{]*\\{\\s*)matrix4d xformOp:transform = [^\\n]*\\n\\s*uniform token\\[\\] xformOpOrder = \\["xformOp:transform"\\]`), `$1${ops}`);
+    files['model.usda'] = strToU8(usda);
+    let offset = 0;
+    for (const name in files) {
+      const file = files[name];
+      offset += 34 + name.length;
+      if ((offset & 63) !== 4) files[name] = [file, { extra: { 12345: new Uint8Array(64 - (offset & 63)) } }];
+      offset = file.length;
+    }
+    return zipSync(files, { level: 0 });
+  }
+
+  btn.onclick = async () => {
+    if (busy) return;
+    const rt = document.body.classList.contains('routing') && route ? { route } : null;
+    // with a route, the way the phone is facing, to turn the model's north to the north
+    const listen = rt && !compassOn && matchMedia('(pointer: coarse)').matches && 'DeviceOrientationEvent' in window && isSecureContext;
+    if (listen) {
+      let ok = true;
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try { ok = await DeviceOrientationEvent.requestPermission() === 'granted'; } catch { ok = false; }
+      }
+      if (ok) { heading = null; addEventListener('deviceorientationabsolute', onOrient); addEventListener('deviceorientation', onOrient); }
+    }
+    busy = true; what.textContent = 'Preparing…';
+    try {
+      if (listen) for (let t = 0; t < 8 && heading === null; t++) await new Promise(r => setTimeout(r, 100));
+      const yaw = rt && heading !== null ? Math.round(heading / 5) * 5 * Math.PI / 180 : 0;
+      const key = [world.scale.y, walls?.visible, legs.visible, groundMat.uniforms.uOpacity.value.toFixed(2),
+        rt ? `${routeFrom}>${routeTo}@${cur}:${route.nodes.length}` : '', yaw.toFixed(3)].join();
+      if (made?.key !== key) {
+        const { USDZExporter } = await import('three/addons/exporters/USDZExporter.js');
+        const { scene: sc, anim } = arScene(rt, yaw);
+        const data = await animate(await new USDZExporter().parse(sc, { quickLookCompatible: true }), anim);
+        if (made) URL.revokeObjectURL(made.url);
+        made = { key, url: URL.createObjectURL(new Blob([data], { type: 'model/vnd.usdz+zip' })) };
+        link.href = made.url;
+      }
+    } catch (e) {
+      console.error(e);
+      what.textContent = "AR didn't work";
+      return;
+    } finally {
+      busy = false;
+      if (listen && !compassOn) { removeEventListener('deviceorientationabsolute', onOrient); removeEventListener('deviceorientation', onOrient); }
+    }
+    what.textContent = label();
+    link.click();
+  };
+}
+
+// -- controls --------------------------------------------------------------------------------
+let spinning = !STILL && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+let idleSince = 0, userHolding = false;
+function setSpin(on) {
+  spinning = on;
+  $('spin').classList.toggle('on', on);
+  $('spin').setAttribute('aria-pressed', on);
+}
+setSpin(spinning);
+controls.addEventListener('start', () => { userHolding = true; fly = null; });
+controls.addEventListener('end', () => { userHolding = false; idleSince = performance.now(); });
+$('spin').onclick = () => setSpin(!spinning);
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'r' || e.key === 'R') setSpin(!spinning);
+});
+
+const setGround = v => { groundMat.uniforms.uOpacity.value = v; $('opacity').value = v; surface.forEach(o => { o.visible = v > 0; }); };
+$('opacity').oninput = e => setGround(+e.target.value);
+$('xray').onchange = e => { groundMat.uniforms.uXray.value = e.target.checked ? 0.78 : 0; };
+if (!walls) $('walls-row').hidden = true;
+if (!S.splays.length) $('splays-row').hidden = true;
+$('walls').onchange = e => { if (walls) walls.visible = e.target.checked; };
+$('legs').onchange = e => { legs.visible = legsWide.visible = e.target.checked; };
+$('splays').onchange = e => { splays.visible = e.target.checked; };
+$('names').onchange = e => { labelBox.style.display = e.target.checked ? '' : 'none'; };
+$('exag').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  [...$('exag').children].forEach(x => x.classList.toggle('on', x === b));
+  const k = +b.dataset.v / world.scale.y;
+  world.scale.y = +b.dataset.v;
+  controls.target.y *= k;
+};
+$('v-reset').onclick = () => flyTo(home());
+$('v-top').onclick = () => flyTo(viewFrom(controls.getAzimuthalAngle(), 1.5, R0 * 1.15));
+$('v-side').onclick = () => flyTo(viewFrom(controls.getAzimuthalAngle(), 0.5));
+// The compass is a handle too: drag it sideways to turn the model round the
+// centre of the view, up and down to tilt it, from above to below, so you
+// can look round a passage from anywhere, underground included. A click
+// without dragging faces north.
+{
+  const c = $('compass'), sph = new THREE.Spherical(), off = new THREE.Vector3();
+  let drag = null;
+  c.addEventListener('pointerdown', e => {
+    drag = { x: e.clientX, y: e.clientY, moved: false };
+    c.setPointerCapture(e.pointerId);
+  });
+  c.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+    if (!drag.moved) { drag.moved = true; c.classList.add('drag'); fly = null; userHolding = true; }
+    drag.x = e.clientX; drag.y = e.clientY;
+    off.copy(camera.position).sub(controls.target);
+    sph.setFromVector3(off);
+    sph.theta -= dx * 0.012;
+    sph.phi = Math.min(Math.PI - 0.05, Math.max(0.05, sph.phi - dy * 0.008));
+    camera.position.copy(controls.target).add(off.setFromSpherical(sph));
+    camera.lookAt(controls.target);
+  });
+  const end = () => {
+    if (!drag) return;
+    if (drag.moved) { c.classList.remove('drag'); userHolding = false; idleSince = performance.now(); c.dataset.dragged = '1'; }
+    drag = null;
+  };
+  c.addEventListener('pointerup', end);
+  c.addEventListener('pointercancel', end);
+}
+function faceNorth() {
+  const off = camera.position.clone().sub(controls.target), d = off.length(), el = Math.asin(off.y / d);
+  flyTo({ pos: controls.target.clone().add(new THREE.Vector3(0, d * Math.sin(el), d * Math.cos(el))), target: controls.target.clone() }, 900);
+}
+// Compass mode, as in a phone's map app: the view turns with the way the
+// phone is facing, so turning round turns the survey with you. Zoom, tilt,
+// moving about and the route's steps all still work; only the turning is
+// the phone's. It needs a phone with a compass, and the page over https
+// (or localhost); elsewhere a tap just faces north.
+let heading = null, compassOn = false, compassWait = 0;
+function onOrient(e) {
+  let h = null;
+  if (typeof e.webkitCompassHeading === 'number') h = e.webkitCompassHeading;            // iOS: degrees from north
+  else if (e.absolute && typeof e.alpha === 'number') h = (360 - e.alpha) % 360;          // Android: alpha is anticlockwise
+  if (h === null) return;
+  // the phone held upright in landscape faces 90 degrees round from its top
+  const so = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+  heading = (h + so + 360) % 360;
+}
+function setCompass(on) {
+  compassOn = on;
+  $('compass').classList.toggle('on', on);
+  $('compass').setAttribute('aria-pressed', on);
+  if (on) {
+    setSpin(false);
+    heading = null; compassWait = performance.now();
+    addEventListener('deviceorientationabsolute', onOrient);
+    addEventListener('deviceorientation', onOrient);
+  } else {
+    removeEventListener('deviceorientationabsolute', onOrient);
+    removeEventListener('deviceorientation', onOrient);
+  }
+}
+$('compass').onclick = async () => {
+  if ($('compass').dataset.dragged) { delete $('compass').dataset.dragged; return; }
+  if (compassOn) { setCompass(false); return; }
+  const touch = matchMedia('(pointer: coarse)').matches;
+  if (!touch || !('DeviceOrientationEvent' in window) || !isSecureContext) { faceNorth(); return; }
+  // iOS asks first, and only in answer to a tap
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try { if (await DeviceOrientationEvent.requestPermission() !== 'granted') { faceNorth(); return; } }
+    catch { faceNorth(); return; }
+  }
+  setCompass(true);
+};
+// each frame: turn the view smoothly to the heading (not while flying to a step)
+const compSph = new THREE.Spherical(), compOff = new THREE.Vector3();
+function compassFrame() {
+  if (!compassOn) return;
+  if (heading === null) {
+    if (performance.now() - compassWait > 2000) { setCompass(false); faceNorth(); }   // no compass after all
+    return;
+  }
+  if (fly || userHolding) return;
+  compOff.copy(camera.position).sub(controls.target);
+  compSph.setFromVector3(compOff);
+  // the camera looks the way of the heading: it sits on the other side of the centre
+  const want = -heading * Math.PI / 180;
+  let d = want - compSph.theta;
+  d = Math.atan2(Math.sin(d), Math.cos(d));
+  if (Math.abs(d) < 1e-4) return;
+  compSph.theta += d * 0.18;
+  camera.position.copy(controls.target).add(compOff.setFromSpherical(compSph));
+  camera.lookAt(controls.target);
+}
+const panel = $('panel'), panelH = $('panel-h');
+const togglePanel = () => { panel.classList.toggle('closed'); panelH.setAttribute('aria-expanded', !panel.classList.contains('closed')); };
+panelH.onclick = togglePanel;
+panelH.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePanel(); } };
+if (innerWidth < 640) togglePanel();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight); sizeMask();
+});
+
+// -- routes ---------------------------------------------------------------------------------
+// The way between two named places, the shortest through the centreline,
+// with turn-by-turn steps worked out from the survey as the Swildons route
+// cards do (tools/routes/analyse.py there): the decisions at junctions,
+// which way to turn, up or down, where the ways not taken lead, the steep
+// drops and the passages entered. It describes the survey's geometry, not
+// how the passage feels, so treat it as a guide.
+const G = S.graph, GN = G.pos.length / 3;
+const gp = i => [G.pos[3 * i], G.pos[3 * i + 1], G.pos[3 * i + 2]];
+const dist3 = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+const adj = Array.from({ length: GN }, () => new Map());
+for (let k = 0; k < G.edges.length; k += 2) {
+  const a = G.edges[k], b = G.edges[k + 1], d = dist3(gp(a), gp(b));
+  adj[a].set(b, d); adj[b].set(a, d);
+}
+const passageOf = i => G.passage[i] >= 0 ? G.passages[G.passage[i]] : null;
+const nearestNode = p => { let best = 0, bd = Infinity; for (let i = 0; i < GN; i++) { const d = dist3(p, gp(i)); if (d < bd) { bd = d; best = i; } } return best; };
+// (not a place whose tie into the cave is provisional: a route there could go a way that isn't there)
+const PLACES = S.names.filter(n => !n.apart).map(n => ({ name: n.t, node: nearestNode(n.p) }))
+  .sort((a, b) => (b.name === 'Entrance') - (a.name === 'Entrance') || a.name.localeCompare(b.name));
+const HERE = new Map();          // 'Here (stn …)' -> station
+// a named place, or 'Here (stn …)' from a reroute (also from a shared address, so by station name)
+function placeBy(name) {
+  const p = PLACES.find(p => p.name === name);
+  if (p) return p;
+  if (!HERE.has(name)) {
+    const m = /^Here \(stn (.+)\)$/.exec(name);
+    const i = m ? G.stn.indexOf(m[1]) : -1;
+    if (i < 0) return null;
+    HERE.set(name, i);
+  }
+  return { name, node: HERE.get(name) };
+}
+
+function shortest(a, b) {
+  const dist = new Float64Array(GN).fill(Infinity), prev = new Int32Array(GN).fill(-1), heap = [[0, a]];
+  const push = x => { heap.push(x); let i = heap.length - 1; while (i) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+  const pop = () => {
+    const top = heap[0], last = heap.pop();
+    if (heap.length) {
+      heap[0] = last; let i = 0;
+      for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; }
+    }
+    return top;
+  };
+  dist[a] = 0;
+  while (heap.length) {
+    const [d, u] = pop();
+    if (d > dist[u]) continue;
+    if (u === b) break;
+    for (const [v, c] of adj[u]) if (d + c < dist[v]) { dist[v] = d + c; prev[v] = u; push([d + c, v]); }
+  }
+  if (!isFinite(dist[b])) return null;
+  const path = [];
+  for (let u = b; u !== -1; u = prev[u]) path.push(u);
+  return path.reverse();
+}
+
+const bearing = (a, b) => ((Math.atan2(b[0] - a[0], b[1] - a[1]) * 180 / Math.PI) + 360) % 360;
+const COMPASS = ['north', 'north-east', 'east', 'south-east', 'south', 'south-west', 'west', 'north-west'];
+const compass = deg => COMPASS[Math.floor(((deg % 360) + 22.5) / 45) % 8];
+const rel180 = a => ((a + 180) % 360 + 360) % 360 - 180;
+// which way to go, by how far the passage turns (degrees, + is right)
+const TURNS = [[25, 'carry straight on'], [60, 'bear {side}'], [135, 'turn {side}'], [181, 'turn sharply back {side}']];
+
+class Route {
+  constructor(nodes) {
+    this.nodes = nodes;
+    this.chain = [0];
+    for (let i = 1; i < nodes.length; i++) this.chain.push(this.chain[i - 1] + adj[nodes[i - 1]].get(nodes[i]));
+    this.length = this.chain[this.chain.length - 1];
+  }
+  p(i) { return gp(this.nodes[i]); }
+  pointAt(d) {
+    d = Math.max(0, Math.min(this.length, d));
+    for (let i = 0; i < this.nodes.length - 1; i++) {
+      if (this.chain[i + 1] >= d) {
+        const L = this.chain[i + 1] - this.chain[i] || 1, t = (d - this.chain[i]) / L, a = this.p(i), b = this.p(i + 1);
+        return [0, 1, 2].map(k => a[k] + (b[k] - a[k]) * t);
+      }
+    }
+    return this.p(this.nodes.length - 1);
+  }
+  indexAt(d) { let i = 0; while (i < this.nodes.length - 1 && this.chain[i + 1] <= d) i++; return i; }
+  // plan bearing of the route leaving node i forwards (+1) or arriving (-1);
+  // the survey legs are long here, so it looks 8 m along
+  dirAt(i, sign, reach = 8) {
+    const q = this.p(i), p = this.pointAt(this.chain[i] + sign * reach);
+    if (Math.hypot(p[0] - q[0], p[1] - q[1]) < 0.3) return null;
+    return sign > 0 ? bearing(q, p) : bearing(p, q);
+  }
+  stats() {
+    const zs = this.nodes.map(n => gp(n)[2]);
+    let up = 0, down = 0;
+    for (let i = 1; i < zs.length; i++) { const dz = zs[i] - zs[i - 1]; if (dz > 0) up += dz; else down -= dz; }
+    return { length: this.length, up, down, low: Math.min(...zs), high: Math.max(...zs) };
+  }
+  // the passages along the route, in order: [[distance, name]]
+  passages() {
+    const out = [];
+    this.nodes.forEach((n, i) => { const t = passageOf(n); if (t && (!out.length || out[out.length - 1][1] !== t)) out.push([this.chain[i], t]); });
+    return out;
+  }
+  passageAt(i) { for (let k = i; k >= 0; k--) { const t = passageOf(this.nodes[k]); if (t) return t; } return null; }
+  // a side passage from start through via, not crossing the route: [length explored, nodes reached]
+  branch(start, via, onroute, cap = 40) {
+    const seen = new Set([start, via]), frontier = [via], reached = [via];
+    let total = adj[start].get(via);
+    while (frontier.length && total < cap) {
+      const u = frontier.pop();
+      for (const [v, c] of adj[u]) {
+        if (seen.has(v) || onroute.has(v)) continue;
+        seen.add(v); total += c; frontier.push(v); reached.push(v);
+      }
+    }
+    return [total, reached];
+  }
+  // the nearest passage a side passage leads to, other than the one you're in
+  leadTo(reached, start, here) {
+    let best = null;
+    for (const n of reached) {
+      const t = passageOf(n);
+      if (t && t !== here) { const d = dist3(gp(start), gp(n)); if (!best || d < best[0]) best = [d, t]; }
+    }
+    return best ? best[1] : null;
+  }
+  // junctions where there's a choice: [[index, [[bearing, length, leadsTo, node, from node]]]]
+  decisions(minBranch = 10, merge = 8) {
+    const onroute = new Set(this.nodes), raw = [];
+    for (let i = 0; i < this.nodes.length - 1; i++) {
+      const n = this.nodes[i], prev = i ? this.nodes[i - 1] : null, nxt = this.nodes[i + 1], alts = [];
+      for (const v of adj[n].keys()) {
+        if (v === prev || v === nxt) continue;
+        if (onroute.has(v)) { alts.push([bearing(gp(n), gp(v)), 99, null, v, n]); continue; }
+        const [L, reached] = this.branch(n, v, onroute);
+        if (L >= minBranch) alts.push([bearing(gp(n), gp(v)), L, this.leadTo(reached, n, this.passageAt(i)), v, n]);
+      }
+      if (alts.length) raw.push([i, alts]);
+    }
+    const out = [];
+    for (const [i, alts] of raw) {
+      if (out.length && this.chain[i] - this.chain[out[out.length - 1][0]] < merge) out[out.length - 1][1].push(...alts);
+      else out.push([i, alts]);
+    }
+    return out;
+  }
+  // steep pitches and climbs: [[index, height change]]
+  drops(minDz = 3, steep = 1.0) {
+    const runs = [];
+    let cur = null;
+    for (let i = 0; i < this.nodes.length - 1; i++) {
+      const a = this.p(i), b = this.p(i + 1), dz = b[2] - a[2], h = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (Math.abs(dz) >= 1 && Math.abs(dz) >= steep * h) {
+        if (cur && cur.end === i && (dz > 0) === (cur.dz > 0)) { cur.dz += dz; cur.end = i + 1; }
+        else { cur = { start: i, end: i + 1, dz }; runs.push(cur); }
+      }
+    }
+    return runs.filter(r => Math.abs(r.dz) >= minDz).map(r => [r.start, r.dz]);
+  }
+  turn(i) {
+    const bin = this.dirAt(i, -1), bout = this.dirAt(i, +1);
+    return bin === null || bout === null ? null : rel180(bout - bin);
+  }
+  upDown(i, over = 10) {
+    const dz = this.pointAt(this.chain[i] + over)[2] - this.p(i)[2];
+    return dz <= -1.5 ? `down about ${Math.round(-dz)} m` : dz >= 1.5 ? `up about ${Math.round(dz)} m` : null;
+  }
+  towards(i, to) {
+    const here = this.passageAt(i);
+    const next = this.passages().find(([d, t]) => d > this.chain[i] + 3 && t !== here);
+    return next ? next[1] : (i < this.nodes.length - 1 ? to : null);
+  }
+  // plain-words directions at decision i
+  instruction(i, alts, to) {
+    const bin = this.dirAt(i, -1), bout = this.dirAt(i, +1), parts = [];
+    if (bin !== null && bout !== null) {
+      const a = rel180(bout - bin);
+      const [, words] = TURNS.find(([lim]) => Math.abs(a) < lim);
+      parts.push(words.replace('{side}', a > 0 ? 'right' : 'left'));
+    } else parts.push(bout !== null ? 'go ' + compass(bout) : 'carry on');
+    const ud = this.upDown(i); if (ud) parts.push(ud);
+    const tw = this.towards(i, to); if (tw) parts.push(`towards ${tw}`);
+    let text = parts.join(', ');
+    text = text[0].toUpperCase() + text.slice(1) + '.';
+    const sides = new Map();
+    for (const [b, L, lead] of alts) {
+      if (L >= 99) continue;
+      let where;
+      if (bin === null) where = `the way ${compass(b)}`;
+      else {
+        const r = rel180(b - bin), go = bout !== null ? rel180(bout - bin) : 0;
+        where = Math.abs(r) > 150 ? 'behind you' : `on the ${r > go ? 'right' : 'left'}`;
+      }
+      if (!sides.has(where)) sides.set(where, []);
+      if (lead && !sides.get(where).includes(lead)) sides.get(where).push(lead);
+    }
+    if (sides.size) {
+      const bits = [...sides].map(([w, leads]) => (w.startsWith('the way') ? w : 'the way ' + w) + (leads.length ? ` (to ${leads.join(', ')})` : ''));
+      text += ' Not ' + (bits.length > 1 ? bits.slice(0, -1).join(', ') + ' or ' + bits[bits.length - 1] : bits[0]) + '.';
+    }
+    return text;
+  }
+  // the steps to follow: start, decisions, passages entered, steep drops, end
+  steps(from, to) {
+    const last = this.nodes.length - 1, out = [];
+    {
+      const b = this.dirAt(0, +1), ud = this.upDown(0), tw = this.towards(0, to);
+      out.push({ i: 0, kind: 'start', turn: 0,
+        text: (from.startsWith('Here (') ? `Start from where you are (${from.slice(6, -1)}).` : `Start at ${from}.`) + (b !== null ? ` Head ${compass(b)}` + (ud ? `, ${ud}` : '') + (tw ? `, towards ${tw}` : '') + '.' : ''),
+        alts: [] });
+    }
+    for (const [i, alts] of this.decisions()) {
+      if (i === 0) { out[0].alts = alts.filter(a => a[1] < 99).map(a => [a[4], a[3]]); continue; }
+      out.push({ i, kind: 'turn', turn: this.turn(i), text: this.instruction(i, alts, to), alts: alts.filter(a => a[1] < 99).map(a => [a[4], a[3]]) });
+    }
+    const near = (i, m) => out.some(s => Math.abs(this.chain[s.i] - this.chain[i]) < m);
+    for (const [d, t] of this.passages().slice(1)) {
+      const i = this.indexAt(d);
+      if (near(i, 15) || i >= last) continue;
+      const b = this.dirAt(i, +1);
+      out.push({ i, kind: 'passage', turn: this.turn(i), text: `Into ${t}` + (b !== null ? `, heading ${compass(b)}` : '') + '.', alts: [] });
+    }
+    for (const [i, dz] of this.drops()) {
+      const words = `A steep ${dz < 0 ? 'drop' : 'climb'} of about ${Math.round(Math.abs(dz))} m${dz < 0 ? ' down' : ' up'}.`;
+      const s = out.find(s => Math.abs(this.chain[s.i] - this.chain[i]) < 10);
+      if (s) s.text += ' ' + words;
+      else out.push({ i, kind: 'drop', turn: null, dz, text: words, alts: [] });
+    }
+    out.sort((a, b) => a.i - b.i);
+    out.push({ i: last, kind: 'end', turn: null, text: `Arrive at ${to}.`, alts: [] });
+    return out;
+  }
+}
+
+// -- routes: what's drawn ----------------------------------------------------------------
+const routeGroup = new THREE.Group();
+routeGroup.renderOrder = 5;
+world.add(routeGroup);
+const lineMats = [];
+const lineMat = o => { const m = new LineMaterial({ transparent: true, depthTest: false, toneMapped: false, ...o }); m.resolution.set(innerWidth, innerHeight); lineMats.push(m); return m; };
+const routeUnder = new Line2(new LineGeometry(), lineMat({ color: 0x8a6420, linewidth: 7, opacity: 0.85 }));
+const routeDash = new Line2(new LineGeometry(), lineMat({ color: 0xffd27a, linewidth: 4, dashed: true, dashSize: 14, gapSize: 9 }));
+const stepLine = new Line2(new LineGeometry(), lineMat({ color: 0x7fe3ff, linewidth: 7 }));
+const notLines = new LineSegments2(new LineSegmentsGeometry(), lineMat({ color: 0xff5a5a, linewidth: 4, opacity: 0.95 }));
+[routeUnder, routeDash, stepLine, notLines].forEach((o, k) => { o.renderOrder = 6 + k; o.frustumCulled = false; routeGroup.add(o); });
+function dotSprite(fill, ring = '#fff', size = 0.034) {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d');
+  g.beginPath(); g.arc(32, 32, 24, 0, 2 * Math.PI); g.fillStyle = fill; g.fill();
+  g.lineWidth = 6; g.strokeStyle = ring; g.stroke();
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false, transparent: true }));
+  sp.scale.set(size, size, 1); sp.renderOrder = 10;
+  return sp;
+}
+const startDot = dotSprite('#4fd18b', '#fff', 0.024), endDot = dotSprite('#ff6b6b', '#fff', 0.024), hereDot = dotSprite('#7fe3ff', '#fff', 0.028), probeDot = dotSprite('#ffffff', '#ffd27a', 0.016);
+probeDot.visible = false;
+[startDot, endDot, hereDot, probeDot].forEach(o => routeGroup.add(o));
+// the curtain: the route's height profile hung in 3D, from the route down to
+// a little below its lowest point, coloured by altitude and fading downwards
+const curtain = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.ShaderMaterial({
+  vertexShader: `
+    attribute vec3 color; attribute float fade;
+    varying vec3 vCol; varying float vFade;
+    void main() { vCol = color; vFade = fade; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    varying vec3 vCol; varying float vFade;
+    void main() { gl_FragColor = vec4(vCol, 0.04 + 0.32 * vFade * vFade); }`,
+  transparent: true, depthWrite: false, depthTest: false, side: THREE.DoubleSide,
+}));
+curtain.renderOrder = 5; curtain.frustumCulled = false;
+routeGroup.add(curtain);
+function setCurtain(nodes) {
+  const pts = nodes.map(gp), floor = Math.min(...pts.map(p => p[2])) - 6;
+  const pos = [], col = [], fade = [], c = new THREE.Color();
+  for (let k = 0; k < pts.length - 1; k++) {
+    const a = pts[k], b = pts[k + 1];
+    const quad = [[a, a[2]], [b, b[2]], [a, floor], [b, b[2]], [b, floor], [a, floor]];
+    for (const [p, z] of quad) {
+      const v = P([p[0], p[1], z]);
+      pos.push(v.x, v.y, v.z);
+      ramp(alt01(p[2]), c); col.push(c.r, c.g, c.b);
+      fade.push(z === floor ? 0 : 1);
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  g.setAttribute('fade', new THREE.Float32BufferAttribute(fade, 1));
+  curtain.geometry.dispose(); curtain.geometry = g;
+}
+routeGroup.visible = false;
+const lift = p => P(p);   // drawn on top of everything, so it needs no lift off the centreline
+const toWorld = p => { const v = P(p); v.y *= world.scale.y; return v; };
+const toWorldInto = (p, v) => { P(p, v); v.y *= world.scale.y; return v; };
+
+// the route's dashes move for a few seconds after each step, showing the way
+// it goes, then stop, so a phone isn't drawing all the time a route is open
+let dashUntil = 0;
+let route = null, steps = [], cur = 0, routeFrom = null, routeTo = null, onRoute = new Set();
+const fmtM = m => m >= 1000 ? `${(m / 1000).toFixed(2)} km` : `${Math.round(m)} m`;
+
+function setLine(line, pts) {
+  const flat = [];
+  for (const p of pts) { const v = lift(p); flat.push(v.x, v.y, v.z); }
+  line.geometry.dispose();
+  line.geometry = new LineGeometry();
+  if (flat.length >= 6) line.geometry.setPositions(flat);
+  line.visible = flat.length >= 6;
+  if (line.material.dashed && line.visible) line.computeLineDistances();
+}
+
+const escHtml = t => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// -- routes: the junction, from above ------------------------------------------------------
+// Each step's junction as a little plan, turned so the way you arrive comes
+// up from the bottom: the way on in blue with its arrowhead, each way not to
+// take in red ending in a cross, the way you came in faint gold and the rest
+// of the survey nearby in grey. Easier to read in a glance than the 3D.
+function junctionSvg(s) {
+  const c = gp(route.nodes[s.i]), R = 32, k = 44 / R;
+  const b = ((s.i ? route.dirAt(s.i, -1) : null) ?? route.dirAt(s.i, +1) ?? 0) * Math.PI / 180;
+  const cb = Math.cos(b), sb = Math.sin(b);
+  const xy = p => { const dx = p[0] - c[0], dy = p[1] - c[1]; return [50 + (dx * cb - dy * sb) * k, 50 - (dx * sb + dy * cb) * k]; };
+  const near = p => Math.hypot(p[0] - c[0], p[1] - c[1]) < R * 1.6;
+  const line = (pts, attrs) => `<polyline points="${pts.map(p => xy(p).map(v => v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke-linecap="round" stroke-linejoin="round" ${attrs}/>`;
+  let h = `<defs><marker id="jn-ar" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#7fe3ff"/></marker></defs>`;
+  // the survey nearby
+  let bg = '';
+  for (let e = 0; e < G.edges.length; e += 2) {
+    const a = gp(G.edges[e]), d = gp(G.edges[e + 1]);
+    if (near(a) || near(d)) bg += `M${xy(a).map(v => v.toFixed(1)).join(' ')}L${xy(d).map(v => v.toFixed(1)).join(' ')}`;
+  }
+  h += `<path d="${bg}" stroke="rgba(160,180,205,.35)" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+  // a stretch of the route from node i, `dir` 1 forwards or -1 back, up to `m` metres
+  const stretch = (dir, m) => {
+    const out = [route.p(s.i)];
+    for (let i = s.i + dir; i >= 0 && i < route.nodes.length; i += dir) {
+      out.push(route.p(i));
+      if (Math.abs(route.chain[i] - route.chain[s.i]) >= m) break;
+    }
+    return out;
+  };
+  if (s.i > 0) h += line(stretch(-1, R), 'stroke="rgba(255,210,122,.55)" stroke-width="4"');
+  // the ways not to take, each for about 12 m, with a cross at the end
+  for (const [from, v] of s.alts) {
+    const pts = [gp(from), gp(v)], seen = new Set(route.nodes);
+    let u = from, w = v, run = adj[from].get(v);
+    while (run < 12) {
+      seen.add(w);
+      const on = [...adj[w].keys()].find(x => !seen.has(x));
+      if (on === undefined) break;
+      run += adj[w].get(on); u = w; w = on; pts.push(gp(w));
+    }
+    // stop at 14 m out
+    const end = xy(pts[pts.length - 1]);
+    h += line(pts, 'stroke="#ff5a5a" stroke-width="3.5"');
+    h += `<path d="M${end[0] - 4} ${end[1] - 4}l8 8m0 -8l-8 8" stroke="#ff5a5a" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  if (s.i < route.nodes.length - 1) h += line(stretch(1, R * 0.95), 'stroke="#7fe3ff" stroke-width="5" marker-end="url(#jn-ar)"');
+  h += `<circle cx="50" cy="50" r="4.5" fill="#fff" stroke="#05070c" stroke-width="1.5"/>`;
+  const ud = route.upDown(s.i);
+  if (ud) h += `<text x="96" y="12" text-anchor="end" font-size="11" font-weight="600" fill="#7fe3ff" font-family="Inter, sans-serif">${ud.startsWith('down') ? '↓' : '↑'} ${ud.match(/\d+/)[0]} m</text>`;
+  return h;
+}
+
+// swipe the step card left for the next step, right for the one before
+{
+  let sx = null, sy = null;
+  $('r-card').addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; });
+  $('r-card').addEventListener('pointerup', e => {
+    if (sx === null) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    sx = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > 1.5 * Math.abs(dy)) goStep(cur + (dx < 0 ? 1 : -1));
+  });
+}
+
+function openRoute(fromName, toName, step = 0, fly = true) {
+  const a = placeBy(fromName), b = placeBy(toName);
+  if (!a || !b) return;
+  routeFrom = fromName; routeTo = toName;
+  for (const [sel, n] of [['r-from', fromName], ['r-to', toName]])
+    if (HERE.has(n) && ![...$(sel).options].some(o => o.value === n)) $(sel).insertAdjacentHTML('afterbegin', `<option>${escHtml(n)}</option>`);
+  $('r-from').value = fromName; $('r-to').value = toName;
+  $('r-ends').textContent = `${fromName} \u2192 ${toName}`;
+  const path = a.node === b.node ? null : shortest(a.node, b.node);
+  $('r-none')?.remove();
+  if (!path) {
+    route = null; routeGroup.visible = false;
+    $('r-stats').innerHTML = `<span id="r-none">${a.node === b.node ? 'Pick two different places.' : 'No way through the survey between these.'}</span>`;
+    return;
+  }
+  route = new Route(path);
+  steps = route.steps(fromName, toName);
+  onRoute = new Set(route.passages().map(([, t]) => t).concat([fromName, toName]));
+  const st = route.stats();
+  $('r-stats').innerHTML = [
+    `<span class="chip"><b>${fmtM(st.length)}</b></span>`,
+    `<span class="chip">&uarr; <b>${Math.round(st.up)} m</b> &darr; <b>${Math.round(st.down)} m</b></span>`,
+    `<span class="chip">${Math.round(st.low)}&ndash;${Math.round(st.high)} m</span>`,
+  ].join('');
+  setLine(routeUnder, path.map(gp));
+  setLine(routeDash, path.map(gp));
+  setCurtain(path);
+  startDot.position.copy(lift(gp(path[0])));
+  endDot.position.copy(lift(gp(path[path.length - 1])));
+  routeGroup.visible = true;
+  legsWide.material.transparent = true; legsWide.material.opacity = 0.35;
+  // number the decisions and drops; passages entered are headings in the list
+  let num = 0, here = null, list = '';
+  steps.forEach((s, k) => {
+    s.num = s.kind === 'turn' || s.kind === 'drop' ? ++num : null;
+    const p = route.passageAt(s.i);
+    if (p && p !== here && s.kind !== 'end') { list += `<li class="h">${p}</li>`; here = p; }
+    list += `<li class="k-${s.kind}" data-k="${k}"><span class="i">${s.kind === 'start' ? 'A' : s.kind === 'end' ? 'B' : s.num ?? ''}</span>` +
+      `<span>${s.text}</span><span class="dd">${fmtM(route.chain[s.i])}</span></li>`;
+  });
+  steps.count = num;
+  $('r-steps').innerHTML = list;
+  drawProfile();
+  setSpin(false);
+  if (step > 0) goStep(Math.min(step, steps.length - 1), fly); else showOverview(fly);
+}
+
+function closeRoute() {
+  route = null; routeGroup.visible = false; onRoute = new Set();
+  legsWide.material.opacity = 1; legsWide.material.transparent = false;
+  $('route').hidden = true; document.body.classList.remove('routing');
+  if (groundBefore !== null) { setGround(groundBefore); groundBefore = null; }
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
+// the view of one step: from behind and above, facing the way you arrive,
+// so a turn to the right goes off to the right of the screen
+// Each step: from behind and above the junction, facing the way you arrive,
+// at the distance you're viewing from (85 m to begin with), so zooming in or
+// out stays as you left it from step to step.
+let stepDist = 85, stepShown = false;
+function stepView(s) {
+  const i = s.i, here = toWorld(route.p(i));
+  const b = (i ? route.dirAt(i, -1) : null) ?? route.dirAt(i, +1) ?? 0, r = b * Math.PI / 180;
+  const fwd = new THREE.Vector3(Math.sin(r), 0, -Math.cos(r));
+  const target = here.clone().addScaledVector(fwd, 10);
+  const dist = stepDist, el = 0.45;
+  const pos = target.clone().addScaledVector(fwd, -dist * Math.cos(el)).add(new THREE.Vector3(0, dist * Math.sin(el), 0));
+  return { pos, target };
+}
+function overview() {
+  const box = new THREE.Box3();
+  route.nodes.forEach(n => box.expandByPoint(toWorld(gp(n))));
+  const c = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+  const a = route.p(0), b = route.p(route.nodes.length - 1);
+  const az = Math.atan2(b[0] - a[0], b[1] - a[1]) + Math.PI / 2;     // side on to the way
+  const dist = Math.max(160, Math.max(size.x, size.z) * 1.15) * Math.max(1, Math.pow(1.3 / camera.aspect, 0.85));
+  const el = 0.75;
+  return { pos: new THREE.Vector3(c.x + dist * Math.cos(el) * Math.sin(az), c.y + dist * Math.sin(el), c.z - dist * Math.cos(el) * Math.cos(az)), target: c };
+}
+
+// The whole route: the overview in 3D, and its numbers and passages on the
+// card. It comes before the first step.
+let sheetTo = () => {};
+function showOverview(fly = true) {
+  stepShown = false;
+  if (!route) return;
+  dashUntil = performance.now() + 4000;
+  cur = -1;
+  $('r-arrow').removeAttribute('hidden'); $('r-jn').setAttribute('hidden', '');
+  $('r-arrow').parentElement.classList.remove('jn');
+  [stepLine, notLines].forEach(o => { o.visible = false; });
+  hereDot.visible = false;
+  const st = route.stats(), names = [...new Set(route.passages().map(([, t]) => t))];
+  $('r-arrow').style.transform = '';
+  $('r-arrow').innerHTML = '<circle cx="7" cy="23" r="3.5" fill="#4fd18b"/><circle cx="23" cy="7" r="3.5" fill="#ff6b6b"/><path d="M10 23 H17 a4 4 0 0 0 0-8 H13 a4 4 0 0 1 0-8 H19" fill="none" stroke="#ffd27a" stroke-width="2.2" stroke-linecap="round"/>';
+  $('r-n').textContent = `Whole route · ${steps.count} steps`;
+  $('r-d').textContent = `${routeFrom} to ${routeTo}: ${fmtM(st.length)}, ${Math.round(st.up)} m up and ${Math.round(st.down)} m down, between ${Math.round(st.low)} and ${Math.round(st.high)} m.`;
+  $('r-m').innerHTML = names.length ? `Through ${names.map(escHtml).join(' → ')}` : '';
+  $('r-prev').disabled = true; $('r-next').disabled = false;
+  $('r-steps').querySelectorAll('li.on').forEach(x => x.classList.remove('on'));
+  $('r-steps').scrollTop = 0;
+  if ($('pm-l')) { $('pm-l').setAttribute('visibility', 'hidden'); $('pm-c').setAttribute('visibility', 'hidden'); }
+  history.replaceState(null, '', `#from=${encodeURIComponent(routeFrom)}&to=${encodeURIComponent(routeTo)}`);
+  if (innerWidth <= 640) sheetTo('half');
+  if (fly) flyTo(overview());
+}
+
+// the ways not to take at a step: each side passage for its first 15 m or
+// so, as survey points (for the 3D view and the AR model)
+function waysNotTaken(s) {
+  const out = [];
+  for (const [from, v] of s.alts) {
+    let u = from, w = v, run = 0;
+    const seen = new Set(route.nodes), way = [gp(u)];
+    for (let n = 0; n < 4 && run < 15; n++) {
+      way.push(gp(w));
+      run += adj[u].get(w); seen.add(w);
+      const on = [...adj[w].keys()].find(x => !seen.has(x));
+      if (on === undefined) break;
+      u = w; w = on;
+    }
+    out.push(way);
+  }
+  return out;
+}
+function goStep(k, fly = true, whole = false) {
+  if (!route) return;
+  // keep the distance you were viewing a step from, if you'd zoomed
+  if (stepShown && !flying()) stepDist = Math.min(600, Math.max(12, camera.position.distanceTo(controls.target)));
+  dashUntil = performance.now() + 4000;
+  if (k < 0) { showOverview(fly); return; }
+  cur = Math.min(steps.length - 1, k);
+  hereDot.visible = true;
+  if ($('pm-l')) { $('pm-l').setAttribute('visibility', 'visible'); $('pm-c').setAttribute('visibility', 'visible'); }
+  const s = steps[cur], nxt = steps[cur + 1];
+  // this step's stretch, to the next step
+  const i1 = nxt ? nxt.i : route.nodes.length - 1;
+  setLine(stepLine, route.nodes.slice(s.i, i1 + 1).map(gp));
+  const segs = [];
+  for (const way of waysNotTaken(s)) for (let k = 0; k < way.length - 1; k++) {
+    const a = lift(way[k]), b = lift(way[k + 1]);
+    segs.push(a.x, a.y, a.z, b.x, b.y, b.z);
+  }
+  notLines.geometry.dispose();
+  notLines.geometry = new LineSegmentsGeometry();
+  if (segs.length) notLines.geometry.setPositions(segs);
+  notLines.visible = segs.length > 0;
+  hereDot.position.copy(lift(route.p(s.i)));
+  // the card
+  const t = s.turn;
+  $('r-arrow').style.transform = s.kind === 'end' ? 'scale(.8)' : `rotate(${t === null ? 0 : Math.max(-165, Math.min(165, t))}deg)`;
+  $('r-arrow').innerHTML = s.kind === 'end'
+    ? '<circle cx="15" cy="15" r="9" fill="#ff6b6b" stroke="#fff" stroke-width="2.5"/>'
+    : s.kind === 'drop'
+      ? `<path d="M15 ${s.dz < 0 ? 26 : 4} L23 ${s.dz < 0 ? 17 : 13} H18 V${s.dz < 0 ? 4 : 26} H12 V${s.dz < 0 ? 17 : 13} H7 Z" fill="#7fe3ff"/>`
+      : '<path d="M15 4 L23 13 H18 V26 H12 V13 H7 Z" fill="#ffd27a"/>';
+  if (s.kind === 'drop') $('r-arrow').style.transform = '';
+  const jn = s.kind !== 'end';
+  $('r-arrow').toggleAttribute('hidden', jn); $('r-jn').toggleAttribute('hidden', !jn);   // (SVG has no .hidden)
+  $('r-arrow').parentElement.classList.toggle('jn', jn);
+  if (jn) $('r-jn').innerHTML = junctionSvg(s);
+  const prevD = cur ? route.chain[steps[cur - 1].i] : 0;
+  $('r-n').textContent = s.kind === 'start' ? `Start · ${steps.count} steps · ${fmtM(route.length)} to go`
+    : s.kind === 'end' ? `Arrived · ${fmtM(route.length)}`
+    : `${s.num ? `Step ${s.num} of ${steps.count} · ` : ''}after ${fmtM(route.chain[s.i] - prevD)} · ${fmtM(route.length - route.chain[s.i])} to go`;
+  $('r-d').textContent = s.text;
+  const stn = G.stn[route.nodes[s.i]];
+  $('r-m').innerHTML = [route.passageAt(s.i) && `in <b>${route.passageAt(s.i)}</b>`, `${Math.round(route.p(s.i)[2])} m`, stn && `stn ${stn}`].filter(Boolean).join(' · ');
+  $('r-prev').disabled = false; $('r-next').disabled = cur === steps.length - 1;
+  const li = $('r-steps').querySelector(`li[data-k="${cur}"]`);
+  $('r-steps').querySelectorAll('li.on').forEach(x => x.classList.remove('on'));
+  li?.classList.add('on');
+  li?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  drawProfileMarker();
+  history.replaceState(null, '', `#from=${encodeURIComponent(routeFrom)}&to=${encodeURIComponent(routeTo)}&step=${cur}`);
+  stepShown = !whole;
+  if (fly) flyTo(whole ? overview() : stepView(s), whole ? 1600 : 1100);
+}
+
+// -- routes: the height profile ----------------------------------------------------------
+const SVGNS = 'http://www.w3.org/2000/svg';
+let prof = null;
+function drawProfile() {
+  const svg = $('r-prof'), W = svg.clientWidth || 330, H = 96, pad = { l: 30, r: 6, t: 8, b: 16 };
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const st = route.stats(), z0 = Math.floor((st.low - 3) / 5) * 5, z1 = Math.ceil((st.high + 3) / 5) * 5;
+  const X = d => pad.l + d / route.length * (W - pad.l - pad.r), Y = z => pad.t + (z1 - z) / (z1 - z0) * (H - pad.t - pad.b);
+  prof = { X, Y, W, H, pad };
+  const pts = route.nodes.map((n, i) => `${X(route.chain[i]).toFixed(1)},${Y(gp(n)[2]).toFixed(1)}`);
+  const stops = RAMP.map(([t, c]) => {
+    const z = zBot + t * (S.stats.top - zBot);
+    return `<stop offset="${((z1 - z) / (z1 - z0) * 100).toFixed(1)}%" stop-color="#${c.getHexString()}"/>`;
+  }).reverse().join('');
+  let html = `<defs><linearGradient id="pg" x1="0" y1="${pad.t}" x2="0" y2="${H - pad.b}" gradientUnits="userSpaceOnUse">${stops}</linearGradient></defs>`;
+  // passages as alternate bands
+  const ps = route.passages();
+  ps.forEach(([d, t], k) => {
+    const d1 = k + 1 < ps.length ? ps[k + 1][0] : route.length;
+    if (k % 2 === 0) html += `<rect x="${X(d)}" y="${pad.t}" width="${Math.max(0, X(d1) - X(d))}" height="${H - pad.t - pad.b}" fill="rgba(255,255,255,.035)"/>`;
+  });
+  for (const z of [z0, (z0 + z1) / 2, z1]) html += `<text x="${pad.l - 4}" y="${Y(z) + 3}" text-anchor="end">${Math.round(z)}</text><line x1="${pad.l}" x2="${W - pad.r}" y1="${Y(z)}" y2="${Y(z)}" stroke="rgba(255,255,255,.07)"/>`;
+  html += `<text x="${pad.l}" y="${H - 3}">0</text><text x="${W - pad.r}" y="${H - 3}" text-anchor="end">${fmtM(route.length)}</text>`;
+  html += `<polygon points="${X(0)},${H - pad.b} ${pts.join(' ')} ${X(route.length)},${H - pad.b}" fill="url(#pg)" opacity=".18"/>`;
+  html += `<polyline points="${pts.join(' ')}" fill="none" stroke="url(#pg)" stroke-width="2" stroke-linejoin="round"/>`;
+  steps.forEach((s, k) => {
+    const x = X(route.chain[s.i]), y = Y(route.p(s.i)[2]);
+    const col = s.kind === 'start' ? '#4fd18b' : s.kind === 'end' ? '#ff6b6b' : s.kind === 'turn' ? '#ffd27a' : '#9fb3c8';
+    html += `<circle cx="${x}" cy="${y}" r="${s.kind === 'passage' ? 1.8 : 2.6}" fill="${col}"/>`;
+  });
+  html += `<line id="pm-l" y1="${pad.t}" y2="${H - pad.b}" stroke="#7fe3ff" stroke-width="1.5"/><circle id="pm-c" r="4.5" fill="#7fe3ff" stroke="#fff" stroke-width="1.5"/>`;
+  html += `<line id="pp-l" y1="${pad.t}" y2="${H - pad.b}" stroke="rgba(255,255,255,.5)" stroke-dasharray="2 2" visibility="hidden"/>`;
+  svg.innerHTML = html;
+}
+function drawProfileMarker() {
+  if (!prof || !$('pm-l')) return;
+  const vis = cur < 0 ? 'hidden' : 'visible';     // no marker on the whole route
+  $('pm-l').setAttribute('visibility', vis); $('pm-c').setAttribute('visibility', vis);
+  if (cur < 0) return;
+  const s = steps[cur], x = prof.X(route.chain[s.i]), y = prof.Y(route.p(s.i)[2]);
+  $('pm-l').setAttribute('x1', x); $('pm-l').setAttribute('x2', x);
+  $('pm-c').setAttribute('cx', x); $('pm-c').setAttribute('cy', y);
+}
+const profD = e => {
+  const r = $('r-prof').getBoundingClientRect(), x = (e.clientX - r.left) / r.width * prof.W;
+  return Math.max(0, Math.min(route.length, (x - prof.pad.l) / (prof.W - prof.pad.l - prof.pad.r) * route.length));
+};
+$('r-prof').addEventListener('pointermove', e => {
+  if (!route || !prof) return;
+  const d = profD(e), p = route.pointAt(d), i = route.indexAt(d);
+  probeDot.position.copy(lift(p)); probeDot.visible = true;
+  const x = prof.X(d);
+  $('pp-l').setAttribute('x1', x); $('pp-l').setAttribute('x2', x); $('pp-l').setAttribute('visibility', 'visible');
+  const tip = $('r-tip');
+  tip.style.display = 'block';
+  tip.textContent = `${fmtM(d)} · ${Math.round(p[2])} m` + (route.passageAt(i) ? ` · ${route.passageAt(i)}` : '');
+  tip.style.left = `${Math.min(innerWidth - tip.offsetWidth - 8, e.clientX + 12)}px`; tip.style.top = `${e.clientY - 30}px`;
+});
+$('r-prof').addEventListener('pointerleave', () => { probeDot.visible = false; $('r-tip').style.display = 'none'; $('pp-l')?.setAttribute('visibility', 'hidden'); });
+$('r-prof').addEventListener('click', e => {
+  if (!route) return;
+  const d = profD(e);
+  let best = 0;
+  steps.forEach((s, k) => { if (Math.abs(route.chain[s.i] - d) < Math.abs(route.chain[steps[best].i] - d)) best = k; });
+  goStep(best);
+});
+
+// -- routes: the panel ---------------------------------------------------------------------
+const opts = PLACES.map(p => `<option>${p.name}</option>`).join('');
+$('r-from').innerHTML = opts; $('r-to').innerHTML = opts;
+// the ground is hidden while following a route (the slider brings it back),
+// and comes back as it was when the route is closed
+let groundBefore = null;
+function showRoute(from, to, step = 0) {
+  if ($('route').hidden) { groundBefore = groundMat.uniforms.uOpacity.value; setGround(0); }
+  if ($('route').hidden && innerWidth <= 640) $('route').classList.add('compact');
+  $('route').hidden = false; document.body.classList.add('routing');
+  openRoute(from, to, step);
+}
+$('r-open').onclick = () => $('route').hidden ? showRoute(routeFrom || 'Entrance', routeTo || 'Big Country') : closeRoute();
+$('r-close').onclick = closeRoute;
+// On a phone the route panel is a sheet at the bottom with three heights:
+// peek (the step and its buttons), half (the pickers, profile and the steps
+// too) and full (nearly the whole screen). Drag
+// the handle or the title to any height and it settles at the nearest; a
+// tap goes between peek and half.
+{
+  const sheet = $('route');
+  let drag = null, peekH = 230;
+  const state = () => sheet.classList.contains('compact') ? 'peek' : sheet.classList.contains('full') ? 'full' : 'half';
+  const setSheet = st => {
+    sheet.classList.remove('dragging'); sheet.style.height = '';
+    sheet.classList.toggle('compact', st === 'peek');
+    sheet.classList.toggle('full', st === 'full');
+    document.body.classList.toggle('sheet-full', st === 'full');
+    if (route) { drawProfile(); drawProfileMarker(); }
+  };
+  const down = e => {
+    if (innerWidth > 640 || e.target.closest('button:not(.grab)')) return;
+    const h = sheet.getBoundingClientRect().height;
+    if (state() === 'peek') peekH = h;
+    drag = { y: e.clientY, h, st: state(), moved: false };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const move = e => {
+    if (!drag) return;
+    const dy = e.clientY - drag.y;
+    if (!drag.moved && Math.abs(dy) < 6) return;
+    if (!drag.moved) {
+      drag.moved = true;
+      sheet.classList.remove('compact', 'full'); sheet.classList.add('dragging');
+      document.body.classList.remove('sheet-full');
+    }
+    sheet.style.height = `${Math.max(140, Math.min(innerHeight - 24, drag.h - dy))}px`;
+  };
+  const up = () => {
+    if (!drag) return;
+    const d = drag; drag = null;
+    if (!d.moved) { setSheet(d.st === 'peek' ? 'half' : 'peek'); return; }
+    const h = sheet.getBoundingClientRect().height;
+    const snaps = [['peek', peekH], ['half', innerHeight * 0.62], ['full', innerHeight - 24]];
+    setSheet(snaps.reduce((a, b) => Math.abs(b[1] - h) < Math.abs(a[1] - h) ? b : a)[0]);
+  };
+  for (const el of [$('r-grab'), sheet.querySelector('.rhead')]) {
+    el.addEventListener('pointerdown', down);
+    el.addEventListener('pointermove', move);
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+  }
+  sheetTo = st => { if (state() === 'peek' || st === 'full') setSheet(st); };
+  $('r-grab').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSheet(state() === 'peek' ? 'half' : 'peek'); } });
+}
+$('r-from').onchange = () => openRoute($('r-from').value, $('r-to').value);
+$('r-to').onchange = () => openRoute($('r-from').value, $('r-to').value);
+$('r-swap').onclick = () => openRoute($('r-to').value, $('r-from').value);
+$('r-prev').onclick = () => goStep(cur - 1);
+$('r-next').onclick = () => goStep(cur + 1);
+$('r-all').onclick = () => showOverview();
+$('r-steps').onclick = e => { const li = e.target.closest('li'); if (li) goStep(+li.dataset.k); };
+addEventListener('keydown', e => {
+  if (!route || ['INPUT', 'SELECT'].includes(e.target.tagName)) return;
+  if (e.key === 'ArrowRight' || e.key === 'n') { e.preventDefault(); goStep(cur + 1); }
+  if (e.key === 'ArrowLeft' || e.key === 'p') { e.preventDefault(); goStep(cur - 1); }
+  if (e.key === 'Escape') closeRoute();
+});
+addEventListener('resize', () => { lineMats.forEach(m => m.resolution.set(innerWidth, innerHeight)); if (route) { drawProfile(); drawProfileMarker(); } });
+{
+  // a route in the address (#from=…&to=…&step=…) opens straight away
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get('from') && h.get('to') && !STILL) showRoute(h.get('from'), h.get('to'), +h.get('step') || 0);
+}
+function routeFrame(dt) {
+  if (route && performance.now() < dashUntil) routeDash.material.dashOffset -= dt * 18;
+}
+
+// -- moving through the cave -------------------------------------------------------------------
+// Orbit controls zoom towards a centre and stop there. Close in, scrolling
+// on carries the camera and its centre forward together, towards the
+// pointer, so you can travel along a passage; double-click (or double-tap)
+// the cave to make the nearest station the centre.
+const pointerRay = (x, y) => {
+  const r = canvas.getBoundingClientRect();
+  const v = new THREE.Vector3((x - r.left) / r.width * 2 - 1, -(y - r.top) / r.height * 2 + 1, 0.5).unproject(camera);
+  return v.sub(camera.position).normalize();
+};
+canvas.addEventListener('wheel', e => {
+  const d = camera.position.distanceTo(controls.target);
+  if (e.deltaY >= 0 || d > 25) return;            // zooming out, or still well back: the usual zoom
+  e.preventDefault(); e.stopImmediatePropagation();
+  fly = null; idleSince = performance.now();
+  const step = Math.min(8, Math.max(1, d * 0.2)) * Math.min(3, Math.abs(e.deltaY) / 100 || 1);
+  const dir = pointerRay(e.clientX, e.clientY).multiplyScalar(step);
+  camera.position.add(dir); controls.target.add(dir);
+}, { capture: true, passive: false });
+// the survey station nearest a point on the screen, or -1 if none is close
+function stationAt(x, y, within = 28) {
+  const r = canvas.getBoundingClientRect(), v = new THREE.Vector3();
+  let best = -1, bd = within * within;
+  for (let i = 0; i < GN; i++) {
+    toWorldInto(gp(i), v).project(camera);
+    if (v.z > 1) continue;
+    const dx = (v.x + 1) / 2 * r.width + r.left - x, dy = (1 - v.y) / 2 * r.height + r.top - y, dd = dx * dx + dy * dy;
+    if (dd < bd) { bd = dd; best = i; }
+  }
+  return best;
+}
+function focusAt(x, y) {
+  if (picking) return;
+  const best = stationAt(x, y);
+  if (best < 0) return;
+  const t = toWorldInto(gp(best), new THREE.Vector3());
+  const off = camera.position.clone().sub(controls.target);
+  off.setLength(Math.min(off.length(), 60));
+  setSpin(false);
+  flyTo({ pos: t.clone().add(off), target: t }, 900);
+}
+canvas.addEventListener('dblclick', e => focusAt(e.clientX, e.clientY));
+{
+  // A double tap is two quick taps of one finger in one place: not the two
+  // fingers of a pinch lifting together (which flew the view back in to
+  // wherever they were, undoing the pinch), nor the end of a drag.
+  const down = new Map();       // touches now on the screen: where and when each began
+  let multi = false, lastTap = null;
+  canvas.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'touch') return;
+    down.set(e.pointerId, { x: e.clientX, y: e.clientY, t: performance.now() });
+    if (down.size > 1) { multi = true; lastTap = null; }
+  });
+  const up = e => {
+    if (e.pointerType !== 'touch') return;
+    const d = down.get(e.pointerId);
+    down.delete(e.pointerId);
+    if (!d) return;
+    const tap = !multi && performance.now() - d.t < 300 && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 10;
+    if (!down.size) multi = false;
+    if (!tap) { lastTap = null; return; }
+    const now = performance.now();
+    if (lastTap && now - lastTap.t < 320 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
+      lastTap = null;
+      focusAt(e.clientX, e.clientY);
+    } else lastTap = { t: now, x: e.clientX, y: e.clientY };
+  };
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', e => { down.delete(e.pointerId); if (!down.size) multi = false; lastTap = null; });
+}
+
+// Keep the screen on while a route is open (it's released when the page is
+// hidden, so ask again when it comes back).
+let wakeLock = null;
+async function keepAwake() {
+  if (!('wakeLock' in navigator) || wakeLock || $('route').hidden || document.visibilityState !== 'visible') return;
+  try { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch {}
+}
+document.addEventListener('visibilitychange', keepAwake);
+new MutationObserver(() => { if ($('route').hidden) { wakeLock?.release(); wakeLock = null; } else keepAwake(); })
+  .observe($('route'), { attributes: true, attributeFilter: ['hidden'] });
+
+// -- routes: "I'm somewhere else" ----------------------------------------------------------
+// There's no GPS underground, so if you're not where the route says, say where
+// you are: tap the passage on the 3D view (the nearest survey station), or pick
+// the passage, and the route is worked out again from there.
+// (a function, so a route opened from the address while the page starts can use it)
+let picking = false;
+function startPick() {
+  picking = true;
+  document.body.classList.add('picking');
+  $('pick-p').innerHTML = `<option value="">The passage I'm in&hellip;</option>` + G.passages.map((t, k) => `<option value="${k}">${escHtml(t)}</option>`).join('');
+  $('pickbar').hidden = false;
+}
+function endPick() { picking = false; document.body.classList.remove('picking'); $('pickbar').hidden = true; }
+function rerouteFrom(node) {
+  endPick();
+  const name = `Here (stn ${G.stn[node] || node})`;
+  HERE.set(name, node);
+  openRoute(name, routeTo, 0, false);
+  goStep(0);
+}
+$('r-here').onclick = startPick;
+$('pick-x').onclick = endPick;
+$('pick-go').onclick = () => {
+  const k = $('pick-p').value;
+  if (k === '') return;
+  // the station of that passage nearest where the route had got to
+  const at = route ? route.p(steps[Math.max(0, cur)].i) : gp(0);
+  let best = -1, bd = Infinity;
+  for (let i = 0; i < GN; i++) if (G.passage[i] === +k) { const d = dist3(gp(i), at); if (d < bd) { bd = d; best = i; } }
+  if (best >= 0) rerouteFrom(best);
+};
+{
+  // a tap (not a drag) on the 3D view while picking
+  let down = null;
+  canvas.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+  canvas.addEventListener('pointerup', e => {
+    if (!picking || !down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 8) return;
+    const n = stationAt(e.clientX, e.clientY, 40);
+    if (n >= 0) rerouteFrom(n);
+  });
+}
+
+// -- routes: the printed card ----------------------------------------------------------------
+// Printing the page (its print button, or the browser's) prints the route as
+// a card, black on white: the numbers, a plan of the way over the survey
+// round it, the height profile, and every step with its junction and its
+// directions. A paper copy for the trip,
+// because a phone is no thing to depend on underground.
+function printPlan() {
+  const pts = route.nodes.map(gp);
+  let x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0]));
+  let y0 = Math.min(...pts.map(p => p[1])), y1 = Math.max(...pts.map(p => p[1]));
+  const pad = Math.max(40, 0.08 * Math.max(x1 - x0, y1 - y0));
+  x0 -= pad; x1 += pad; y0 -= pad; y1 += pad;
+  const W = 700, H = Math.min(420, Math.max(220, W * (y1 - y0) / (x1 - x0)));
+  const k = Math.min(W / (x1 - x0), H / (y1 - y0)), ox = (W - (x1 - x0) * k) / 2, oy = (H - (y1 - y0) * k) / 2;
+  const X = p => (ox + (p[0] - x0) * k).toFixed(1), Y = p => (oy + (y1 - p[1]) * k).toFixed(1);
+  let bg = '';
+  for (let e = 0; e < G.edges.length; e += 2) {
+    const a = gp(G.edges[e]), b = gp(G.edges[e + 1]);
+    if ((a[0] > x0 && a[0] < x1 && a[1] > y0 && a[1] < y1) || (b[0] > x0 && b[0] < x1 && b[1] > y0 && b[1] < y1)) bg += `M${X(a)} ${Y(a)}L${X(b)} ${Y(b)}`;
+  }
+  let h = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  h += `<path d="${bg}" stroke="#bbb" stroke-width="1" fill="none"/>`;
+  h += `<polyline points="${pts.map(p => `${X(p)},${Y(p)}`).join(' ')}" fill="none" stroke="#c98a12" stroke-width="3.5" stroke-linejoin="round"/>`;
+  steps.forEach(s => { if (s.num) { const p = route.p(s.i); h += `<circle cx="${X(p)}" cy="${Y(p)}" r="6.5" fill="#fff" stroke="#111" stroke-width="1"/><text x="${X(p)}" y="${+Y(p) + 3}" font-size="7.5" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700">${s.num}</text>`; } });
+  const a = pts[0], b = pts[pts.length - 1];
+  h += `<circle cx="${X(a)}" cy="${Y(a)}" r="7" fill="#2fa865"/><circle cx="${X(b)}" cy="${Y(b)}" r="7" fill="#d94a4a"/>`;
+  // north and a scale bar
+  const bar = [50, 100, 200, 500, 1000].find(m => m * k > 70) || 1000;
+  h += `<g font-family="Inter, sans-serif" font-size="10"><path d="M${W - 24} 34 L${W - 18} 14 L${W - 12} 34 L${W - 18} 29 Z" fill="#111"/><text x="${W - 18}" y="46" text-anchor="middle" font-weight="700">N</text>`;
+  h += `<path d="M14 ${H - 14}h${(bar * k).toFixed(1)}" stroke="#111" stroke-width="2"/><text x="14" y="${H - 19}">${bar} m</text></g></svg>`;
+  return h;
+}
+function printProfile() {
+  const W = 700, H = 130, pl = 34, pr = 8, pt = 8, pb = 18, st = route.stats();
+  const z0 = Math.floor((st.low - 3) / 5) * 5, z1 = Math.ceil((st.high + 3) / 5) * 5;
+  const X = d => pl + d / route.length * (W - pl - pr), Y = z => pt + (z1 - z) / (z1 - z0) * (H - pt - pb);
+  const pts = route.nodes.map((n, i) => `${X(route.chain[i]).toFixed(1)},${Y(gp(n)[2]).toFixed(1)}`).join(' ');
+  let h = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif" font-size="9"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  for (const z of [z0, (z0 + z1) / 2, z1]) h += `<line x1="${pl}" x2="${W - pr}" y1="${Y(z)}" y2="${Y(z)}" stroke="#e3e3e3"/><text x="${pl - 4}" y="${Y(z) + 3}" text-anchor="end" fill="#555">${Math.round(z)}</text>`;
+  h += `<polygon points="${X(0)},${H - pb} ${pts} ${X(route.length)},${H - pb}" fill="#f2e6cc"/><polyline points="${pts}" fill="none" stroke="#c98a12" stroke-width="2"/>`;
+  steps.forEach(s => { if (s.num) h += `<text x="${X(route.chain[s.i])}" y="${Y(route.p(s.i)[2]) - 4}" text-anchor="middle" font-size="7" font-weight="700">${s.num}</text>`; });
+  h += `<text x="${pl}" y="${H - 4}" fill="#555">0</text><text x="${W - pr}" y="${H - 4}" text-anchor="end" fill="#555">${fmtM(route.length)}</text></svg>`;
+  return h;
+}
+function buildPrint() {
+  if (!route) { $('print').innerHTML = ''; return; }
+  const st = route.stats(), names = [...new Set(route.passages().map(([, t]) => t))];
+  let h = `<h1>Ogof Draenen: ${escHtml(routeFrom)} to ${escHtml(routeTo)}</h1>`;
+  h += `<p class="sub">Printed ${new Date().toLocaleDateString()}.</p>`;
+  h += `<div class="nums"><span><b>${fmtM(st.length)}</b></span><span>up <b>${Math.round(st.up)} m</b>, down <b>${Math.round(st.down)} m</b></span><span>${Math.round(st.low)}&ndash;${Math.round(st.high)} m</span><span><b>${steps.count}</b> steps</span></div>`;
+  h += `<div class="maps">${printPlan()}${printProfile()}</div>`;
+  h += `<p class="passages">Through ${names.map(escHtml).join(' &rarr; ')}</p><div class="steps">`;
+  let here = null;
+  steps.forEach((s, k) => {
+    const p = route.passageAt(s.i);
+    if (p && p !== here && s.kind !== 'end') { h += `<div class="sec">${escHtml(p)}</div>`; here = p; }
+    const head = s.kind === 'start' ? 'Start' : s.kind === 'end' ? 'Arrive' : s.num ? `Step ${s.num}` : 'Passage';
+    const dia = s.kind === 'end' ? '' : `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${junctionSvg(s).replaceAll('#7fe3ff', '#1677b8').replaceAll('rgba(160,180,205,.35)', '#c4c4c4').replaceAll('rgba(255,210,122,.55)', '#d9a43a')}</svg>`;
+    h += `<div class="st">${dia || '<div></div>'}<div><div class="h">${head} &middot; ${fmtM(route.chain[s.i])}${route.p ? ` &middot; ${Math.round(route.p(s.i)[2])} m` : ''}</div>` +
+      `<div class="t">${escHtml(s.text)}</div>` +
+      `<div class="m">${G.stn[route.nodes[s.i]] ? `stn ${escHtml(G.stn[route.nodes[s.i]])}` : ''}</div></div></div>`;
+  });
+  h += `</div><p class="credits">Survey: Ogof Draenen survey data, Oxford University Cave Club and the Draenen surveyors, with newer surveys; compiled by Rich Smith. Directions worked out from the survey's centreline, so a guide to the shape of the way, not a description of the passage.</p>`;
+  $('print').innerHTML = h;
+}
+addEventListener('beforeprint', buildPrint);
+$('r-print').onclick = () => { buildPrint(); print(); };
+
+// -- the loop ------------------------------------------------------------------------------
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const v = new THREE.Vector3();
+const needle = $('needle');
+function placeLabels() {
+  if (labelBox.style.display === 'none') return;
+  const taken = [];
+  const order = names.map(n => {
+    P(n.p, v); v.y *= world.scale.y;
+    const d = v.distanceTo(camera.position);
+    v.project(camera);
+    return { n, x: (v.x + 1) / 2 * innerWidth, y: (1 - v.y) / 2 * innerHeight, d, front: v.z < 1 };
+  }).sort((a, b) => (b.n.entrance - a.n.entrance) || a.d - b.d);
+  for (const o of order) {
+    const { n } = o;
+    if (!n.w) n.w = n.el.offsetWidth || 80;
+    let show = o.front && o.x > -50 && o.x < innerWidth + 50 && o.y > -20 && o.y < innerHeight + 20;
+    const box = [o.x - n.w / 2 - 4, o.y - 34, o.x + n.w / 2 + 4, o.y - 10];
+    if (show && !n.entrance) show = !taken.some(t => box[0] < t[2] && box[2] > t[0] && box[1] < t[3] && box[3] > t[1]);
+    if (show) taken.push(box);
+    const dim = route && !n.entrance && !onRoute.has(n.el.textContent) ? 0.4 : 1;   // a route's own passages stand out
+    n.el.style.opacity = show ? (n.entrance ? 1 : dim * Math.max(0.35, Math.min(1, 1600 / o.d))) : 0;
+    n.el.style.transform = `translate(${(o.x - n.w / 2).toFixed(1)}px, ${(o.y - 34).toFixed(1)}px)`;
+  }
+}
+// While a route is open its panel covers part of the screen (the right on a
+// desktop, the bottom on a phone, with the title above), so the view's
+// centre moves to the middle of what's left, where flyTo puts each step.
+let viewOff = '';
+function frameView() {
+  let x = 0, y = 0;
+  if (route && !$('route').hidden) {
+    const r = $('route').getBoundingClientRect();
+    if (innerWidth <= 640) {
+      const top = $('title').getBoundingClientRect().bottom;
+      y = Math.round(innerHeight / 2 - (top + r.top) / 2);
+    } else x = Math.round(innerWidth / 2 - r.left / 2);
+  }
+  const key = `${x},${y},${innerWidth},${innerHeight}`;
+  if (key === viewOff) return;
+  viewOff = key;
+  if (x || y) camera.setViewOffset(innerWidth, innerHeight, x, y, innerWidth, innerHeight);
+  else camera.clearViewOffset();
+}
+const clock = new THREE.Clock();
+let first = true;
+// Draw only when something changes: a touch, a key, the camera moving (as it
+// settles after a drag, flies to a step or spins), a new imagery tile.
+// Otherwise the page sits still and costs next to no battery.
+for (const ev of ['pointerdown', 'pointermove', 'wheel', 'keydown', 'click', 'input', 'change', 'touchmove'])
+  addEventListener(ev, invalidate, { passive: true, capture: true });
+addEventListener('resize', invalidate);
+controls.addEventListener('change', invalidate);
+function frame() {
+  framePending = false;
+  // at most a tenth of a second per frame: after the tab has been hidden the
+  // first frame would otherwise turn the model through the whole time away
+  const now = performance.now(), dt = Math.min(clock.getDelta(), 0.1);
+  if (fly) {
+    const t = Math.min(1, (now - fly.start) / fly.ms), e = ease(t);
+    camera.position.lerpVectors(fly.p0, fly.p1, e);
+    controls.target.lerpVectors(fly.t0, fly.t1, e);
+    if (t >= 1) { fly = null; idleSince = now; }
+  }
+  // spin, pausing while someone is handling the model and for a few seconds after
+  controls.autoRotate = spinning && !fly && !userHolding && now - idleSince > 4000;
+  const moved = controls.update(dt);
+  routeFrame(dt);
+  frameView();
+  compassFrame();
+  // north on screen: facing east (azimuth -90 degrees) it is to the left
+  needle.setAttribute('transform', `rotate(${(controls.getAzimuthalAngle() * 180 / Math.PI).toFixed(1)} 23 23)`);
+  renderMask();
+  renderer.render(scene, camera);
+  placeLabels();
+  if (first) { first = false; progress(1); $('loading').classList.add('done'); }
+  // keep going while anything is still moving: a flight, the damping after a
+  // drag, the spin (or waiting to resume it), compass mode, the route's dashes
+  if (fly || moved || spinning || compassOn || (route && now < dashUntil)) invalidate();
+}
+loopReady = true;
+invalidate();
+</script>
+</body>
+</html>

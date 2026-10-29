@@ -29,6 +29,11 @@ survey draenen -title "Ogof Draenen"
   #     equate 1@passage 12@somesurvey
   #   endcentreline
 
+  # The plan's colour by altitude, the passage names and the entrances
+  # (made by python3 -m tools.plan from the built survey and names.json):
+  # the maps colour-plan and names-plan.
+  input plan.th
+
   # Plan maps.  drawn-plan lists the drawn-plan of each section that has
   # drawings.
   map drawn-plan -proj plan
@@ -41,6 +46,8 @@ endsurvey
 # The plan: survey lines of everything, including the Grade 2, plus the
 # drawings.  It's outside the survey so it can refer to the survey itself.
 map draenen-plan -proj plan -title "Ogof Draenen"
+  colour-plan@draenen
   draenen
   drawn-plan@draenen
+  names-plan@draenen
 endmap

@@ -19,6 +19,16 @@ survey entrance -title "The Entrance"
     cairn-junction@entrance-series	cairn-junction	0	0	0
   endcentreline
 
+  # The entrance, for the plan, the 3D model and the route planner; fixed
+  # where OUCC fixed the same station (SO 24650 11750, 380 m), so heights are
+  # above sea level and positions near the National Grid's, in the SO
+  # square. No cs, so the survey isn't turned (the Grade 2 data's compass
+  # corrections already take it to grid north).
+  centreline
+    fix 0@entrance.entrance-series 24650 11750 380
+    station 0@entrance.entrance-series "Ogof Draenen" entrance
+  endcentreline
+
   # Grade 5 surveys go here, each with equates tying it to the rest, e.g.
   #   input 2025-01-01-passage/passage.th
   #   centreline

@@ -12,14 +12,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Therion
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends therion
-
+      # Therion 6.4.0 from a container (with TeX, METAPOST and Ghostscript),
+      # as the Swildons Hole survey builds: Ubuntu's package is 6.2.0, which
+      # crashes on this survey's plan. Pinned to a version so the survey
+      # renders the same next year; bump it deliberately. --user so the
+      # outputs belong to the runner user.
+      #
+      # Twice: the plan's colour and names are scraps made from the built
+      # survey (tools/plan.py), so the first build is without them.
       - name: Build PDF and 3D model
-        working-directory: survey
-        run: therion draenen.thconfig
+        run: |
+          therion() {
+            docker run --rm -v "$PWD:/project" -w /project/survey -u "$(id -u):$(id -g)" \
+              ghcr.io/paperclipmonkey/therion:6.4.0 "$@"
+          }
+          python3 -m tools.plan --empty
+          therion draenen.thconfig
+          python3 -m tools.plan
+          therion draenen.thconfig
+
+      # The landing page, the 3D view and the route planner, from the .3d.
+      # Plain Python, no packages; the LiDAR is already in lidar/, and Chrome
+      # (on the runner) takes the preview still.
+      - name: Build the site
+        run: |
+          export CHROMIUM="$(command -v google-chrome || command -v chromium)"
+          python3 -m tools.site
 
       - uses: actions/upload-artifact@v4
         with:
@@ -29,6 +47,10 @@ jobs:
             survey/draenen.3d
             survey/therion.log
           if-no-files-found: error
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
 
       # Keep a rolling "latest" release on main so the outputs have stable public URLs.
       - name: Publish latest release
@@ -45,3 +67,18 @@ jobs:
             gh release create latest --title "Latest survey" --notes "$notes"
           fi
           gh release upload latest survey/draenen-plan.pdf survey/draenen.3d --clobber
+
+  # The site on GitHub Pages, from main (Settings > Pages > Source: GitHub Actions).
+  pages:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
