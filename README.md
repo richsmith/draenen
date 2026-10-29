@@ -46,10 +46,15 @@ entrances](https://paperclipmonkey.github.io/draenen/) on the landing page
 - **Underground:** open it once with a signal and it works offline. It
   only draws when something changes, to save battery, and the compass can
   turn the survey as you turn.
-- **In AR** on an iPhone or iPad: the route floating above a base on the
-  floor or a table, drawn as on screen (gold dashes running along it, the
-  curtain and posts beneath it, the step you're on and the ways not to
-  take, and the passages' names), turned to north.
+- **In AR:** the route floating above a base on the floor or a table,
+  drawn as on screen (gold dashes running along it, the curtain and posts
+  beneath it, the step you're on and the ways not to take, and the
+  passages' names), turned to north. On an iPhone or iPad it opens in AR
+  Quick Look; on Android (Chrome) it's WebXR, tapping to set it down. On a
+  headset (WebXR, in passthrough or VR) it stands on the floor in front of
+  you: a grip picks it up and carries it, both grips pull it bigger or
+  smaller, the thumbstick turns and sizes it, and the trigger puts it
+  where you point.
 
 > The directions come from the survey's centreline, mostly a coarse Grade 2
 > survey with long legs: a guide to the shape of the way, not a
