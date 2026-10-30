@@ -1456,7 +1456,7 @@ if (quickLook || webXR) {
   // front of you, and the controllers move it: a grip to pick it up and
   // carry it, both grips to pull it bigger or smaller, the left thumbstick
   // to slide it across the floor, the right one to turn it and size it, and
-  // the trigger to put it where the controller points on the floor.
+  // the trigger to drag it across the floor, as a mouse drags.
   if (webXR) {
     const ui = $('xr-ui'), hint = $('xr-hint');
     const SIZES = [0.25, 0.5, 1, 2, 4];   // times the model's 2 m across
@@ -1638,7 +1638,7 @@ if (quickLook || webXR) {
         ['Both grips', 'pull apart or together to size it'],
         ['Left stick', 'slide it across the floor'],
         ['Right stick', 'turn it, and size it'],
-        ['Trigger', 'put it where you point'],
+        ['Trigger', 'hold, and drag it across the floor'],
         ['Menu', 'the headset’s own button, to leave'],
       ], 0.5);
       help.visible = false; help.renderOrder = 10;
@@ -1655,13 +1655,17 @@ if (quickLook || webXR) {
       session.addEventListener('squeezestart', e => { held.add(e.inputSource); grab(); helpUntil = Math.min(helpUntil, performance.now() + 4000); });
       session.addEventListener('squeezeend', e => { held.delete(e.inputSource); grab(); });
       session.addEventListener('inputsourceschange', e => {
-        for (const s of e.removed) { held.delete(s); sc.remove(rays.get(s)?.line); rays.delete(s); }
+        for (const s of e.removed) { held.delete(s); sc.remove(rays.get(s)?.line); rays.delete(s); if (drag?.s === s) drag = null; }
         grab();
       });
-      session.addEventListener('select', e => {
+      // the trigger drags it, as a mouse button does: the spot on the floor
+      // under the ray when it's pulled stays under the ray until it's let go
+      let drag = null;
+      session.addEventListener('selectstart', e => {
         const r = rays.get(e.inputSource);
-        if (r?.hit) { model.position.set(r.hit.x, FLOOR, r.hit.z); grab(); }
+        if (r?.hit && !held.size) drag = { s: e.inputSource, start: r.hit.clone(), at: model.position.clone() };
       });
+      session.addEventListener('selectend', e => { if (drag?.s === e.inputSource) drag = null; });
 
       return (frame, ref, dt) => {
         // the first frame: on the floor a metre and a bit in front, north away
@@ -1702,16 +1706,24 @@ if (quickLook || webXR) {
             r.grip = { p: new THREE.Vector3().setFromMatrixPosition(m), q: new THREE.Quaternion().setFromRotationMatrix(m) };
           }
           if (!tp) continue;
-          // the ray, to where it meets the floor (or 4 m)
+          // the ray, to where it meets the floor the model stands on (or 4 m)
           const m = new THREE.Matrix4().fromArray(tp.transform.matrix);
           const o = new THREE.Vector3().setFromMatrixPosition(m), d = new THREE.Vector3(0, 0, -1).transformDirection(m);
           let len = 4;
           if (d.y < -0.05) {
-            const t = (FLOOR - o.y) / d.y;
+            const t = (model.position.y - o.y) / d.y;
             if (t > 0 && t < 15) { len = t; r.hit = o.clone().addScaledVector(d, t); }
           }
           r.line.matrix.copy(m).multiply(new THREE.Matrix4().makeScale(1, 1, len));
-          if (r.hit && !held.size) { ring.matrix.makeTranslation(r.hit.x, FLOOR + 0.002, r.hit.z); ring.visible = true; }
+          if (r.hit && !held.size && (!drag || drag.s === s)) { ring.matrix.makeTranslation(r.hit.x, model.position.y + 0.002, r.hit.z); ring.visible = true; }
+        }
+
+        // dragging it
+        if (drag && held.size) drag = null;
+        const dh = drag && rays.get(drag.s)?.hit;
+        if (dh) {
+          model.position.x = drag.at.x + dh.x - drag.start.x;
+          model.position.z = drag.at.z + dh.z - drag.start.z;
         }
 
         // carrying it: with one hand it goes where the hand goes, turning as

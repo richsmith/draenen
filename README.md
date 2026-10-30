@@ -54,7 +54,7 @@ entrances](https://paperclipmonkey.github.io/draenen/) on the landing page
   headset (WebXR, in passthrough or VR) it stands on the floor in front of
   you: a grip picks it up and carries it, both grips pull it bigger or
   smaller, the left thumbstick slides it across the floor, the right one
-  turns and sizes it, and the trigger puts it where you point.
+  turns and sizes it, and holding the trigger drags it.
 
 > The directions come from the survey's centreline, mostly a coarse Grade 2
 > survey with long legs: a guide to the shape of the way, not a
