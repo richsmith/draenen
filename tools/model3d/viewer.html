@@ -1454,9 +1454,9 @@ if (quickLook || webXR) {
   // there, or moves it; Smaller and bigger are buttons over the camera. On
   // a headset (in AR with passthrough, or in VR) it's set on the floor in
   // front of you, and the controllers move it: a grip to pick it up and
-  // carry it, both grips to pull it bigger or smaller, the thumbstick to
-  // turn it and size it, and the trigger to put it where the controller
-  // points on the floor.
+  // carry it, both grips to pull it bigger or smaller, the left thumbstick
+  // to turn it and size it, the right one to slide it across the floor, and
+  // the trigger to put it where the controller points on the floor.
   if (webXR) {
     const ui = $('xr-ui'), hint = $('xr-hint');
     const SIZES = [0.25, 0.5, 1, 2, 4];   // times the model's 2 m across
@@ -1636,7 +1636,8 @@ if (quickLook || webXR) {
       const help = panel([
         ['Grip', 'pick it up and carry it'],
         ['Both grips', 'pull apart or together to size it'],
-        ['Thumbstick', 'turn it, and size it'],
+        ['Left stick', 'turn it, and size it'],
+        ['Right stick', 'slide it across the floor'],
         ['Trigger', 'put it where you point'],
         ['Menu', 'the headset’s own button, to leave'],
       ], 0.5);
@@ -1737,21 +1738,30 @@ if (quickLook || webXR) {
           model.scale.setScalar(from.s * k);
         } else if (from && hs.length !== from.hs.length) grab();
 
-        // the thumbsticks: left and right to turn it, up and down to size it
+        // the thumbsticks: the left one turns it (left and right) and sizes it
+        // (up and down); the right one slides it across the floor, the way
+        // you're facing (faster the bigger it is)
         if (held.size < 2) {
-          let tx = 0, ty = 0;
+          let tx = 0, ty = 0, px = 0, pz = 0;
           for (const s of session.inputSources) {
             const ax = s.gamepad?.axes;
             if (!ax?.length) continue;
-            const x = ax.length >= 4 ? ax[2] : ax[0], y = ax.length >= 4 ? ax[3] : ax[1];
-            if (Math.abs(x) > 0.2) tx += x;
-            if (Math.abs(y) > 0.2) ty += y;
+            let x = ax.length >= 4 ? ax[2] : ax[0], y = ax.length >= 4 ? ax[3] : ax[1];
+            if (Math.abs(x) < 0.2) x = 0;
+            if (Math.abs(y) < 0.2) y = 0;
+            if (s.handedness === 'right') { px += x; pz += y; } else { tx += x; ty += y; }
           }
           if (tx || ty) {
             model.rotation.y -= tx * 1.6 * dt;
             model.scale.setScalar(THREE.MathUtils.clamp(model.scale.x * Math.exp(-ty * 1.2 * dt), MIN, MAX));
-            if (held.size) grab();
           }
+          const head = (px || pz) && frame.getViewerPose(ref);
+          if (head) {
+            const y = poseYaw(new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().fromArray(head.transform.matrix)));
+            v.set(px, 0, pz).applyAxisAngle(UP, y).multiplyScalar(0.8 * Math.max(1, model.scale.x) * dt);
+            model.position.add(v);
+          }
+          if (held.size && (tx || ty || head)) grab();
         }
       };
     }
