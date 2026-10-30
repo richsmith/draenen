@@ -53,8 +53,8 @@ entrances](https://paperclipmonkey.github.io/draenen/) on the landing page
   Quick Look; on Android (Chrome) it's WebXR, tapping to set it down. On a
   headset (WebXR, in passthrough or VR) it stands on the floor in front of
   you: a grip picks it up and carries it, both grips pull it bigger or
-  smaller, the left thumbstick turns and sizes it, the right one slides
-  it across the floor, and the trigger puts it where you point.
+  smaller, the left thumbstick slides it across the floor, the right one
+  turns and sizes it, and the trigger puts it where you point.
 
 > The directions come from the survey's centreline, mostly a coarse Grade 2
 > survey with long legs: a guide to the shape of the way, not a
