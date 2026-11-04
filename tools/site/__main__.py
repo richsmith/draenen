@@ -10,7 +10,8 @@ site/data/       the survey as Therion builds it: the plan (PDF) and the .3d
 
 Build the survey first (cd survey && therion draenen.thconfig). GitHub
 Actions builds both and publishes the site to GitHub Pages
-(.github/workflows/build.yml). Plain Python, no packages.
+(.github/workflows/build.yml). The 3D view needs cave-viewer
+(pip install -r tools/model3d/requirements.txt); the rest is plain Python.
 """
 import datetime
 import heapq

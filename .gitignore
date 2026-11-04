@@ -34,3 +34,6 @@
 !images/*.jpg
 tools/**/__pycache__/
 /site/
+
+# cave-viewer's work folder (tools/model3d)
+/build/
