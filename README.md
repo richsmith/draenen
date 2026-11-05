@@ -123,7 +123,7 @@ north.
 |---|---|
 | [`tools/names.py`](tools/names.py) | The names and the survey's place on the grid, for the other tools. |
 | [`tools/plan.py`](tools/plan.py) | Writes `survey/plan.th`: the plan's coloured ribbon, names and entrances. |
-| [`tools/model3d/`](tools/model3d/) | The 3D view and route planner; [`lidar/`](lidar/) keeps the LiDAR it's built on. |
+| [`caves.json`](caves.json), [`tools/model3d/`](tools/model3d/) | The 3D view and route planner, built by [cave-viewer](https://github.com/CaveSurveying/cave-viewer) as `caves.json` configures it; [`lidar/`](lidar/) keeps the LiDAR it's built on. |
 | [`tools/site/`](tools/site/) | The site: a landing page, the 3D view and the outputs. |
 
 ## Credits
