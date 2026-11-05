@@ -1,2 +1,2 @@
 # The 3D view is built by cave-viewer, pinned to a release
-cave-viewer @ git+https://github.com/CaveSurveying/cave-viewer@v0.5.0
+cave-viewer @ git+https://github.com/CaveSurveying/cave-viewer@v0.5.1
